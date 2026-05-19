@@ -1,0 +1,48 @@
+{ config, lib, pkgs, ... }:
+with lib;
+let
+  hwLib = import ../../../../lib/hardware.nix { inherit lib; };
+  gpuVendor = config.bora.hardware.gpuVendor or "amd";
+  gpuCfg = hwLib.gpu.${gpuVendor} or hwLib.gpu.amd;
+in {
+  options.bora.hardware = {
+    gpuVendor = mkOption {
+      type = types.enum [ "nvidia" "amd" "intel" ];
+      default = "amd";
+      description = "GPU vendor for optimal drivers";
+    };
+    enableNvidiaPrime = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Enable NVIDIA Optimus/PRIME (laptop)";
+    };
+  };
+  config = {
+    services.xserver.videoDrivers = gpuCfg.drivers;
+    hardware.nvidia = mkIf (gpuVendor == "nvidia") {
+      modesetting.enable = true;
+      powerManagement.enable = true;
+      powerManagement.finegrained = false;
+      open = false;
+      nvidiaSettings = false;
+      prime = {
+        sync.enable = config.bora.hardware.enableNvidiaPrime;
+        offload = {
+          enable = !config.bora.hardware.enableNvidiaPrime;
+          enableOffloadCmd = true;
+        };
+      };
+    };
+    boot.kernelParams = gpuCfg.kernelParams;
+    environment.sessionVariables = gpuCfg.env;
+    hardware.graphics = {
+      enable = true;
+      enable32Bit = true;
+      extraPackages = with pkgs; [
+        (if gpuVendor == "nvidia" then vaapiVdpau
+         else if gpuVendor == "intel" then intel-media-driver
+         else vaapiVdpau)
+      ];
+    };
+  };
+}
