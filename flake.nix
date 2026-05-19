@@ -114,8 +114,6 @@
             format = "iso";
           };
 
-          iso-minimal-validation = iso-minimal;
-
           iso-desktop = nixos-generators.nixosGenerate {
             inherit system;
             specialArgs = {
