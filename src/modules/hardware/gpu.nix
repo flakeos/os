@@ -39,9 +39,8 @@ in
       enable = true;
       enable32Bit = true;
       extraPackages = with pkgs; [
-        (if gpuVendor == "nvidia" then vaapiVdpau
-        else if gpuVendor == "intel" then intel-media-driver
-        else vaapiVdpau)
+        (if gpuVendor == "intel" then intel-media-driver
+        else libva-vdpau-driver)
       ];
     };
   };

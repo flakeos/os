@@ -141,6 +141,32 @@
             ];
             format = "iso";
           };
+
+          iso-server = nixos-generators.nixosGenerate {
+            inherit system;
+            specialArgs = {
+              inherit hardwareDB;
+              hostname = "bora-iso";
+              username = "bora";
+              hardwareProfile = "server";
+              systemProfile = "server";
+            };
+            modules = [
+              impermanence.nixosModules.impermanence
+              microvm.nixosModules.host
+              disko.nixosModules.disko
+              ./configuration.nix
+              ({ pkgs, lib, ... }: {
+                image.baseName = lib.mkDefault "bora-server";
+                boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
+                boot.kernelPackages = pkgs.linuxPackages_6_6;
+                nixpkgs.config.allowUnfree = true;
+                system.stateVersion = "25.11";
+                users.users.bora = { isNormalUser = true; };
+              })
+            ];
+            format = "iso";
+          };
         });
 
       devShells = forAllSystems (system:
