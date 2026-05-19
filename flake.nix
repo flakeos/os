@@ -102,14 +102,14 @@
               microvm.nixosModules.host
               disko.nixosModules.disko
               ./configuration.nix
-              ({ pkgs, ... }: {
+              { pkgs, lib, ... }: {
                 image.baseName = lib.mkDefault "bora";
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
                 boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
                 system.stateVersion = "25.11";
                 users.users.bora = { isNormalUser = true; };
-              })
+              }
             ];
             format = "iso";
           };
@@ -129,7 +129,7 @@
               disko.nixosModules.disko
               "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-calamares-plasma6.nix"
               ./configuration.nix
-              ({ pkgs, ... }: {
+              { pkgs, lib, ... }: {
                 image.baseName = lib.mkDefault "bora-desktop";
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
                 boot.kernelPackages = pkgs.linuxPackages_6_6;
@@ -137,7 +137,7 @@
                 services.xserver.enable = true;
                 system.stateVersion = "25.11";
                 users.users.bora = { isNormalUser = true; };
-              })
+              }
             ];
             format = "iso";
           };
