@@ -1,14 +1,25 @@
 { config, lib, pkgs, ... }:
 {
-  security.apparmor = {
-    enable = true;
-    enableCache = true;
-    packages = [ pkgs.apparmor-profiles ];
+  security = {
+    apparmor = {
+      enable = true;
+      enableCache = true;
+      packages = [ pkgs.apparmor-profiles ];
+    };
+    protectKernelImage = true;
+    allowUserNamespaces = true;
+    lockKernelModules = false;
+    wrappers = { };
+    audit = {
+      enable = true;
+      rules = [
+        "-w /etc/nixos -p wa -k nixos-config"
+        "-w /nix/store -p wa -k nix-store"
+        "-a exit,always -S execve -k process-exec"
+        "-a exit,always -S mount -k mount"
+      ];
+    };
   };
-  security.protectKernelImage = true;
-  security.allowUserNamespaces = true;
-  security.lockKernelModules = false;
-  security.wrappers = { };
   boot.kernelParams = [
     "quiet"
     "slab_nomerge"
@@ -21,23 +32,16 @@
     "module.sig_enforce=1"
     "lockdown=confidentiality"
   ];
-  systemd.services = {
-    avahi-daemon.enable = lib.mkDefault false;
-    cups.enable = lib.mkDefault false;
-    bluetooth.enable = lib.mkDefault false;
-  };
-  systemd.extraConfig = ''
-    DefaultTimeoutStopSec=10s
-    DefaultTimeoutStartSec=30s
-    DefaultDeviceTimeoutSec=30s
-  '';
-  security.audit = {
-    enable = true;
-    rules = [
-      "-w /etc/nixos -p wa -k nixos-config"
-      "-w /nix/store -p wa -k nix-store"
-      "-a exit,always -S execve -k process-exec"
-      "-a exit,always -S mount -k mount"
-    ];
+  systemd = {
+    services = {
+      avahi-daemon.enable = lib.mkDefault false;
+      cups.enable = lib.mkDefault false;
+      bluetooth.enable = lib.mkDefault false;
+    };
+    extraConfig = ''
+      DefaultTimeoutStopSec=10s
+      DefaultTimeoutStartSec=30s
+      DefaultDeviceTimeoutSec=30s
+    '';
   };
 }

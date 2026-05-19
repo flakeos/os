@@ -6,17 +6,23 @@ in
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ "zfs" ];
-  boot.kernelModules = [ "kvm-amd" "kvm-intel" ];
-  boot.extraModulePackages = [ ];
+  boot = {
+    initrd = {
+      availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usb_storage" "sd_mod" ];
+      kernelModules = [ "zfs" ];
+    };
+    kernelModules = [ "kvm-amd" "kvm-intel" ];
+    extraModulePackages = [ ];
+  };
 
-  fileSystems."/" = { device = "zroot/root"; fsType = "zfs"; };
-  fileSystems."/nix" = { device = "zroot/root/nix"; fsType = "zfs"; };
-  fileSystems."/home" = { device = "zroot/root/home"; fsType = "zfs"; };
-  fileSystems."/var" = { device = "zroot/root/var"; fsType = "zfs"; };
-  fileSystems."/tmp" = { device = "zroot/root/tmp"; fsType = "zfs"; };
-  fileSystems."/boot" = { device = fsCfg.bootDevice; fsType = "vfat"; };
+  fileSystems = {
+    "/" = { device = "zroot/root"; fsType = "zfs"; };
+    "/nix" = { device = "zroot/root/nix"; fsType = "zfs"; };
+    "/home" = { device = "zroot/root/home"; fsType = "zfs"; };
+    "/var" = { device = "zroot/root/var"; fsType = "zfs"; };
+    "/tmp" = { device = "zroot/root/tmp"; fsType = "zfs"; };
+    "/boot" = { device = fsCfg.bootDevice; fsType = "vfat"; };
+  };
 
   swapDevices = [ ];
 

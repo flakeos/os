@@ -1,7 +1,7 @@
 { config, lib, pkgs, hardwareDB, ... }:
 with lib;
 let
-  profileOpts = hardwareDB.profileOpts;
+  inherit (hardwareDB) profileOpts;
 in
 {
   options.bora.hardwareProfile = mkOption {

@@ -23,6 +23,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
       - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
       - name: Lint Nix
         run: |
           nix develop --impure --command statix check src
@@ -36,6 +38,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
       - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
       - name: Build minimal ISO
         run: |
           NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
@@ -54,6 +58,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
       - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
       - name: Build graphical ISO
         run: |
           NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
