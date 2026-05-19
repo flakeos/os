@@ -82,10 +82,6 @@ in
         emoji = [ "Noto Color Emoji" ];
       };
     };
-    xdg.portal = {
-      enable = true;
-      extraPortals = [ kdePackages.xdg-desktop-portal-kde ];
-      configPackages = [ kdePackages.xdg-desktop-portal-kde ];
-    };
+    xdg.portal.enable = true;
   };
 }
