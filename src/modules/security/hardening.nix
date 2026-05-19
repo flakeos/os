@@ -38,10 +38,10 @@
       cups.enable = lib.mkDefault false;
       bluetooth.enable = lib.mkDefault false;
     };
-    extraConfig = ''
-      DefaultTimeoutStopSec=10s
-      DefaultTimeoutStartSec=30s
-      DefaultDeviceTimeoutSec=30s
-    '';
+    settings.Manager = {
+      DefaultTimeoutStopSec = "10s";
+      DefaultTimeoutStartSec = "30s";
+      DefaultDeviceTimeoutSec = "30s";
+    };
   };
 }

@@ -84,8 +84,8 @@ in
     };
     xdg.portal = {
       enable = true;
-      extraPortals = [ pkgs.xdg-desktop-portal-kde ];
-      configPackages = [ pkgs.xdg-desktop-portal-kde ];
+      extraPortals = [ kdePackages.xdg-desktop-portal-kde ];
+      configPackages = [ kdePackages.xdg-desktop-portal-kde ];
     };
   };
 }
