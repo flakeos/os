@@ -7,14 +7,12 @@ on:
     paths-ignore:
       - "docs/**"
       - "**.md"
-      - ".github/**"
   pull_request:
     branches:
       - main
     paths-ignore:
       - "docs/**"
       - "**.md"
-      - ".github/**"
 
 jobs:
   lint:
