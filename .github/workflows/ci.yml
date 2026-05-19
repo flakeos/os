@@ -45,6 +45,20 @@ jobs:
         run: |
           nix-instantiate --eval tests/modules.nix
 
+  test-benchmark:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
+      - name: Run tests and benchmarks
+        run: |
+          nix-instantiate --eval --strict tests/default.nix
+          nix-instantiate --eval --strict tests/modules.nix
+
   build-iso-minimal:
     runs-on: ubuntu-latest
     needs: [lint]
@@ -59,23 +73,37 @@ jobs:
           NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
             '.#packages.x86_64-linux.iso-minimal' --no-link
 
-  build-iso-graphical:
+  build-iso-laptop:
     runs-on: ubuntu-latest
-    needs: [lint]
+    needs: [build-iso-minimal]
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
       - uses: DeterminateSystems/magic-nix-cache-action@v8
         with:
           use-flakehub: false
-      - name: Validate graphical ISO
+      - name: Validate laptop ISO
         run: |
           NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
-            '.#packages.x86_64-linux.iso-graphical' --no-link
+            '.#packages.x86_64-linux.iso-laptop' --no-link
+
+  build-iso-desktop:
+    runs-on: ubuntu-latest
+    needs: [build-iso-minimal]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
+      - name: Validate desktop ISO
+        run: |
+          NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
+            '.#packages.x86_64-linux.iso-desktop' --no-link
 
   build-iso-server:
     runs-on: ubuntu-latest
-    needs: [lint]
+    needs: [build-iso-minimal]
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14

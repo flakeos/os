@@ -114,7 +114,9 @@
             format = "iso";
           };
 
-          iso-graphical = nixos-generators.nixosGenerate {
+          iso-minimal-validation = iso-minimal;
+
+          iso-desktop = nixos-generators.nixosGenerate {
             inherit system;
             specialArgs = {
               inherit hardwareDB;
@@ -135,6 +137,32 @@
                 boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
                 services.xserver.enable = true;
+                system.stateVersion = "25.11";
+                users.users.bora = { isNormalUser = true; };
+              })
+            ];
+            format = "iso";
+          };
+
+          iso-laptop = nixos-generators.nixosGenerate {
+            inherit system;
+            specialArgs = {
+              inherit hardwareDB;
+              hostname = "bora-iso";
+              username = "bora";
+              hardwareProfile = "laptop";
+              systemProfile = "minimal";
+            };
+            modules = [
+              impermanence.nixosModules.impermanence
+              microvm.nixosModules.host
+              disko.nixosModules.disko
+              ./configuration.nix
+              ({ pkgs, lib, ... }: {
+                image.baseName = lib.mkDefault "bora-laptop";
+                boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
+                boot.kernelPackages = pkgs.linuxPackages_6_6;
+                nixpkgs.config.allowUnfree = true;
                 system.stateVersion = "25.11";
                 users.users.bora = { isNormalUser = true; };
               })
