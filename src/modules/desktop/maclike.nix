@@ -61,23 +61,25 @@ in
         QT_AUTO_SCREEN_SET_FACTOR = "0";
         QT_SCALE_FACTOR_ROUNDING_POLICY = "RoundPreferFloor";
       };
-      etc."skel/.config/plasma-org.kde.plasma.desktop-appletsrc".source =
-        ./../../../../config/desktop/plasma-appletsrc;
-      etc."skel/.config/kdeglobals".source =
-        ./../../../../config/desktop/kdeglobals;
-      etc."skel/.config/kwinrc".source =
-        ./../../../../config/desktop/kwinrc;
-      etc."skel/.config/khotkeysrc".text =
-        builtins.replaceStrings [ "Alt+F1" ] [ cfg.nexusKey ]
-          (builtins.readFile ./../../../../config/desktop/khotkeysrc);
-      etc."skel/.config/plasmarc".text = ''
-        [Theme]
-        name=Breeze
-        [Wallpaper]
-        fillMode=2
-        [PlasmaViews]
-        PanelOpacity=${if cfg.enableTransparency then "0.70" else "1.0"}
-      '';
+      etc = {
+        "skel/.config/plasma-org.kde.plasma.desktop-appletsrc".source =
+          ./../../../../config/desktop/plasma-appletsrc;
+        "skel/.config/kdeglobals".source =
+          ./../../../../config/desktop/kdeglobals;
+        "skel/.config/kwinrc".source =
+          ./../../../../config/desktop/kwinrc;
+        "skel/.config/khotkeysrc".text =
+          builtins.replaceStrings [ "Alt+F1" ] [ cfg.nexusKey ]
+            (builtins.readFile ./../../../../config/desktop/khotkeysrc);
+        "skel/.config/plasmarc".text = ''
+          [Theme]
+          name=Breeze
+          [Wallpaper]
+          fillMode=2
+          [PlasmaViews]
+          PanelOpacity=${if cfg.enableTransparency then "0.70" else "1.0"}
+        '';
+      };
     };
 
     system.activationScripts.bora-desktop = stringAfter [ "etc" ] ''
