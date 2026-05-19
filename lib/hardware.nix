@@ -88,7 +88,6 @@ in rec {
       powerManagement.enable = true;
       powerManagement.cpuFreqGovernor = "performance";
       services.power-profiles-daemon.enable = false;
-      hardware.nvidia.prime.sync.enable = true;
     };
     laptop = {
       powerManagement.enable = true;

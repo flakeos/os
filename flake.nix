@@ -103,7 +103,7 @@
               disko.nixosModules.disko
               ./configuration.nix
               ({ pkgs, ... }: {
-                isoImage.isoBaseName = "bora";
+                image.baseName = lib.mkDefault "bora";
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
                 boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
@@ -130,7 +130,7 @@
               "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-calamares-plasma6.nix"
               ./configuration.nix
               ({ pkgs, ... }: {
-                isoImage.isoBaseName = "bora-desktop";
+                image.baseName = lib.mkDefault "bora-desktop";
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
                 boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
