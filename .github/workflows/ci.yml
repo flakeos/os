@@ -44,6 +44,8 @@ jobs:
       - name: Evaluate module integration tests
         run: |
           nix-instantiate --eval tests/modules.nix
+
+  build-iso-minimal:
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
