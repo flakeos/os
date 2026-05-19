@@ -2,7 +2,7 @@
   description = "Bora NixOS — Modulare · Atomico · Universale · Strict-Hard — ALPHA v0.1.0";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nixos-generators = {
@@ -127,7 +127,7 @@
               impermanence.nixosModules.impermanence
               microvm.nixosModules.host
               disko.nixosModules.disko
-              "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-kde.nix"
+              "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-calamares-plasma6.nix"
               ./configuration.nix
               ({ pkgs, ... }: {
                 isoImage.isoBaseName = "bora-desktop";
