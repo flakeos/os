@@ -19,10 +19,19 @@
     home-manager.url = "github:nix-community/home-manager";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, nixos-hardware
-            , nixos-generators, impermanence, microvm, disko
-            , sops-nix, home-manager, ...
-            }:
+  outputs =
+    { self
+    , nixpkgs
+    , nixpkgs-unstable
+    , nixos-hardware
+    , nixos-generators
+    , impermanence
+    , microvm
+    , disko
+    , sops-nix
+    , home-manager
+    , ...
+    }:
     let
       systems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
@@ -55,24 +64,30 @@
           ] ++ optional (hostConfig ? extraModules) hostConfig.extraModules;
         };
 
-      hosts = builtins.foldl' (acc: hostname:
-        let
-          hostConfig =
-            if builtins.pathExists (hostsDir + "/${hostname}/meta.nix")
-            then import (hostsDir + "/${hostname}/meta.nix")
-            else { };
-        in acc // {
-          ${hostname} = mkHost hostname hostConfig;
-        }
-      ) { } availableHosts;
+      hosts = builtins.foldl'
+        (acc: hostname:
+          let
+            hostConfig =
+              if builtins.pathExists (hostsDir + "/${hostname}/meta.nix")
+              then import (hostsDir + "/${hostname}/meta.nix")
+              else { };
+          in
+          acc // {
+            ${hostname} = mkHost hostname hostConfig;
+          }
+        )
+        { }
+        availableHosts;
 
-    in {
+    in
+    {
       nixosConfigurations = hosts;
 
       packages = forAllSystems (system:
         let
           pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
-        in {
+        in
+        {
           iso-minimal = nixos-generators.nixosGenerate {
             inherit system;
             specialArgs = {
@@ -132,9 +147,11 @@
         let pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
         in {
           default = pkgs.mkShell {
+            name = "bora-dev-shell";
             buildInputs = with pkgs; [
-              nixos-generators nixos-anywhere
-              nixpkgs-fmt statix deadnix comma
+              nixpkgs-fmt
+              statix
+              deadnix
             ];
           };
         });
