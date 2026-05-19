@@ -12,7 +12,7 @@ let cfg = config.bora.containers.microvm; in {
   config = mkIf cfg.enable {
     microvm = {
       host.enable = true;
-      stateDir = cfg.stateDir;
+      inherit (cfg) stateDir;
     };
     fileSystems.${cfg.stateDir} = {
       device = "zroot/root/microvm";

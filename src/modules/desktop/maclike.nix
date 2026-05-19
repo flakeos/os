@@ -31,54 +31,54 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      plasma6
-      kdePackages.plasma-workspace
-      kdePackages.kwin
-      kdePackages.konsole
-      kdePackages.systemsettings
-      kdePackages.dolphin
-      kdePackages.kate
-      kdePackages.qqc2-desktop-style
-      kdePackages.qqc2-breeze-style
-      kdePackages.breeze-icons
-      kdePackages.breeze-gtk
-      kdePackages.breeze-qt5
-      kdePackages.plasma-integration
-      tela-circle-icon-theme
-      (kdePackages.plasma6.pkgs.applet-window-buttons or kdePackages.applet-window-buttons)
-      (kdePackages.plasma6.pkgs.applet-window-title or kdePackages.applet-window-title)
-      initScript
-      finalizeScript
-    ];
-
-    environment.sessionVariables = {
-      KDE_SESSION_VERSION = "6";
-      XDG_CURRENT_DESKTOP = "KDE";
-      XDG_SESSION_DESKTOP = "KDE";
-      DESKTOP_SESSION = "plasmawayland";
-      PLASMA_USE_QT_SCALING = "1";
-      QT_AUTO_SCREEN_SET_FACTOR = "0";
-      QT_SCALE_FACTOR_ROUNDING_POLICY = "RoundPreferFloor";
+    environment = {
+      systemPackages = with pkgs; [
+        plasma6
+        kdePackages.plasma-workspace
+        kdePackages.kwin
+        kdePackages.konsole
+        kdePackages.systemsettings
+        kdePackages.dolphin
+        kdePackages.kate
+        kdePackages.qqc2-desktop-style
+        kdePackages.qqc2-breeze-style
+        kdePackages.breeze-icons
+        kdePackages.breeze-gtk
+        kdePackages.breeze-qt5
+        kdePackages.plasma-integration
+        tela-circle-icon-theme
+        (kdePackages.plasma6.pkgs.applet-window-buttons or kdePackages.applet-window-buttons)
+        (kdePackages.plasma6.pkgs.applet-window-title or kdePackages.applet-window-title)
+        initScript
+        finalizeScript
+      ];
+      sessionVariables = {
+        KDE_SESSION_VERSION = "6";
+        XDG_CURRENT_DESKTOP = "KDE";
+        XDG_SESSION_DESKTOP = "KDE";
+        DESKTOP_SESSION = "plasmawayland";
+        PLASMA_USE_QT_SCALING = "1";
+        QT_AUTO_SCREEN_SET_FACTOR = "0";
+        QT_SCALE_FACTOR_ROUNDING_POLICY = "RoundPreferFloor";
+      };
+      etc."skel/.config/plasma-org.kde.plasma.desktop-appletsrc".source =
+        ./../../../../config/desktop/plasma-appletsrc;
+      etc."skel/.config/kdeglobals".source =
+        ./../../../../config/desktop/kdeglobals;
+      etc."skel/.config/kwinrc".source =
+        ./../../../../config/desktop/kwinrc;
+      etc."skel/.config/khotkeysrc".text =
+        builtins.replaceStrings [ "Alt+F1" ] [ cfg.nexusKey ]
+          (builtins.readFile ./../../../../config/desktop/khotkeysrc);
+      etc."skel/.config/plasmarc".text = ''
+        [Theme]
+        name=Breeze
+        [Wallpaper]
+        fillMode=2
+        [PlasmaViews]
+        PanelOpacity=${if cfg.enableTransparency then "0.70" else "1.0"}
+      '';
     };
-
-    environment.etc."skel/.config/plasma-org.kde.plasma.desktop-appletsrc".source =
-      ./../../../../config/desktop/plasma-appletsrc;
-    environment.etc."skel/.config/kdeglobals".source =
-      ./../../../../config/desktop/kdeglobals;
-    environment.etc."skel/.config/kwinrc".source =
-      ./../../../../config/desktop/kwinrc;
-    environment.etc."skel/.config/khotkeysrc".text =
-      builtins.replaceStrings [ "Alt+F1" ] [ cfg.nexusKey ]
-        (builtins.readFile ./../../../../config/desktop/khotkeysrc);
-    environment.etc."skel/.config/plasmarc".text = ''
-      [Theme]
-      name=Breeze
-      [Wallpaper]
-      fillMode=2
-      [PlasmaViews]
-      PanelOpacity=${if cfg.enableTransparency then "0.70" else "1.0"}
-    '';
 
     system.activationScripts.bora-desktop = stringAfter [ "etc" ] ''
       mkdir -p /etc/skel/.config/autostart

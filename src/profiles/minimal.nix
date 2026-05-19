@@ -2,12 +2,16 @@
 with lib;
 {
   bora = {
-    desktop.kde.enable = mkDefault false;
-    desktop.audio.enable = mkDefault false;
-    desktop.layout.enable = mkDefault false;
+    desktop = {
+      kde.enable = mkDefault false;
+      audio.enable = mkDefault false;
+      layout.enable = mkDefault false;
+    };
     hardwareProfile = mkDefault "server";
-    hardware.cpuVendor = mkDefault "intel";
-    hardware.gpuVendor = mkDefault "intel";
+    hardware = {
+      cpuVendor = mkDefault "intel";
+      gpuVendor = mkDefault "intel";
+    };
   };
 
   services.openssh.enable = true;
