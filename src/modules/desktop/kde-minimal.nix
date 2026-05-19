@@ -17,7 +17,8 @@ let
     dolphin
     kate
   ];
-in {
+in
+{
   options.bora.desktop.kde = {
     enable = mkEnableOption "KDE Plasma 6 minimal desktop";
     enableWayland = mkOption {

@@ -11,7 +11,7 @@
     };
     impermanence.url = "github:nix-community/impermanence";
     microvm = {
-      url = "github:astro/microvm";
+      url = "github:microvm-nix/microvm.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     disko.url = "github:nix-community/disko";
@@ -26,18 +26,19 @@
     let
       systems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
-      boraLib = import ./lib { inherit nixpkgs; };
       inherit (builtins) readDir attrNames;
       inherit (nixpkgs.lib) optional;
 
       hostsDir = ./src/hosts;
       availableHosts = attrNames (readDir hostsDir);
 
+      hardwareDB = import ./lib/hardware.nix { lib = nixpkgs.lib; };
+
       mkHost = hostname: hostConfig:
         nixpkgs.lib.nixosSystem {
           system = hostConfig.system or "x86_64-linux";
           specialArgs = {
-            inherit boraLib self;
+            inherit hardwareDB self;
             hostname = hostname;
             username = hostConfig.username or "user";
             hardwareProfile = hostConfig.hardware or "desktop";
@@ -74,16 +75,25 @@
         in {
           iso-minimal = nixos-generators.nixosGenerate {
             inherit system;
+            specialArgs = {
+              inherit hardwareDB;
+              hostname = "bora-iso";
+              username = "bora";
+              hardwareProfile = "desktop";
+              systemProfile = "minimal";
+            };
             modules = [
               impermanence.nixosModules.impermanence
+              microvm.nixosModules.host
               disko.nixosModules.disko
               ./configuration.nix
               ({ pkgs, ... }: {
                 isoImage.isoBaseName = "bora";
-                isoImage.compress = true;
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
+                boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
                 system.stateVersion = "24.11";
+                users.users.bora = { isNormalUser = true; };
               })
             ];
             format = "iso";
@@ -91,18 +101,27 @@
 
           iso-graphical = nixos-generators.nixosGenerate {
             inherit system;
+            specialArgs = {
+              inherit hardwareDB;
+              hostname = "bora-iso";
+              username = "bora";
+              hardwareProfile = "desktop";
+              systemProfile = "workstation";
+            };
             modules = [
               impermanence.nixosModules.impermanence
+              microvm.nixosModules.host
               disko.nixosModules.disko
               "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-kde.nix"
               ./configuration.nix
               ({ pkgs, ... }: {
                 isoImage.isoBaseName = "bora-desktop";
-                isoImage.compress = true;
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
+                boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
                 services.xserver.enable = true;
                 system.stateVersion = "24.11";
+                users.users.bora = { isNormalUser = true; };
               })
             ];
             format = "iso";

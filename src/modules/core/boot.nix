@@ -6,7 +6,7 @@
       configurationLimit = 20;
     };
     efi.canTouchEfiVariables = true;
-    timeout = 3;
+    timeout = lib.mkDefault 3;
   };
   boot.kernelParams = [
     "quiet"

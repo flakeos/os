@@ -50,7 +50,6 @@
       ];
     };
   };
-  };
   fileSystems."/persist" = {
     device = "zroot/root/persist";
     fsType = "zfs";

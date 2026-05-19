@@ -21,7 +21,6 @@
         "astro-microvm.cachix.org-1:5VxKj9V5rE1xJgF2gQvA0Z3L8R6bH7cN4pY9sW1tXnM="
       ];
       trusted-users = [ "root" "@wheel" ];
-      auto-optimise-store = true;
     };
     gc = {
       automatic = true;

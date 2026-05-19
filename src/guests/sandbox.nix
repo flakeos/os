@@ -28,7 +28,8 @@
   services.pipewire.enable = true;
 
   environment.systemPackages = with pkgs; [
-    firefox chromium
+    firefox
+    chromium
   ];
 
   system.stateVersion = "24.11";

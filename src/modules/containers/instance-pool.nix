@@ -11,7 +11,8 @@ let
     (builtins.readFile (scriptsDir + "/list.sh"));
   statsScript = pkgs.writeShellScriptBin "pool-stats"
     (builtins.readFile (scriptsDir + "/stats.sh"));
-in {
+in
+{
   options.bora.containers.instancePool = {
     enable = mkEnableOption "MicroVM instance pool orchestrator";
     maxInstances = mkOption {
@@ -125,7 +126,10 @@ in {
       { from = cfg.basePort; to = cfg.basePort + cfg.maxInstances; }
     ];
     environment.systemPackages = [
-      poolManager spawnScript listScript statsScript
+      poolManager
+      spawnScript
+      listScript
+      statsScript
     ];
   };
 }

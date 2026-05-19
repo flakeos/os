@@ -1,10 +1,10 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, hardwareDB, ... }:
 with lib;
 let
-  hwLib = import ../../../../lib/hardware.nix { inherit lib; };
   cpuVendor = config.bora.hardware.cpuVendor or "intel";
-  cpuCfg = hwLib.cpu.${cpuVendor} or hwLib.cpu.intel;
-in {
+  cpuCfg = hardwareDB.cpu.${cpuVendor} or hardwareDB.cpu.intel;
+in
+{
   options.bora.hardware = {
     cpuVendor = mkOption {
       type = types.enum [ "intel" "amd" "arm" ];
@@ -23,8 +23,8 @@ in {
     boot.kernelModules = cpuCfg.kernelModules;
     boot.kernelParams = cpuCfg.kernelParams
       ++ (if config.bora.hardware.enableMitigations
-          then [ "mitigations=auto" ]
-          else [ "mitigations=off" ]);
-    powerManagement.cpuFreqGovernor = cpuCfg.power.governor;
+    then [ "mitigations=auto" ]
+    else [ "mitigations=off" ]);
+    powerManagement.cpuFreqGovernor = mkDefault cpuCfg.power.governor;
   };
 }

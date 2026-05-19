@@ -1,4 +1,7 @@
 { config, lib, pkgs, modulesPath, ... }:
+let
+  fsCfg = config.bora.filesystem;
+in
 
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
@@ -13,7 +16,7 @@
   fileSystems."/home" = { device = "zroot/root/home"; fsType = "zfs"; };
   fileSystems."/var" = { device = "zroot/root/var"; fsType = "zfs"; };
   fileSystems."/tmp" = { device = "zroot/root/tmp"; fsType = "zfs"; };
-  fileSystems."/boot" = { device = "/dev/disk/by-uuid/BOOT-UUID"; fsType = "vfat"; };
+  fileSystems."/boot" = { device = fsCfg.bootDevice; fsType = "vfat"; };
 
   swapDevices = [ ];
 

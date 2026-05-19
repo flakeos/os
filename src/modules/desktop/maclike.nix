@@ -6,7 +6,8 @@ let
     (builtins.readFile ./../../../../scripts/maclike/init-desktop.sh);
   finalizeScript = pkgs.writeShellScriptBin "bora-desktop-finalize"
     (builtins.readFile ./../../../../scripts/maclike/finalize.sh);
-in {
+in
+{
   options.bora.desktop.layout = {
     enable = mkEnableOption "Bora custom desktop layout";
     theme = mkOption {
@@ -31,16 +32,24 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      plasma6 kdePackages.plasma-workspace kdePackages.kwin
-      kdePackages.konsole kdePackages.systemsettings
-      kdePackages.dolphin kdePackages.kate
-      kdePackages.qqc2-desktop-style kdePackages.qqc2-breeze-style
-      kdePackages.breeze-icons kdePackages.breeze-gtk
-      kdePackages.breeze-qt5 kdePackages.plasma-integration
+      plasma6
+      kdePackages.plasma-workspace
+      kdePackages.kwin
+      kdePackages.konsole
+      kdePackages.systemsettings
+      kdePackages.dolphin
+      kdePackages.kate
+      kdePackages.qqc2-desktop-style
+      kdePackages.qqc2-breeze-style
+      kdePackages.breeze-icons
+      kdePackages.breeze-gtk
+      kdePackages.breeze-qt5
+      kdePackages.plasma-integration
       tela-circle-icon-theme
       (kdePackages.plasma6.pkgs.applet-window-buttons or kdePackages.applet-window-buttons)
       (kdePackages.plasma6.pkgs.applet-window-title or kdePackages.applet-window-title)
-      initScript finalizeScript
+      initScript
+      finalizeScript
     ];
 
     environment.sessionVariables = {
@@ -82,14 +91,6 @@ in {
       OnlyShowIn=KDE
       EOF
     '';
-
-    xdg.desktopEntries.bora-desktop = {
-      name = "Bora Desktop";
-      exec = "startplasma-wayland";
-      type = "Application";
-      categories = [ "Desktop" "KDE" ];
-      desktopName = "Plasma (Bora Layout)";
-    };
 
     services.displayManager.sddm.wayland.enable = true;
     services.desktopManager.plasma6.enableQt5Integration = false;

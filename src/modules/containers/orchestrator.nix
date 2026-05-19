@@ -2,7 +2,8 @@
 with lib;
 let
   cfg = config.bora.orchestrator;
-in {
+in
+{
   options.bora.orchestrator = {
     enable = mkEnableOption "MicroVM instance orchestrator";
     maxInstances = mkOption {
@@ -34,7 +35,6 @@ in {
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.nixos-boot}/bin/nixos-boot";
         Restart = "always";
         RestartSec = 10;
         StateDirectory = "bora-orchestrator";
@@ -46,4 +46,14 @@ in {
         echo "+cpu +memory +io +pids" > /sys/fs/cgroup/cgroup.subtree_control 2>/dev/null || true
         mkdir -p /sys/fs/cgroup/bora 2>/dev/null || true
         while true; do
-          for vm in /var/lib/microvm
+          for vm in /var/lib/microvm/*/; do
+            [ -d "$vm" ] || continue
+            vm_name=$(basename "$vm")
+            echo "checking microvm $vm_name"
+          done
+          sleep 30
+        done
+      '';
+    };
+  };
+}

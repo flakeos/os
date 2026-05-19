@@ -1,10 +1,10 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, hardwareDB, ... }:
 with lib;
 let
-  hwLib = import ../../../../lib/hardware.nix { inherit lib; };
   gpuVendor = config.bora.hardware.gpuVendor or "amd";
-  gpuCfg = hwLib.gpu.${gpuVendor} or hwLib.gpu.amd;
-in {
+  gpuCfg = hardwareDB.gpu.${gpuVendor} or hardwareDB.gpu.amd;
+in
+{
   options.bora.hardware = {
     gpuVendor = mkOption {
       type = types.enum [ "nvidia" "amd" "intel" ];
@@ -40,8 +40,8 @@ in {
       enable32Bit = true;
       extraPackages = with pkgs; [
         (if gpuVendor == "nvidia" then vaapiVdpau
-         else if gpuVendor == "intel" then intel-media-driver
-         else vaapiVdpau)
+        else if gpuVendor == "intel" then intel-media-driver
+        else vaapiVdpau)
       ];
     };
   };

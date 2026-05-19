@@ -12,7 +12,7 @@ table inet filter {
       time-exceeded, parameter-problem
     } limit rate 10/second accept;
 
-    ip6 icmpv6 type {
+    meta l4proto ipv6-icmp icmpv6 type {
       echo-request, destination-unreachable,
       time-exceeded, parameter-problem,
       nd-router-advert, nd-neighbor-solicit,
@@ -36,8 +36,7 @@ table inet filter {
     type filter hook forward priority 0; policy drop;
     ct state { established, related } accept;
 
-    iifname "microvm" oifname "microvm" accept;
-    iifname "microvm" oifname "eth0" masquerade accept;
+    iifname "microvm" accept;
 
     log prefix "NF:DROP-FORWARD: " drop;
   }

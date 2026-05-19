@@ -13,7 +13,13 @@ with lib;
   };
 
   environment.systemPackages = with pkgs; [
-    gcc clang nodejs python3 rustc cargo go
+    gcc
+    clang
+    nodejs
+    python3
+    rustc
+    cargo
+    go
     nginx
   ];
 }
