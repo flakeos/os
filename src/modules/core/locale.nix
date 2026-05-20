@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   time.timeZone = lib.mkDefault "Europe/Rome";
   i18n = {

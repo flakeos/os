@@ -1,7 +1,7 @@
 { system ? builtins.currentSystem, nixpkgs ? import <nixpkgs> { inherit system; } }:
 
 let
-  lib = nixpkgs.lib;
+  inherit (nixpkgs) lib;
   boraLib = import ../lib { inherit nixpkgs; };
   hw = boraLib.hardware;
 
@@ -10,7 +10,7 @@ let
   assertEq = name: actual: expected:
     if actual == expected
     then { ${name} = { ok = true; }; }
-    else { ${name} = { ok = false; expected = expected; actual = actual; }; };
+    else { ${name} = { ok = false; inherit expected actual; }; };
 
 in
 
@@ -106,7 +106,6 @@ in
         sorted = spring.tsort (spring.beanGraph healthyBeans);
         names = map (n: n.name) sorted;
         dbIdx = builtins.elemAt (builtins.filter (i: builtins.elemAt names i == "database") (lib.genList (x: x) (builtins.length names))) 0;
-        cacheIdx = builtins.elemAt (builtins.filter (i: builtins.elemAt names i == "cache") (lib.genList (x: x) (builtins.length names))) 0;
         webappIdx = builtins.elemAt (builtins.filter (i: builtins.elemAt names i == "webapp") (lib.genList (x: x) (builtins.length names))) 0;
       in
       assertEq "tsort.database_before_webapp" (dbIdx < webappIdx) true;
@@ -170,7 +169,6 @@ in
 (
   let
     boraLib = import ../lib { inherit nixpkgs; };
-    scanModules = boraLib.scanModules;
   in
   {
     testAtomicPreRebuildSnapshot = assertEq "atomic.preRebuildSnapshot"

@@ -1,4 +1,4 @@
-{ config, lib, pkgs, hardwareDB, ... }:
+{ config, lib, hardwareDB, ... }:
 with lib;
 let
   inherit (hardwareDB) profileOpts;

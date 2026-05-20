@@ -1,4 +1,4 @@
-{ config, lib, pkgs, modulesPath, ... }:
+{ config, lib, modulesPath, ... }:
 let
   fsCfg = config.bora.filesystem;
 in

@@ -1,4 +1,4 @@
-{ config, lib, pkgs, hardwareDB, ... }:
+_:
 {
   imports = [
     ./cpu.nix

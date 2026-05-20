@@ -1,7 +1,6 @@
-{ lib }:
-let
-  inherit (lib) mkIf mkDefault mkMerge toList;
-in rec {
+_:
+
+rec {
   cpu = {
     intel = {
       name = "Intel";
@@ -87,21 +86,25 @@ in rec {
     desktop = {
       powerManagement.enable = true;
       powerManagement.cpuFreqGovernor = "performance";
-      services.power-profiles-daemon.enable = false;
+      services.power-profiles-daemon = { enable = false; };
     };
     laptop = {
       powerManagement.enable = true;
       powerManagement.cpuFreqGovernor = "powersave";
-      services.power-profiles-daemon.enable = true;
-      services.tlp.enable = true;
-      services.auto-cpufreq.enable = true;
+      services = {
+        power-profiles-daemon = { enable = true; };
+        tlp = { enable = true; };
+        auto-cpufreq = { enable = true; };
+      };
       boot.kernelParams = [ "acpi_osi=Linux" ];
     };
     server = {
       powerManagement.enable = false;
       powerManagement.cpuFreqGovernor = "performance";
-      services.power-profiles-daemon.enable = false;
-      services.tlp.enable = false;
+      services = {
+        power-profiles-daemon = { enable = false; };
+        tlp = { enable = false; };
+      };
       boot.kernelParams = [ "nmi_watchdog=0" "nowatchdog" ];
     };
   };

@@ -2,7 +2,7 @@
 with lib;
 let
   cfg = config.bora.containers.instancePool;
-  scriptsDir = ./../../../../scripts/pool;
+  scriptsDir = ./../../../scripts/pool;
   poolManager = pkgs.writeShellScriptBin "pool-manager"
     (builtins.readFile (scriptsDir + "/pool-manager.sh"));
   spawnScript = pkgs.writeShellScriptBin "pool-spawn"
@@ -102,7 +102,7 @@ in
           LimitNPROC = 1048576;
         };
         script = ''
-          ${builtins.readFile ./../../../../scripts/pool/pool-manager.sh}
+          ${builtins.readFile (scriptsDir + "/pool-manager.sh")}
         '';
       };
     };

@@ -1,4 +1,4 @@
-{ config, lib, pkgs, hardwareDB, ... }:
+{ config, lib, hardwareDB, ... }:
 with lib;
 let
   cpuVendor = config.bora.hardware.cpuVendor or "intel";

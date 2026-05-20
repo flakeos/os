@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, ... }:
 with lib;
 let cfg = config.bora.containers.microvm; in {
   options.bora.containers.microvm = {

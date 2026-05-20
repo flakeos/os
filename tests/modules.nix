@@ -1,13 +1,10 @@
 { system ? builtins.currentSystem, nixpkgs ? import <nixpkgs> { inherit system; } }:
 
 let
-  lib = nixpkgs.lib;
-  inherit (builtins) toString;
-
   assertEq = name: actual: expected:
     if actual == expected
     then { ${name} = { ok = true; }; }
-    else { ${name} = { ok = false; expected = expected; actual = actual; }; };
+    else { ${name} = { ok = false; inherit expected actual; }; };
 in
 
 # =============================================================================
@@ -15,14 +12,14 @@ in
   # =============================================================================
 (
   let
-    hardwareDB = import ../lib/hardware.nix { lib = nixpkgs.lib; };
+    hardwareDB = import ../lib/hardware.nix { inherit (nixpkgs) lib; };
 
     # Minimal NixOS config that exercises module loading via configuration.nix
     minimalConfig = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ../configuration.nix
-        ({ pkgs, lib, ... }: {
+        (_: {
           system.stateVersion = "25.11";
           users.users.root.hashedPassword = "!";
           boot.loader.grub.enable = false;
@@ -77,7 +74,7 @@ in
 # =============================================================================
 (
   let
-    hardwareDB = import ../lib/hardware.nix { lib = nixpkgs.lib; };
+    hardwareDB = import ../lib/hardware.nix { inherit (nixpkgs) lib; };
 
     makeConfig = profile:
       let
@@ -85,7 +82,7 @@ in
           system = "x86_64-linux";
           modules = [
             ../configuration.nix
-            ({ pkgs, lib, ... }: {
+            (_: {
               system.stateVersion = "25.11";
               users.users.root.hashedPassword = "!";
               boot.loader.grub.enable = false;
@@ -131,13 +128,13 @@ in
   # =============================================================================
 (
   let
-    hardwareDB = import ../lib/hardware.nix { lib = nixpkgs.lib; };
+    hardwareDB = import ../lib/hardware.nix { inherit (nixpkgs) lib; };
 
     configWithSpring = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ../configuration.nix
-        ({ pkgs, lib, ... }: {
+        (_: {
           system.stateVersion = "25.11";
           users.users.root.hashedPassword = "!";
           boot.loader.grub.enable = false;
@@ -145,7 +142,7 @@ in
           fileSystems."/" = { device = "/dev/null"; fsType = "tmpfs"; };
           nixpkgs.config.allowUnfree = true;
         })
-        ({ pkgs, lib, ... }: {
+        (_: {
           bora.spring.application = {
             enable = true;
             name = "testapp";

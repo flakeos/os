@@ -1,6 +1,5 @@
-{ config, lib, pkgs, ... }:
-with lib;
-let cfg = config.bora.filesystem; in {
+{ lib, ... }:
+with lib; {
   options.bora.filesystem.bootDevice = mkOption {
     type = types.str;
     default = "/dev/disk/by-uuid/BOOT-UUID";

@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+_:
 {
   boot.kernel.sysctl = {
     "kernel.kptr_restrict" = 2;

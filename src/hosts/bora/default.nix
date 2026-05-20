@@ -1,4 +1,4 @@
-{ config, lib, pkgs, hostname, username, hardwareProfile, systemProfile, ... }:
+{ hostname, username, ... }:
 
 {
   networking.hostName = hostname;
