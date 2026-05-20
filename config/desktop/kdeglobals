@@ -1,0 +1,57 @@
+[General]
+ColorScheme=BoraDark
+Name=Bora
+shadeSortColumn=true
+TerminalApplication=konsole
+TerminalService=org.kde.konsole
+font=Noto Sans,10,-1,5,50,0,0,0,0,0
+fixed=JetBrainsMono Nerd Font,10,-1,5,50,0,0,0,0,0
+smallestReadableFont=Noto Sans,8,-1,5,50,0,0,0,0,0
+toolbarFont=Noto Sans,10,-1,5,50,0,0,0,0,0
+menuFont=Noto Sans,10,-1,5,50,0,0,0,0,0
+
+[KDE]
+widgetStyle=Breeze
+ShowIconsOnPushButtons=1
+ShowIconsInMenuItems=1
+ShowIconsInListViews=1
+ShowIconsInTooltips=1
+ShowIconsInBreadcrumbBar=1
+ShowIconsInTitleBar=1
+TreeViewAnimated=1
+
+[WM]
+activeBackground=10,12,22
+activeForeground=220,220,240
+inactiveBackground=8,9,18
+inactiveForeground=140,140,160
+
+[Icons]
+Theme=TelaCircleDark
+
+[Colors:Window]
+BackgroundNormal=13,15,26
+BackgroundAlternate=18,20,32
+ForegroundNormal=220,220,240
+ForegroundInactive=100,100,130
+ForegroundLink=0,212,255
+ForegroundVisited=123,47,190
+
+[Colors:Selection]
+BackgroundNormal=0,212,255
+ForegroundNormal=10,12,22
+
+[Colors:Button]
+BackgroundNormal=20,22,36
+ForegroundNormal=220,220,240
+BackgroundHover=30,32,48
+
+[Compositing]
+Enabled=true
+OpenGLIsUnsafe=false
+Backend=OpenGL
+AnimationDurationFactor=0.4
+window-decoration=Breeze
+
+[UiSettings]
+ColorScheme=BoraDark
