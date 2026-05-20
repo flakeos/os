@@ -71,11 +71,30 @@ jobs:
           pattern: bora-*
           path: isos
           merge-multiple: true
-      - name: Create Release with auto-generated changelog
+      - name: Generate changelog from .changelog
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          CHANGELOG_FILE=".changelog/${VERSION}.md"
+          if [ -f "$CHANGELOG_FILE" ]; then
+            cp "$CHANGELOG_FILE" release-notes.md
+          else
+            CHANGELOG_FILE=".changelog/${TAG}.md"
+            if [ -f "$CHANGELOG_FILE" ]; then
+              cp "$CHANGELOG_FILE" release-notes.md
+            else
+              echo "Release ${TAG}" > release-notes.md
+              echo "" >> release-notes.md
+              git log --oneline --no-decorate "$(git tag --sort=-version:refname | head -2 | tail -1)..${TAG}" 2>/dev/null \
+                || git log --oneline --no-decorate "${TAG}" 2>/dev/null \
+                >> release-notes.md
+            fi
+          fi
+      - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "${{ github.ref_name }}" \
-            --generate-notes \
+            --notes-file release-notes.md \
             --title "${{ github.ref_name }}" \
             isos/*.iso

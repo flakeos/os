@@ -1,7 +1,3 @@
-25.11 (2026-05-20)
+# Changelog
 
-fix: simplify CI, fix desktop ISO, fix vaapiVdpau rename. remove invalid iso-minimal-validation alias from flake.nix. rename iso-graphical to iso-desktop, add iso-laptop, restructure CI with isolated test and benchmark, fix vaapiVdpau rename. repair YAML syntax in ci.yml with duplicated job fields and restore ISO build steps. feat: add iso-server, 3 ISO CI builds, rewrite tests with concrete cases and benchmarks. fix: remove .github from paths-ignore so CI runs on workflow changes. remove build-system job which was host-specific hw, simplify CI, fix nvidia portal. remove xdg-desktop-portal-kde reference no longer in nixpkgs 25.11. use systemd.settings.Manager and kdePackages.xdg-desktop-portal-kde for nixos 25.11 compat. wrap inline module functions in parentheses. add lib to inline module args in flake.nix. resolve platform and gpu prime conflict, use image.baseName for ISO, simplify CI. update KDE ISO module path and remove conflicting hardware defaults from workstation profile. consolidate etc attrs in maclike.nix to resolve W20. resolve remaining statix W04 and W20 warnings. feat: update stateVersion to 25.11, add CI build and test jobs, add gitignore. fix: resolve statix warnings and disable FlakeHub cache in CI. resolve devShell buildInputs type error in CI. feat: add CI workflows, build script, docs and fix nftables ZFS boot.
-
-25.05 (2026-04-15)
-
-feat: add test suite infrastructure. add shell scripts for spring, pool and desktop. add containers, microvm guests and instance pool. add desktop, network and config file modules. implement security, hardware and filesystem modules. add hosts, profiles and core modules. add foundation layer with flake, config, lib and docs.
+Per version changelog entries are in the .changelog directory. Each file covers a single version with conventional commit format entries.
