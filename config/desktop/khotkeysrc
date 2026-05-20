@@ -1,0 +1,27 @@
+[Data]
+DataCount=1
+
+[Data_1]
+Comment=Bora Launcher
+Enabled=true
+Name=Nexus
+Type=ACTION_TRIGGERS
+Removed=false
+
+[Data_1\Actions]
+ActionCount=1
+
+[Data_1\Actions\0]
+CommandURL=org.kde.krunner
+Type=COMMAND_URL
+
+[Data_1\Conditions]
+ConditionsCount=0
+
+[Data_1\Triggers]
+TriggersCount=1
+
+[Data_1\Triggers\0]
+Key=Alt+F1
+Type=SHORTCUT
+Uuid={nexus-krunner}

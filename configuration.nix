@@ -24,5 +24,5 @@ in {
     ++ optional (pathExists profilePath) profilePath;
 
   nixpkgs.config.allowUnfree = mkDefault true;
-  system.stateVersion = mkDefault "24.11";
+  system.stateVersion = mkDefault "25.11";
 }

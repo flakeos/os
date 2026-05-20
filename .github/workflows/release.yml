@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      - "*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
+      - name: Lint and format
+        run: |
+          nix develop --impure --command statix check src
+          nix develop --impure --command deadnix src
+          nix develop --impure --command nixpkgs-fmt --check src
+      - name: Evaluation tests
+        run: |
+          nix-instantiate --eval --strict tests/default.nix
+          nix-instantiate --eval --strict tests/modules.nix
+
+  build-iso:
+    runs-on: ubuntu-latest
+    needs: [validate]
+    strategy:
+      matrix:
+        variant: [minimal, desktop, laptop, server]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
+      - name: Build ISO ${{ matrix.variant }}
+        run: |
+          NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
+            '.#packages.x86_64-linux.iso-${{ matrix.variant }}'
+      - name: Rename ISO
+        run: |
+          iso=$(find "$(readlink -f result)" -name "*.iso" -type f | head -1)
+          cp "$iso" bora-${{ matrix.variant }}.iso
+      - name: Upload ISO ${{ matrix.variant }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bora-${{ matrix.variant }}
+          path: bora-${{ matrix.variant }}.iso
+          compression-level: 0
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build-iso]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all ISOs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: bora-*
+          path: isos
+          merge-multiple: true
+      - name: Generate changelog from .changelog
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          CHANGELOG_FILE=".changelog/${VERSION}.md"
+          if [ -f "$CHANGELOG_FILE" ]; then
+            cp "$CHANGELOG_FILE" release-notes.md
+          else
+            CHANGELOG_FILE=".changelog/${TAG}.md"
+            if [ -f "$CHANGELOG_FILE" ]; then
+              cp "$CHANGELOG_FILE" release-notes.md
+            else
+              echo "Release ${TAG}" > release-notes.md
+              echo "" >> release-notes.md
+              git log --oneline --no-decorate "$(git tag --sort=-version:refname | head -2 | tail -1)..${TAG}" 2>/dev/null \
+                || git log --oneline --no-decorate "${TAG}" 2>/dev/null \
+                >> release-notes.md
+            fi
+          fi
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --notes-file release-notes.md \
+            --title "${{ github.ref_name }}" \
+            isos/*.iso
