@@ -1,111 +1,78 @@
 BORA NixOS AgentiC Rules and Sprint Definitions
 Strict Hard Zero Hardcoding Zero Comments Zero Inline Shell
-Version 2.0.0 Sprint Fondazione
+Version 2.0.0 Sprint Foundation
 
-INDICE
+The repository directory tree follows this structure. The root contains flake.nix which is the stateless pure entry point. configuration.nix is the module loader that performs dynamic auto scan. AGENTS.md is this file with agentic rules and sprint definitions. lib contains Nix libraries with pure functions exported by default.nix hardware.nix for CPU GPU and platform auto detection and spring.nix for the DI IoC Container with Circuit Breaker. src contains the NixOS source with hosts for per machine host definitions profiles for per use case profile definitions modules organized by category guests for MicroVM guest definitions config for runtime config files scripts for shell scripts assets for static assets secrets for secrets encrypted with SOPS and age tests for Nix tests and docs for documentation.
 
-1. Architettura del Repository
-2. Regole Assolute
-3. Parametrizzazione Zero Hardcoding
-4. Sprint Definitions
-5. Spring Framework Specifica Tecnica
-6. Resource Management e Circuit Breaker
-7. Security Baseline
-8. Idempotenza e Atomicita
-9. Testing e Quality Gates
-10. Flow Operativo Agente
+The architectural principles are as follows. Single responsibility means every Nix file has one purpose. No side effects means lib functions are pure with no side effects. Auto discovery means configuration.nix scans src/modules without manual imports. Parameterization means everything uses options with mkOption without hardcoding. External shell means shell scripts in scripts referenced via builtins.readFile. External config means config files in config referenced via relative path.
 
-1. ARCHITETTURA DEL REPOSITORY
+Rule 1 is Zero Comments in Nix files. Inline hash comments are forbidden. Block slash asterisk comments are forbidden. Multi line comments are forbidden. Technical documentation goes in AGENTS.md and user documentation in docs. Only AGENTS.md and files in docs may contain text.
 
-L albero delle directory del repository segue questa struttura. La radice contiene flake.nix che e il punto di ingresso stateless e puro. configuration.nix e il module loader che esegue auto scan dinamico. AGENTS.md e questo file con le regole agentiche e le sprint definitions. lib contiene le Nix libraries con funzioni pure esportate da default.nix hardware.nix per auto detection di CPU GPU e platform e spring.nix per il DI IoC Container con Circuit Breaker. src contiene il NixOS source con hosts per le host definitions per macchina profiles per le profile definitions per use case modules organizzati per categoria guests per le MicroVM guest definitions config per i runtime config files scripts per gli shell scripts assets per gli static assets secrets per i secret crittografati con SOPS e age tests per i Nix tests e docs per la documentazione.
+Rule 2 is Zero Shell Inline in Nix. Writing shell scripts inside quoted Nix strings is forbidden. Using pkgs.writeShellScript with inline strings is forbidden. Using shell expressions inside Nix strings is forbidden. Every shell script must be in scripts as a separate file. The correct reference is pkgs.writeShellScriptBin name with builtins.readFile reading the script path.
 
-I principi architetturali sono i seguenti. Single responsibility significa che ogni file Nix ha un solo scopo. No side effects significa che le funzioni in lib sono pure senza effetti collaterali. Auto discovery significa che configuration.nix scansiona src/modules senza import manuali. Parametrizzazione significa tutto via options con mkOption senza hardcoded. External shell significa script shell in scripts riferiti via builtins.readFile. External config significa file config in config riferiti via path relativo.
+Rule 3 is Zero Hardcoding. Hardcoding usernames like alessio or kairosci is forbidden. Hardcoding hostnames like bora or os is forbidden. Hardcoding paths IPs ports or UUIDs is forbidden. Hardcoding CPU GPU or RAM config is forbidden. Username must come from meta.nix or option. Hostname must come from meta.nix or option. Hardware must use options with lib.mkDefault. Activation must use lib.mkIf. No literal values every value must be a variable.
 
-2. REGOLE ASSOLUTE
+Rule 4 is Structural Atomicity. Every modification must produce an atomic new generation. Workarounds fallbacks and placeholders are forbidden. TODO FIXME and HACK are forbidden. Comments to disable code are forbidden. To disable a module use mkIf false. An unimplemented function must not exist.
 
-Regola 1 e Zero Comments nei file Nix. Vietato il commento inline con hash. Vietato il commento a blocchi con slash asterisco. Vietato il commento multilinea. La documentazione va in AGENTS.md per la documentazione tecnica e in docs per la documentazione utente. Solo AGENTS.md e i file in docs possono contenere testo.
+Rule 5 is Dynamic Modularity. configuration.nix scans src/modules automatically. Each category corresponds to src/modules/category. Each category has default.nix which imports submodules. Modules are enabled via mkIf cfg.enable. Profiles activate combinations of modules. To create a new module create src/modules/category/name.nix update src/modules/category/default.nix define options with enable and parameters and use mkIf cfg.enable for config.
 
-Regola 2 e Zero Shell Inline in Nix. Vietato scrivere script shell dentro stringhe Nix tra apici. Vietato usare pkgs.writeShellScript con stringhe inline. Vietato utilizzare espressioni shell dentro stringhe Nix. Ogni script shell deve essere in scripts come file separato. Il riferimento corretto e pkgs.writeShellScriptBin name con builtins.readFile che legge il percorso dello script.
+All host specific parameters are declared in src/hosts/hostname/meta.nix and injected via specialArgs. The generic meta.nix template contains system as system architecture hardware as hardware type profile as usage profile hostname as host name and username as user name. The substitution rules are that username in users.users becomes the username value username in home paths becomes home with username hostname in networking.hostName becomes the hostname value hostname in spring.application.name becomes the hostname value persist in environment.persistence reads from option and absolute paths for config and scripts are relative paths.
 
-Regola 3 e Zero Hardcoding. Vietato hardcodare username come alessio o kairosci. Vietato hardcodare hostname come bora o os. Vietato hardcodare path IP porte o UUID. Vietato hardcodare CPU GPU o RAM config. L username deve venire da meta.nix o option. L hostname deve venire da meta.nix o option. L hardware deve usare opzioni con lib.mkDefault. L attivazione deve usare lib.mkIf. Nessun valore letterale ogni valore deve essere una variabile.
+Sprint 1 is Foundation with the goal of creating the base system structure. It includes flake.nix as pure entry point with declarative inputs configuration.nix as auto scan module loader lib/default.nix exporting all libraries lib/hardware.nix as CPU GPU and Platform database src/modules/core for Boot Nix Locale and Sysctl src/hosts/hostname with meta default and hardware and AGENTS.md.
 
-Regola 4 e Atomicita Strutturale. Ogni modifica deve produrre un new generation atomico. Vietati workaround fallback e placeholders. Vietati TODO FIXME e HACK. Vietati commenti per disabilitare codice. Per disabilitare un modulo si usa mkIf false. Una funzione non implementata non deve esistere.
+Sprint 2 is Filesystem and Immutability with the goal of implementing ZFS Impermanence and Disko. It includes the zfs module for pool ARC and snapshot the impermanence module for persist config desktop for external config files sanoid for automatic snapshot retention and disko for declarative partitioning.
 
-Regola 5 e Modularita Dinamica. configuration.nix scansiona src/modules automaticamente. Ogni categoria corrisponde a src/modules/categoria. Ogni categoria ha default.nix che importa i sottomoduli. I moduli si abilitano via mkIf cfg.enable. I profili attivano combinazioni di moduli. Per creare un nuovo modulo si crea src/modules/categoria/nome.nix si aggiorna src/modules/categoria/default.nix si definiscono options con enable e parametri e si usa mkIf cfg.enable per la config.
+Sprint 3 is Security with the goal of implementing extreme hardening firewall and SSH. It includes the firewall module with nftables default drop the external nftables configuration the hardening module for kernel and AppArmor the ssh module with keys only LAN only and audit logging with fail2ban.
 
-3. PARAMETRIZZAZIONE ZERO HARDCODING
+Sprint 4 is Hardware Detection with the goal of auto configuring CPU GPU and Platform. It includes the cpu module for Intel AMD and ARM the gpu module for NVIDIA AMD and Intel the platform module for Desktop Laptop and Server and lib/hardware.nix as vendor optimization database.
 
-Tutti i parametri host specific sono dichiarati in src/hosts/hostname/meta.nix e iniettati via specialArgs. Il template generico di meta.nix contiene system come architettura di sistema hardware come tipo di hardware profile come profilo d uso hostname come nome host e username come nome utente. Le regole di sostituzione prevedono che username nei users.users diventi il valore di username username nei path home diventi home con username hostname in networking.hostName diventi il valore di hostname hostname in spring.application.name diventi il valore di hostname persist in environment.persistence legga da option e i path assoluti per config e scripts siano path relativi.
+Sprint 5 is Desktop and Bora Layout with the goal of creating minimal KDE Plasma 6 with original Bora layout. It includes the kde-minimal module for essential Plasma 6 the maclike module for the Bora theme the pipewire module for audio the maclike scripts for init and finalize shell and the desktop config files for plasma-appletsrc kdeglobals and kwinrc.
 
-4. SPRINT DEFINITIONS
+Sprint 6 is Container Engine with the goal of creating the container engine with hardware level isolation. It includes the microvm-host module for host and bridge the orchestrator module for pool manager the sandbox guest as generic template the containers configuration for bridge and networking and SocketVM for desktop apps with X11 and Wayland forwarding.
 
-Sprint 1 e Fondazione con lo scopo di creare la struttura base del sistema funzionante. Include flake.nix come entry point puro con inputs dichiarativi configuration.nix come module loader auto scan lib/default.nix che esporta tutte le librerie lib/hardware.nix come database CPU GPU e Platform src/modules/core per Boot Nix Locale e Sysctl src/hosts/hostname con meta default e hardware e AGENTS.md.
+Sprint 7 is Spring Framework with the goal of implementing Dependency Injection and Circuit Breaker. It includes lib/spring.nix for bean definitions topological sort mkSystemdService with resource limits circuit breaker with failure success and state circular dependency detection and the spring scripts for cgroup-init circuit-breaker and health. It also includes the orchestrator update to use Spring beans.
 
-Sprint 2 e Filesystem e Immutabilita con lo scopo di implementare ZFS Impermanence e Disko. Include il modulo zfs per pool ARC e snapshot il modulo impermanence per persist config desktop per file config esterni sanoid per snapshot retention automatica e disko per partizionamento dichiarativo.
+Sprint 8 is Instance Pool Orchestrator with the goal of creating the pool of isolated instances for any application. It includes the instance-pool module with pool options the guest definition per application the pool configuration the pool scripts for pool-manager spawn list and stats cgroup v2 for per instance resource isolation and Caddy reverse proxy for routing to instances.
 
-Sprint 3 e Sicurezza con lo scopo di implementare hardening estremo firewall e SSH. Include il modulo firewall con nftables default drop la configurazione nftables esterna il modulo hardening per kernel e AppArmor il modulo ssh con solo chiavi solo LAN e audit logging con fail2ban.
+Sprint 9 is Testing and Documentation with the goal of implementing pure Nix tests and complete documentation. It includes tests/default.nix for pure library tests tests/shell.nix for linting environment with statix and deadnix docs/BORA-WP.md as user manual in text format AGENTS.md with always updated agentic rules and ISO generation for immediate deploy.
 
-Sprint 4 e Hardware Detection con lo scopo di auto configurare CPU GPU e Platform. Include il modulo cpu per Intel AMD e ARM il modulo gpu per NVIDIA AMD e Intel il modulo platform per Desktop Laptop e Server e lib/hardware.nix come database ottimizzazioni per vendor.
+The sprint flow proceeds from Sprint 1 to Sprint 2 to Sprint 3 to Sprint 4 from which it branches to Sprint 5 which continues to Sprint 6 which leads to Sprint 7 and Sprint 8 and finally Sprint 9. Each sprint produces a working NixOS generation without unsatisfied dependencies.
 
-Sprint 5 e Desktop e Bora Layout con lo scopo di realizzare KDE Plasma 6 minimale con layout Bora originale. Include il modulo kde-minimal per Plasma 6 essenziale il modulo maclike per il tema Bora il modulo pipewire per audio gli script maclike per init e finalize shell e i file config desktop per plasma-appletsrc kdeglobals e kwinrc.
+The sprint history records all completions. All sprints from number 1 to number 9 are completed. The system is ready for build and deploy.
 
-Sprint 6 e Container Engine con lo scopo di realizzare il container engine con isolamento hardware level. Include il modulo microvm-host per host e bridge il modulo orchestrator per pool manager il guest sandbox come template generico la configurazione containers per bridge e networking e SocketVM per app desktop con forwarding X11 e Wayland.
+Bean definition happens via bora.spring.beans.name with attributes enable to enable class as service type deps as list of beans it depends on resources with cpu memory memoryMax pids ioRbps ioWbps and numa healthcheck as command to verify status dependsOn for systemd dependencies after for systemd ordering and restartPolicy for restart policy.
 
-Sprint 7 e Spring Framework con lo scopo di implementare Dependency Injection e Circuit Breaker. Include lib/spring.nix per bean definitions topological sort mkSystemdService con resource limits circuit breaker con failure success e stato circular dependency detection e gli script spring per cgroup-init circuit-breaker e health. Include anche l aggiornamento dell orchestrator per usare Spring beans.
+The Circuit Breaker state machine has three states. CLOSED is normal operation where requests pass through and failures increment a counter. OPEN is open circuit where requests are blocked and a timeout timer starts. HALF-OPEN is recovery test where limited requests are allowed. Transitions are that CLOSED transitions to OPEN when failures reach the threshold which defaults to 5. OPEN transitions to HALF-OPEN after the timeout which defaults to 30 seconds. HALF-OPEN transitions to CLOSED when successes reach the threshold which defaults to 2. HALF-OPEN transitions to OPEN when a failure occurs in half-open.
 
-Sprint 8 e Instance Pool Orchestrator con lo scopo di realizzare il pool di istanze isolate per qualsiasi applicazione. Include il modulo instance-pool con opzioni pool la guest definition per applicazione la pool configuration gli script pool per pool-manager spawn list e stats cgroup v2 per isolamento risorse per istanza e reverse proxy Caddy per routing alle istanze.
+Topological sort resolves dependencies between beans at build time. If a cycle exists the build fails with an error message indicating circular dependency in the specified beans.
 
-Sprint 9 e Testing e Documentazione con lo scopo di implementare test Nix puri e documentazione completa. Include tests/default.nix per test librerie pure tests/shell.nix per ambiente linting con statix e deadnix docs/BORA-WP.md come manuale utente in formato testo AGENTS.md per regole agentiche sempre aggiornate e ISO generation per deploy immediato.
+The cgroup v2 hierarchy is organized under sys fs cgroup with the host name containing bean-database bean-redis and bean-webapp with cpu.max memory.max pids.max and io.max and OOM policy kill. The bora section contains pool for MicroVM instances with instance-001 and instance-002 with cpu.max at 50 percent and memory.max at 256 MB.
 
-Il flusso degli sprint procede da Sprint 1 a Sprint 2 a Sprint 3 a Sprint 4 da cui si dirama a Sprint 5 che prosegue a Sprint 6 che porta a Sprint 7 e Sprint 8 e infine Sprint 9. Ogni sprint produce una generazione NixOS funzionante senza dipendenze non soddisfatte.
+OOM protection provides OOMPolicy kill for all Spring services. MemoryHigh is the soft limit for throttling before OOM. MemoryMax is the hard limit for OOM kill if exceeded. DefaultMemoryAccounting is yes globally. The health check flow executes the healthcheck command. If the result is success it calls circuit_success. If the result is failure it calls circuit_trip. In CLOSED state it increments the counter and if it exceeds the threshold transitions to OPEN. In OPEN state it waits for the timeout then transitions to HALF-OPEN. In HALF-OPEN state if the attempt count is below the maximum it retries otherwise transitions to CLOSED. If the circuit is OPEN the service does not start and exits with code 1.
 
-La cronologia degli sprint registra tutti i completamenti. Tutti gli sprint dal numero 1 al numero 9 sono completati. Il sistema e pronto per build e deploy.
+The kernel sysctl parameters include kernel.kptr_restrict set to 2 kernel.dmesg_restrict to 1 kernel.perf_event_paranoid to 3 kernel.yama.ptrace_scope to 2 kernel.randomize_va_space to 2 kernel.unprivileged_bpf_disabled to 1 net.core.bpf_jit_enable to 0 kernel.kexec_load_disabled to 1 and kernel.sysrq to 0.
 
-5. SPRING FRAMEWORK SPECIFICA TECNICA
+The nftables firewall defines chain input with policy DROP accepting established and related connections loopback interface traffic ICMP with rate limit of 10 per second and TCP port 22 from LAN addresses and logging and dropping everything else. chain forward with policy DROP accepts established and related connections and traffic from the microvm interface. chain output with policy ACCEPT.
 
-La definizione di un bean avviene tramite bora.spring.beans.nome con attributi enable per abilitare class come tipo di servizio deps come lista di bean da cui dipende resources con cpu memory memoryMax pids ioRbps ioWbps e numa healthcheck come comando per verificare lo stato dependsOn per dipendenze systemd after per ordinamento systemd e restartPolicy per policy di riavvio.
+SSH hardening provides PermitRootLogin no PasswordAuthentication no PubkeyAuthentication yes MaxAuthTries 3 MaxSessions 4 AllowTcpForwarding no AllowAgentForwarding no ciphers ChaCha20-Poly1305 and AES-256-GCM and MACs HMAC-SHA2-512-ETM and HMAC-SHA2-256-ETM. AppArmor is enforced with active cache profiles from apparmor-profiles and lockdown set to confidentiality.
 
-La macchina a stati del Circuit Breaker ha tre stati. CLOSED e funzionamento normale dove le richieste passano e i failure incrementano un contatore. OPEN e circuito aperto dove le richieste sono bloccate e un timer di timeout viene avviato. HALF-OPEN e test di recupero dove richieste limitate sono permesse. Le transizioni prevedono che CLOSED passi a OPEN quando i failure raggiungono la threshold che di default e 5. OPEN passa a HALF-OPEN dopo il timeout che di default e 30 secondi. HALF-OPEN passa a CLOSED quando i success raggiungono la threshold che di default e 2. HALF-OPEN passa a OPEN quando si verifica un failure in half-open.
+The idempotency rules require that nixos-rebuild switch is idempotent running it twice in a row must produce the same result. There must be no side effects outside the nix store. The etc directory is regenerated on every build. User state resides only in persist and home. The root filesystem is ephemeral via impermanence.
 
-Il topological sort risolve le dipendenze tra bean a build time. Se esiste un ciclo il build fallisce con un messaggio di errore che indica la presenza di una circular dependency nei bean specificati.
+Regarding atomicity every nixos-rebuild produces a new generation. The previous generation remains intact in the boot menu. Rollback is performed with nixos-rebuild switch rollback. ZFS performs automatic pre rebuild snapshot and post rebuild snapshot via sanoid. Workarounds attempts hacks and placeholders have zero tolerance.
 
-6. RESOURCE MANAGEMENT E CIRCUIT BREAKER
+The mandatory quality gates before each commit include statix check src for Nix linting deadnix src for dead code detection nixpkgs-fmt check src for formatting and nix-instantiate eval tests for test evaluation. The commit must fail if any of the four fails.
 
-La gerarchia cgroup v2 e organizzata sotto sys fs cgroup con il nome host che contiene bean-database bean-redis e bean-webapp con cpu.max memory.max pids.max e io.max e OOM policy kill. La sezione bora contiene pool per le istanze MicroVM con instance-001 e instance-002 con cpu.max al 50 percento e memory.max a 256 MB.
+The test structure provides tests/default.nix for testing lib functions with testHardwareDetect testSpringFramework testCoreModules and testSecurityModules and tests/shell.nix for linting environment. Every module that defines options must have assertions that verify conditions with error message.
 
-La protezione OOM prevede OOMPolicy kill per tutti i servizi Spring. MemoryHigh e il soft limit per throttling prima di OOM. MemoryMax e l hard limit per OOM kill se superato. DefaultMemoryAccounting e yes globalmente. Il flusso di health check esegue il comando healthcheck. Se il risultato e success chiama circuit_success. Se il risultato e failure chiama circuit_trip. In stato CLOSED incrementa il contatore e se supera la threshold passa a OPEN. In stato OPEN attende il timeout poi passa a HALF-OPEN. In stato HALF-OPEN se il numero di tentativi e inferiore al massimo riprova altrimenti passa a CLOSED. Se il circuito e OPEN il servizio non parte ed esce con codice 1.
+When the user requests a modification the agent searches src/modules for the relevant module. If it does not exist it creates a new category creates default.nix and creates the module file. Then it modifies options and config. If shell scripts are needed they go in scripts never inline. If config files are needed they go in config never inline. If hardcoding exists it is replaced with options mkDefault and mkIf. If comments exist in Nix files they are removed and placed in AGENTS.md. Then it runs statix deadnix and nixpkgs-fmt. It verifies idempotency and optionally runs nixos-rebuild switch.
 
-7. SECURITY BASELINE
+The rules for the agent are as follows. Never write comments in Nix files. Never write shell scripts inline in Nix files. Never hardcode username hostname or path. Always use options with mkOption for parameters. Always use mkIf for conditional activation. Always use mkDefault for overridable defaults. Shell scripts in scripts. Config files in config. Technical documentation in AGENTS.md. User documentation in docs. After every modification run statix deadnix and nixpkgs-fmt. Every modification must be idempotent.
 
-I parametri kernel sysctl includono kernel.kptr_restrict impostato a 2 kernel.dmesg_restrict a 1 kernel.perf_event_paranoid a 3 kernel.yama.ptrace_scope a 2 kernel.randomize_va_space a 2 kernel.unprivileged_bpf_disabled a 1 net.core.bpf_jit_enable a 0 kernel.kexec_load_disabled a 1 e kernel.sysrq a 0.
+The template for a new module requires defining config lib pkgs using let cfg config.bora.category.module to access options. options.bora.category.module must contain enable as mkEnableOption and option1 as mkOption with type and default. config must be wrapped in mkIf cfg.enable with attr set to mkDefault cfg.option1.
 
-Il firewall nftables definisce chain input con policy DROP che accetta connessioni stabilite e correlate traffico su interfaccia loopback ICMP con rate limit di 10 al secondo e TCP porta 22 da indirizzi LAN e registra e droppa tutto il resto. chain forward con policy DROP accetta connessioni stabilite e correlate e traffico dall interfaccia microvm. chain output con policy ACCEPT.
+The template for a new host requires a meta.nix file with system hardware profile hostname and username. The default.nix file receives config lib pkgs username and hostname and configures networking.hostName with hostname and users.users with username as isNormalUser true and extraGroups with wheel.
 
-L hardening SSH prevede PermitRootLogin no PasswordAuthentication no PubkeyAuthentication yes MaxAuthTries 3 MaxSessions 4 AllowTcpForwarding no AllowAgentForwarding no cifrari ChaCha20-Poly1305 e AES-256-GCM e MACs HMAC-SHA2-512-ETM e HMAC-SHA2-256-ETM. AppArmor e enforced con cache attiva profili da apparmor-profiles e lockdown impostato a confidentiality.
+The template for a shell script requires the file in scripts/category/name.sh with bash shebang set euo pipefail parameters with defaults and main function that executes the logic. The reference in Nix uses pkgs.writeShellScriptBin with builtins.readFile to read the script path.
 
-8. IDEMPOTENZA E ATOMICITA
-
-Le regole di idempotenza richiedono che nixos-rebuild switch sia idempotente eseguendolo due volte di seguito deve produrre lo stesso risultato. Non ci devono essere side effects fuori dal nix store. La directory etc viene rigenerata a ogni build. Lo stato utente risiede solo in persist e home. Il root filesystem e effimero tramite impermanence.
-
-Per quanto riguarda l atomicita ogni nixos-rebuild produce una new generation. La generazione precedente rimane intatta nel boot menu. Il rollback si esegue con nixos-rebuild switch rollback. ZFS esegue snapshot automatico pre rebuild e snapshot post rebuild via sanoid. Workaround tentativi hack e placeholders hanno tolleranza zero.
-
-9. TESTING E QUALITY GATES
-
-I quality gates obbligatori prima di ogni commit includono statix check src per linting Nix deadnix src per dead code detection nixpkgs-fmt check src per formattazione e nix-instantiate eval tests per valutazione test. Il commit deve fallire se uno qualsiasi dei quattro fallisce.
-
-La struttura dei test prevede tests/default.nix per test funzioni lib con testHardwareDetect testSpringFramework testCoreModules e testSecurityModules e tests/shell.nix per ambiente linting. Ogni modulo che definisce opzioni deve avere assertions che verificano condizioni con messaggio di errore.
-
-10. FLOW OPERATIVO AGENTE
-
-Quando l utente richiede una modifica l agente cerca in src/modules il modulo pertinente. Se non esiste crea una nuova categoria crea default.nix e crea il file del modulo. Poi modifica options e config. Se sono necessari script shell vanno in scripts mai inline. Se sono necessari file config vanno in config mai inline. Se c e hardcoding va sostituito con options mkDefault e mkIf. Se ci sono commenti nei file Nix vanno rimossi e messi in AGENTS.md. Poi esegue statix deadnix e nixpkgs-fmt. Verifica l idempotenza e infine esegue opzionalmente nixos-rebuild switch.
-
-Le regole per l agente sono le seguenti. Mai scrivere commenti nei file Nix. Mai scrivere script shell inline nei file Nix. Mai hardcodare username hostname o path. Sempre usare options con mkOption per parametri. Sempre usare mkIf per attivazione condizionale. Sempre usare mkDefault per default sovrascrivibili. Script shell in scripts. Config files in config. Documentazione tecnica in AGENTS.md. Documentazione utente in docs. Dopo ogni modifica eseguire statix deadnix e nixpkgs-fmt. Ogni modifica deve essere idempotente.
-
-Il template per un nuovo modulo prevede la definizione di config lib pkgs con l utilizzo di let cfg config.bora.category.module per accedere alle opzioni. options.bora.category.module deve contenere enable come mkEnableOption e option1 come mkOption con type e default. config deve essere wrappato in mkIf cfg.enable con attr impostato a mkDefault cfg.option1.
-
-Il template per un nuovo host prevede un file meta.nix con system hardware profile hostname e username. Il file default.nix riceve config lib pkgs username e hostname e configura networking.hostName con hostname e users.users con username come isNormalUser true e extraGroups con wheel.
-
-Il template per script shell prevede il file in scripts/categoria/nome.sh con shebang bash set euo pipefail parametri con default e funzione main che esegue la logica. Il riferimento in Nix usa pkgs.writeShellScriptBin con builtins.readFile per leggere il percorso dello script.
-
-BORA NixOS Regole AgentiChe v2.0.0 Sprint Fondazione
-Copyright 2026 Distribuito sotto licenza MIT
+BORA NixOS AgentiC Rules v2.0.0 Sprint Foundation
+Copyright 2026 Distributed under MIT license
