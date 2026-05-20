@@ -6,6 +6,9 @@ on:
       - "v*.*.*"
       - "*.*"
 
+permissions:
+  contents: write
+
 jobs:
   build-iso:
     runs-on: ubuntu-latest
@@ -22,9 +25,33 @@ jobs:
         run: |
           NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
             '.#packages.x86_64-linux.iso-${{ matrix.variant }}'
+      - name: Rename ISO
+        run: |
+          cp result bora-${{ matrix.variant }}.iso
       - name: Upload ISO ${{ matrix.variant }}
         uses: actions/upload-artifact@v4
         with:
           name: bora-${{ matrix.variant }}
-          path: result
+          path: bora-${{ matrix.variant }}.iso
           compression-level: 0
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build-iso]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all ISOs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: bora-*
+          path: isos
+          merge-multiple: true
+      - name: Create Release with auto-generated changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --generate-notes \
+            --title "${{ github.ref_name }}" \
+            isos/*.iso
