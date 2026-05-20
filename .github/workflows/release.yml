@@ -10,8 +10,29 @@ permissions:
   contents: write
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
+      - name: Lint and format
+        run: |
+          nix develop --impure --command statix check src
+          nix develop --impure --command deadnix src
+          nix develop --impure --command nixpkgs-fmt --check src
+      - name: Evaluation tests
+        run: |
+          nix-instantiate --eval --strict tests/default.nix
+          nix-instantiate --eval --strict tests/modules.nix
+
   build-iso:
     runs-on: ubuntu-latest
+    needs: [validate]
     strategy:
       matrix:
         variant: [minimal, desktop, laptop, server]
