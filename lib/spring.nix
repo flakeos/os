@@ -179,7 +179,6 @@ rec {
       sortedNames);
 
   scriptsDir = ../scripts/spring;
-  cgroupInit = builtins.readFile (scriptsDir + "/cgroup-init.sh");
   circuitBreaker = builtins.readFile (scriptsDir + "/circuit-breaker.sh");
   healthcheck = builtins.readFile (scriptsDir + "/healthcheck.sh");
   beanWrapper = builtins.readFile (scriptsDir + "/bean-wrapper.sh");
@@ -224,7 +223,6 @@ rec {
           StartLimitBurst = toString (bean.resources.pids / 10);
         };
         script = ''
-          ${cgroupInit}
           ${circuitBreaker}
           ${healthcheck}
           ${beanWrapper}
