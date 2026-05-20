@@ -29,7 +29,8 @@ jobs:
             '.#packages.x86_64-linux.iso-${{ matrix.variant }}'
       - name: Rename ISO
         run: |
-          cp result bora-${{ matrix.variant }}.iso
+          iso=$(find "$(readlink -f result)" -name "*.iso" -type f | head -1)
+          cp "$iso" bora-${{ matrix.variant }}.iso
       - name: Upload ISO ${{ matrix.variant }}
         uses: actions/upload-artifact@v4
         with:
