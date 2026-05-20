@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 with lib;
 let
-  cfg = config.bora.desktop.kde;
+  cfg = config.flakeos.desktop.kde;
   kdeMinimal = with pkgs; [
     kdePackages.plasma-desktop
     kdePackages.plasma-workspace
@@ -19,7 +19,7 @@ let
   ];
 in
 {
-  options.bora.desktop.kde = {
+  options.flakeos.desktop.kde = {
     enable = mkEnableOption "KDE Plasma 6 minimal desktop";
     enableWayland = mkOption {
       type = types.bool;

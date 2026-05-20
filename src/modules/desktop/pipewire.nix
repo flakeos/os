@@ -1,10 +1,10 @@
 { config, lib, pkgs, ... }:
 with lib;
 let
-  cfg = config.bora.desktop.audio;
+  cfg = config.flakeos.desktop.audio;
 in
 {
-  options.bora.desktop.audio = {
+  options.flakeos.desktop.audio = {
     enable = mkEnableOption "PipeWire audio system";
   };
   config = mkIf cfg.enable {

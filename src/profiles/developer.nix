@@ -5,7 +5,7 @@ with lib;
     ./workstation.nix
   ];
 
-  bora = {
+  flakeos = {
     containers.instancePool.enable = mkDefault false;
     hardware.cpuVendor = mkDefault "amd";
     hardware.gpuVendor = mkDefault "nvidia";

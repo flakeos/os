@@ -1,8 +1,8 @@
-# BORA NixOS User Manual
+# FLAKEOS NixOS User Manual
 
 ## Getting Started
 
-To deploy BORA on a new machine first create a host directory under src/hosts with a meta.nix file containing the system architecture hardware profile hostname and username. Then run nixos-install flake hash target-host. After installation reboot and verify the system.
+To deploy FLAKEOS on a new machine first create a host directory under src/hosts with a meta.nix file containing the system architecture hardware profile hostname and username. Then run nixos-install flake hash target-host. After installation reboot and verify the system.
 
 ## Host Configuration
 
@@ -10,7 +10,7 @@ Each host is defined in src/hosts/hostname. The meta.nix file must export an att
 
 ## Profile Selection
 
-Profiles define which modules are enabled. The workstation profile enables desktop KDE and Bora layout. The developer profile adds development tools. The server profile is headless with container orchestrator. The minimal profile is a headless base system.
+Profiles define which modules are enabled. The workstation profile enables desktop KDE and FlakeOS layout. The developer profile adds development tools. The server profile is headless with container orchestrator. The minimal profile is a headless base system.
 
 ## Filesystem and Storage
 
@@ -22,7 +22,7 @@ MicroVM guests provide hardware level isolation. The orchestrator manages guest 
 
 ## Desktop Environment
 
-KDE Plasma 6 minimal with custom Bora layout including top bar dock global menu and dark color scheme. PipeWire provides audio with low latency configuration.
+KDE Plasma 6 minimal with custom FlakeOS layout including top bar dock global menu and dark color scheme. PipeWire provides audio with low latency configuration.
 
 ## Security
 
@@ -34,4 +34,4 @@ Dependency injection for systemd services with circuit breaker. Bean definitions
 
 ## Maintenance
 
-For system updates run nix flake update to update all inputs then nixos-rebuild switch to apply. For ZFS maintenance monitor pool status with zpool status check scrub progress with zpool scrub and list snapshots with zfs list t snapshot. For troubleshooting check service status with systemctl status bora bean name view logs with journalctl u bora bean name verify firewall with nft list ruleset and check cgroup usage with systemd cgtop.
+For system updates run nix flake update to update all inputs then nixos-rebuild switch to apply. For ZFS maintenance monitor pool status with zpool status check scrub progress with zpool scrub and list snapshots with zfs list t snapshot. For troubleshooting check service status with systemctl status flakeos bean name view logs with journalctl u flakeos bean name verify firewall with nft list ruleset and check cgroup usage with systemd cgtop.

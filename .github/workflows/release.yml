@@ -51,12 +51,12 @@ jobs:
       - name: Rename ISO
         run: |
           iso=$(find "$(readlink -f result)" -name "*.iso" -type f | head -1)
-          cp "$iso" bora-${{ matrix.variant }}.iso
+          cp "$iso" flakeos-${{ matrix.variant }}.iso
       - name: Upload ISO ${{ matrix.variant }}
         uses: actions/upload-artifact@v4
         with:
-          name: bora-${{ matrix.variant }}
-          path: bora-${{ matrix.variant }}.iso
+          name: flakeos-${{ matrix.variant }}
+          path: flakeos-${{ matrix.variant }}.iso
           compression-level: 0
           if-no-files-found: error
 
@@ -68,7 +68,7 @@ jobs:
       - name: Download all ISOs
         uses: actions/download-artifact@v4
         with:
-          pattern: bora-*
+          pattern: flakeos-*
           path: isos
           merge-multiple: true
       - name: Generate changelog from .changelog

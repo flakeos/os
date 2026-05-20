@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP="${1:-bora}"
+APP="${1:-flakeos}"
 
 printf "=== Resource usage: %s ===\n" "${APP}"
 for cg in /sys/fs/cgroup/${APP}/*; do

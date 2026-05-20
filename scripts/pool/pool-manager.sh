@@ -10,7 +10,7 @@ APP="${APP_COMMAND:-}"
 HC="${HEALTHCHECK_CMD:-curl -sf http://localhost:${PORT}/health}"
 
 mkdir -p "${POOL_DIR}"/{running,logs}
-mkdir -p /sys/fs/cgroup/bora/pool
+mkdir -p /sys/fs/cgroup/flakeos/pool
 
 cleanup() {
   for dir in "${POOL_DIR}"/running/*; do

@@ -13,7 +13,7 @@
         "https://cache.nixos.org"
         "https://nix-community.cachix.org"
         "https://astro-microvm.cachix.org"
-        "https://bora.cachix.org"
+        "https://flakeos.cachix.org"
       ];
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="

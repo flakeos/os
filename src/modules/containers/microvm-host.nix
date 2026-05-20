@@ -1,7 +1,7 @@
 { config, lib, ... }:
 with lib;
-let cfg = config.bora.containers.microvm; in {
-  options.bora.containers.microvm = {
+let cfg = config.flakeos.containers.microvm; in {
+  options.flakeos.containers.microvm = {
     enable = mkEnableOption "MicroVM host support";
     stateDir = mkOption {
       type = types.path;

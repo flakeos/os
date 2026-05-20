@@ -1,8 +1,8 @@
-# BORA NixOS
+# FLAKEOS NixOS
 
-BORA is a modular immutable NixOS configuration framework built on Zero Hardcoding Zero Comments and Zero Inline Shell principles. Every value is parameterized through Nix options. All technical documentation lives in AGENTS.md. All shell scripts are standalone files in scripts referenced via builtins.readFile.
+FLAKEOS is a modular immutable NixOS configuration framework built on Zero Hardcoding Zero Comments and Zero Inline Shell principles. Every value is parameterized through Nix options. All technical documentation lives in AGENTS.md. All shell scripts are standalone files in scripts referenced via builtins.readFile.
 
-The framework includes a Spring style dependency injection and circuit breaker library for systemd services a MicroVM container engine with instance pool orchestration KDE Plasma 6 desktop with custom Bora layout ZFS filesystem with impermanence and a layered security model with NFTables kernel hardening and SSH hardening.
+The framework includes a Spring style dependency injection and circuit breaker library for systemd services a MicroVM container engine with instance pool orchestration KDE Plasma 6 desktop with custom FlakeOS layout ZFS filesystem with impermanence and a layered security model with NFTables kernel hardening and SSH hardening.
 
 ## Quick Start
 

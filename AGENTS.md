@@ -1,4 +1,4 @@
-# BORA NixOS AgentiC Rules
+# FLAKEOS NixOS AgentiC Rules
 
 Strict Hard Zero Hardcoding Zero Comments Zero Inline Shell  
 Version 2.1.0
@@ -25,7 +25,7 @@ Zero Shell Inline in Nix. Writing shell scripts inside quoted Nix strings is for
 
 ### Rule 3
 
-Zero Hardcoding. Hardcoding usernames like alessio or kairosci is forbidden. Hardcoding hostnames like bora or os is forbidden. Hardcoding paths IPs ports or UUIDs is forbidden. Hardcoding CPU GPU or RAM config is forbidden. Username must come from meta.nix or option. Hostname must come from meta.nix or option. Hardware must use options with lib.mkDefault. Activation must use lib.mkIf. No literal values every value must be a variable.
+Zero Hardcoding. Hardcoding usernames like alessio or kairosci is forbidden. Hardcoding hostnames like flakeos or os is forbidden. Hardcoding paths IPs ports or UUIDs is forbidden. Hardcoding CPU GPU or RAM config is forbidden. Username must come from meta.nix or option. Hostname must come from meta.nix or option. Hardware must use options with lib.mkDefault. Activation must use lib.mkIf. No literal values every value must be a variable.
 
 ### Rule 4
 
@@ -85,7 +85,7 @@ Hardware Detection with the goal of auto configuring CPU GPU and Platform. It in
 
 ### Sprint 5
 
-Desktop and Bora Layout with the goal of creating minimal KDE Plasma 6 with original Bora layout. It includes the kde-minimal module for essential Plasma 6 the maclike module for the Bora theme the pipewire module for audio the maclike scripts for init and finalize shell and the desktop config files for plasma-appletsrc kdeglobals and kwinrc.
+Desktop and FlakeOS Layout with the goal of creating minimal KDE Plasma 6 with original FlakeOS layout. It includes the kde-minimal module for essential Plasma 6 the maclike module for the FlakeOS theme the pipewire module for audio the maclike scripts for init and finalize shell and the desktop config files for plasma-appletsrc kdeglobals and kwinrc.
 
 ### Sprint 6
 
@@ -109,7 +109,7 @@ The sprint flow proceeds from Sprint 1 to Sprint 2 to Sprint 3 to Sprint 4 from 
 
 ### Bean Definition
 
-Bean definition happens via bora.spring.beans.name with attributes enable to enable class as service type deps as list of beans it depends on resources with cpu memory memoryMax pids ioRbps ioWbps and numa healthcheck as command to verify status dependsOn for systemd dependencies after for systemd ordering and restartPolicy for restart policy.
+Bean definition happens via flakeos.spring.beans.name with attributes enable to enable class as service type deps as list of beans it depends on resources with cpu memory memoryMax pids ioRbps ioWbps and numa healthcheck as command to verify status dependsOn for systemd dependencies after for systemd ordering and restartPolicy for restart policy.
 
 ### Circuit Breaker
 
@@ -121,7 +121,7 @@ Topological sort resolves dependencies between beans at build time. If a cycle e
 
 ### Cgroup Hierarchy
 
-The cgroup v2 hierarchy is organized under sys fs cgroup with the host name containing bean-database bean-redis and bean-webapp with cpu.max memory.max pids.max and io.max and OOM policy kill. The bora section contains pool for MicroVM instances with instance-001 and instance-002 with cpu.max at 50 percent and memory.max at 256 MB.
+The cgroup v2 hierarchy is organized under sys fs cgroup with the host name containing bean-database bean-redis and bean-webapp with cpu.max memory.max pids.max and io.max and OOM policy kill. The flakeos section contains pool for MicroVM instances with instance-001 and instance-002 with cpu.max at 50 percent and memory.max at 256 MB.
 
 ## Security Baseline
 
@@ -145,7 +145,7 @@ The mandatory quality gates before each merge include statix check src for Nix l
 
 ### Module Template
 
-The template for a new module requires defining config lib pkgs using let cfg config.bora.category.module to access options. options.bora.category.module must contain enable as mkEnableOption and option1 as mkOption with type and default. config must be wrapped in mkIf cfg.enable with attr set to mkDefault cfg.option1.
+The template for a new module requires defining config lib pkgs using let cfg config.flakeos.category.module to access options. options.flakeos.category.module must contain enable as mkEnableOption and option1 as mkOption with type and default. config must be wrapped in mkIf cfg.enable with attr set to mkDefault cfg.option1.
 
 ### Host Template
 
