@@ -1,11 +1,11 @@
 { config, lib, pkgs, hardwareDB, ... }:
 with lib;
 let
-  gpuVendor = config.bora.hardware.gpuVendor or "amd";
+  gpuVendor = config.flakeos.hardware.gpuVendor or "amd";
   gpuCfg = hardwareDB.gpu.${gpuVendor} or hardwareDB.gpu.amd;
 in
 {
-  options.bora.hardware = {
+  options.flakeos.hardware = {
     gpuVendor = mkOption {
       type = types.enum [ "nvidia" "amd" "intel" ];
       default = "amd";
@@ -26,9 +26,9 @@ in
       open = false;
       nvidiaSettings = false;
       prime = {
-        sync.enable = config.bora.hardware.enableNvidiaPrime;
+        sync.enable = config.flakeos.hardware.enableNvidiaPrime;
         offload = {
-          enable = !config.bora.hardware.enableNvidiaPrime;
+          enable = !config.flakeos.hardware.enableNvidiaPrime;
           enableOffloadCmd = true;
         };
       };

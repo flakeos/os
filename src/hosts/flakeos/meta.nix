@@ -2,6 +2,6 @@
   system = "x86_64-linux";
   hardware = "desktop";
   profile = "developer";
-  hostname = "bora";
+  hostname = "flakeos";
   username = "user";
 }

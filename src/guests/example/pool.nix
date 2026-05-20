@@ -2,7 +2,7 @@ _:
 {
   imports = [ ./instance.nix ];
 
-  bora.containers.instancePool = {
+  flakeos.containers.instancePool = {
     enable = true;
     maxInstances = 899;
     basePort = 8443;

@@ -1,7 +1,7 @@
 { config, lib, ... }:
 with lib;
-let cfg = config.bora.filesystem.disko; in {
-  options.bora.filesystem.disko = {
+let cfg = config.flakeos.filesystem.disko; in {
+  options.flakeos.filesystem.disko = {
     enable = mkEnableOption "disko declarative partitioning";
     disk = mkOption {
       type = types.str;

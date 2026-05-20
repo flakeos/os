@@ -1,5 +1,5 @@
 {
-  description = "Bora NixOS — Modulare · Atomico · Universale · Strict-Hard — ALPHA v0.1.0";
+  description = "FlakeOS NixOS — Modulare · Atomico · Universale · Strict-Hard — ALPHA v0.1.0";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
@@ -92,8 +92,8 @@
             inherit system;
             specialArgs = {
               inherit hardwareDB;
-              hostname = "bora-iso";
-              username = "bora";
+              hostname = "flakeos-iso";
+              username = "flakeos";
               hardwareProfile = "desktop";
               systemProfile = "minimal";
             };
@@ -103,12 +103,12 @@
               disko.nixosModules.disko
               ./configuration.nix
               ({ pkgs, lib, ... }: {
-                image.baseName = lib.mkDefault "bora";
+                image.baseName = lib.mkDefault "flakeos";
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
                 boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
                 system.stateVersion = "25.11";
-                users.users.bora = { isNormalUser = true; };
+                users.users.flakeos = { isNormalUser = true; };
               })
             ];
             format = "iso";
@@ -118,8 +118,8 @@
             inherit system;
             specialArgs = {
               inherit hardwareDB;
-              hostname = "bora-iso";
-              username = "bora";
+              hostname = "flakeos-iso";
+              username = "flakeos";
               hardwareProfile = "desktop";
               systemProfile = "workstation";
             };
@@ -129,12 +129,12 @@
               disko.nixosModules.disko
               ./configuration.nix
               ({ pkgs, lib, ... }: {
-                image.baseName = lib.mkDefault "bora-desktop";
+                image.baseName = lib.mkDefault "flakeos-desktop";
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
                 boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
                 system.stateVersion = "25.11";
-                users.users.bora = { isNormalUser = true; };
+                users.users.flakeos = { isNormalUser = true; };
               })
             ];
             format = "iso";
@@ -144,8 +144,8 @@
             inherit system;
             specialArgs = {
               inherit hardwareDB;
-              hostname = "bora-iso";
-              username = "bora";
+              hostname = "flakeos-iso";
+              username = "flakeos";
               hardwareProfile = "laptop";
               systemProfile = "minimal";
             };
@@ -155,12 +155,12 @@
               disko.nixosModules.disko
               ./configuration.nix
               ({ pkgs, lib, ... }: {
-                image.baseName = lib.mkDefault "bora-laptop";
+                image.baseName = lib.mkDefault "flakeos-laptop";
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
                 boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
                 system.stateVersion = "25.11";
-                users.users.bora = { isNormalUser = true; };
+                users.users.flakeos = { isNormalUser = true; };
               })
             ];
             format = "iso";
@@ -170,8 +170,8 @@
             inherit system;
             specialArgs = {
               inherit hardwareDB;
-              hostname = "bora-iso";
-              username = "bora";
+              hostname = "flakeos-iso";
+              username = "flakeos";
               hardwareProfile = "server";
               systemProfile = "server";
             };
@@ -181,12 +181,12 @@
               disko.nixosModules.disko
               ./configuration.nix
               ({ pkgs, lib, ... }: {
-                image.baseName = lib.mkDefault "bora-server";
+                image.baseName = lib.mkDefault "flakeos-server";
                 boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
                 boot.kernelPackages = pkgs.linuxPackages_6_6;
                 nixpkgs.config.allowUnfree = true;
                 system.stateVersion = "25.11";
-                users.users.bora = { isNormalUser = true; };
+                users.users.flakeos = { isNormalUser = true; };
               })
             ];
             format = "iso";
@@ -197,7 +197,7 @@
         let pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
         in {
           default = pkgs.mkShell {
-            name = "bora-dev-shell";
+            name = "flakeos-dev-shell";
             buildInputs = with pkgs; [
               nixpkgs-fmt
               statix

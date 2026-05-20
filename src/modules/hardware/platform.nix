@@ -4,14 +4,14 @@ let
   inherit (hardwareDB) profileOpts;
 in
 {
-  options.bora.hardwareProfile = mkOption {
+  options.flakeos.hardwareProfile = mkOption {
     type = types.enum [ "desktop" "laptop" "server" ];
     default = "desktop";
     description = "Hardware profile for power/mitigation tuning";
   };
   config = mkMerge [
-    (mkIf (config.bora.hardwareProfile == "desktop") profileOpts.desktop)
-    (mkIf (config.bora.hardwareProfile == "laptop") profileOpts.laptop)
-    (mkIf (config.bora.hardwareProfile == "server") profileOpts.server)
+    (mkIf (config.flakeos.hardwareProfile == "desktop") profileOpts.desktop)
+    (mkIf (config.flakeos.hardwareProfile == "laptop") profileOpts.laptop)
+    (mkIf (config.flakeos.hardwareProfile == "server") profileOpts.server)
   ];
 }

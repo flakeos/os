@@ -2,8 +2,8 @@
 
 let
   inherit (nixpkgs) lib;
-  boraLib = import ../lib { inherit nixpkgs; };
-  hw = boraLib.hardware;
+  flakeosLib = import ../lib { inherit nixpkgs; };
+  hw = flakeosLib.hardware;
 
   inherit (builtins) toString;
 
@@ -168,15 +168,15 @@ in
 # =============================================================================
 (
   let
-    boraLib = import ../lib { inherit nixpkgs; };
+    flakeosLib = import ../lib { inherit nixpkgs; };
   in
   {
     testAtomicPreRebuildSnapshot = assertEq "atomic.preRebuildSnapshot"
-      (boraLib.atomic.preRebuildSnapshot "tank" "root" != "")
+      (flakeosLib.atomic.preRebuildSnapshot "tank" "root" != "")
       true;
 
     testAtomicBackupGeneration = assertEq "atomic.backupGeneration"
-      (boraLib.atomic.backupGeneration != "")
+      (flakeosLib.atomic.backupGeneration != "")
       true;
   }
 ) //

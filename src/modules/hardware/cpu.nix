@@ -1,11 +1,11 @@
 { config, lib, hardwareDB, ... }:
 with lib;
 let
-  cpuVendor = config.bora.hardware.cpuVendor or "intel";
+  cpuVendor = config.flakeos.hardware.cpuVendor or "intel";
   cpuCfg = hardwareDB.cpu.${cpuVendor} or hardwareDB.cpu.intel;
 in
 {
-  options.bora.hardware = {
+  options.flakeos.hardware = {
     cpuVendor = mkOption {
       type = types.enum [ "intel" "amd" "arm" ];
       default = "intel";
@@ -22,7 +22,7 @@ in
     hardware.cpu.amd.updateMicrocode = mkIf (cpuVendor == "amd") true;
     boot.kernelModules = cpuCfg.kernelModules;
     boot.kernelParams = cpuCfg.kernelParams
-      ++ (if config.bora.hardware.enableMitigations
+      ++ (if config.flakeos.hardware.enableMitigations
     then [ "mitigations=auto" ]
     else [ "mitigations=off" ]);
     powerManagement.cpuFreqGovernor = mkDefault cpuCfg.power.governor;

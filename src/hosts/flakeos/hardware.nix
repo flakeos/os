@@ -1,6 +1,6 @@
 { config, lib, modulesPath, ... }:
 let
-  fsCfg = config.bora.filesystem;
+  fsCfg = config.flakeos.filesystem;
 in
 
 {

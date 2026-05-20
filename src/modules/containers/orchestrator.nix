@@ -1,10 +1,10 @@
 { config, lib, ... }:
 with lib;
 let
-  cfg = config.bora.orchestrator;
+  cfg = config.flakeos.orchestrator;
 in
 {
-  options.bora.orchestrator = {
+  options.flakeos.orchestrator = {
     enable = mkEnableOption "MicroVM instance orchestrator";
     maxInstances = mkOption {
       type = types.int;
@@ -28,8 +28,8 @@ in
     };
   };
   config = mkIf cfg.enable {
-    systemd.services.bora-orchestrator = {
-      description = "Bora MicroVM Orchestrator";
+    systemd.services.flakeos-orchestrator = {
+      description = "FlakeOS MicroVM Orchestrator";
       after = [ "microvm-host.service" "network.target" ];
       wants = [ "microvm-host.service" ];
       wantedBy = [ "multi-user.target" ];
@@ -37,14 +37,14 @@ in
         Type = "simple";
         Restart = "always";
         RestartSec = 10;
-        StateDirectory = "bora-orchestrator";
+        StateDirectory = "flakeos-orchestrator";
       };
       script = ''
         set -euo pipefail
-        STATE_DIR="/var/lib/bora-orchestrator"
+        STATE_DIR="/var/lib/flakeos-orchestrator"
         mkdir -p "$STATE_DIR"
         echo "+cpu +memory +io +pids" > /sys/fs/cgroup/cgroup.subtree_control 2>/dev/null || true
-        mkdir -p /sys/fs/cgroup/bora 2>/dev/null || true
+        mkdir -p /sys/fs/cgroup/flakeos 2>/dev/null || true
         while true; do
           for vm in /var/lib/microvm/*/; do
             [ -d "$vm" ] || continue

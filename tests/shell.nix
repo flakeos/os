@@ -8,7 +8,7 @@ pkgs.mkShell {
     nixos-anywhere
   ];
   shellHook = ''
-    echo "Bora Test Environment"
+    echo "FlakeOS Test Environment"
     echo "Run: statix check ../src"
     echo "Run: deadnix ../src"
     echo "Run: nixpkgs-fmt --check ../src"
