@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
+      - name: Nix linting
+        run: nix develop --impure --command statix check src
+      - name: Dead code detection
+        run: nix develop --impure --command deadnix src
+      - name: Formatting check
+        run: nix develop --impure --command nixpkgs-fmt --check src
+      - name: Library tests
+        run: nix-instantiate --eval --strict tests/default.nix
+      - name: Module integration tests
+        run: nix-instantiate --eval --strict tests/modules.nix

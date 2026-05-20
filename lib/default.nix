@@ -1,9 +1,10 @@
 { nixpkgs }:
 let
-  lib = nixpkgs.lib;
+  inherit (nixpkgs) lib;
   inherit (builtins) readDir pathExists;
-  inherit (lib) attrNames filter hasPrefix mapAttrsToList optionalString;
-in {
+  inherit (lib) attrNames filter hasPrefix;
+in
+{
   hardware = import ./hardware.nix { inherit lib; };
   atomic = {
     preRebuildSnapshot = pool: dataset: ''
@@ -17,6 +18,7 @@ in {
     let
       isDir = path: (pathExists (dir + "/${path}")) && (hasPrefix "." path);
       entries = attrNames (readDir dir);
-      dirs = filter (name: isDir name) entries;
-    in map (name: dir + "/${name}") dirs;
+      dirs = filter isDir entries;
+    in
+    map (name: dir + "/${name}") dirs;
 }
