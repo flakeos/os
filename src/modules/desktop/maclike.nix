@@ -1,18 +1,18 @@
 { config, lib, pkgs, ... }:
 with lib;
 let
-  cfg = config.bora.desktop.layout;
-  initScript = pkgs.writeShellScriptBin "bora-desktop-init"
+  cfg = config.flakeos.desktop.layout;
+  initScript = pkgs.writeShellScriptBin "flakeos-desktop-init"
     (builtins.readFile ./../../../scripts/maclike/init-desktop.sh);
-  finalizeScript = pkgs.writeShellScriptBin "bora-desktop-finalize"
+  finalizeScript = pkgs.writeShellScriptBin "flakeos-desktop-finalize"
     (builtins.readFile ./../../../scripts/maclike/finalize.sh);
 in
 {
-  options.bora.desktop.layout = {
-    enable = mkEnableOption "Bora custom desktop layout";
+  options.flakeos.desktop.layout = {
+    enable = mkEnableOption "FlakeOS custom desktop layout";
     theme = mkOption {
-      type = types.enum [ "bora-dark" "bora-light" ];
-      default = "bora-dark";
+      type = types.enum [ "flakeos-dark" "flakeos-light" ];
+      default = "flakeos-dark";
     };
     layout = mkOption {
       type = types.enum [ "standard" "minimal" "floating" ];
@@ -81,13 +81,13 @@ in
       };
     };
 
-    system.activationScripts.bora-desktop = stringAfter [ "etc" ] ''
+    system.activationScripts.flakeos-desktop = stringAfter [ "etc" ] ''
       mkdir -p /etc/skel/.config/autostart
-      cat > /etc/skel/.config/autostart/bora-desktop-setup.desktop << 'EOF'
+      cat > /etc/skel/.config/autostart/flakeos-desktop-setup.desktop << 'EOF'
       [Desktop Entry]
       Type=Application
-      Name=Bora Desktop Initializer
-      Exec=${initScript}/bin/bora-desktop-init
+      Name=FlakeOS Desktop Initializer
+      Exec=${initScript}/bin/flakeos-desktop-init
       X-KDE-autostart-phase=2
       OnlyShowIn=KDE
       EOF
@@ -97,15 +97,15 @@ in
     services.desktopManager.plasma6.enableQt5Integration = false;
     security.polkit.enable = true;
 
-    systemd.user.services.bora-desktop-autostart = {
-      description = "Bora desktop finalizer";
+    systemd.user.services.flakeos-desktop-autostart = {
+      description = "FlakeOS desktop finalizer";
       after = [ "plasmashell.service" ];
       wantedBy = [ "plasma-workspace.target" ];
       partOf = [ "plasma-workspace.target" ];
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
-        ExecStart = "${finalizeScript}/bin/bora-desktop-finalize";
+        ExecStart = "${finalizeScript}/bin/flakeos-desktop-finalize";
       };
     };
   };

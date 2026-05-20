@@ -44,28 +44,28 @@ in
       in
       assertEq "module.loading.hostname" cfg.networking.hostName "test";
 
-    # Verify bora modules registered their options
+    # Verify flakeos modules registered their options
     testBoraOptionsExist =
       let
         cfg = minimalConfig.config;
       in
-      assertEq "bora.options.exist" (cfg ? bora) true;
+      assertEq "flakeos.options.exist" (cfg ? flakeos) true;
 
     # Verify enableNvidiaPrime defaults to false
     testEnableNvidiaPrimeDefault =
       let
         cfg = minimalConfig.config;
       in
-      assertEq "bora.hardware.enableNvidiaPrime.default"
-        (if cfg ? bora && cfg.bora ? hardware then (cfg.bora.hardware.enableNvidiaPrime or false) else false)
+      assertEq "flakeos.hardware.enableNvidiaPrime.default"
+        (if cfg ? flakeos && cfg.flakeos ? hardware then (cfg.flakeos.hardware.enableNvidiaPrime or false) else false)
         false;
 
-    # Verify bora container options registered
+    # Verify flakeos container options registered
     testBoraContainerOptions =
       let
         cfg = minimalConfig.config;
       in
-      assertEq "bora.options.containers.exist" (cfg ? bora && cfg.bora ? containers) true;
+      assertEq "flakeos.options.containers.exist" (cfg ? flakeos && cfg.flakeos ? containers) true;
   }
 ) //
 
@@ -143,11 +143,11 @@ in
           nixpkgs.config.allowUnfree = true;
         })
         (_: {
-          bora.spring.application = {
+          flakeos.spring.application = {
             enable = true;
             name = "testapp";
           };
-          bora.spring.beans = {
+          flakeos.spring.beans = {
             database = {
               enable = true;
               class = "Database";

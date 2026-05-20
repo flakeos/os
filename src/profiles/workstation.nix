@@ -1,7 +1,7 @@
 { lib, ... }:
 with lib;
 {
-  bora = {
+  flakeos = {
     desktop = {
       kde.enable = mkDefault true;
       audio.enable = mkDefault true;

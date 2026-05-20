@@ -33,11 +33,11 @@ build_iso() {
   ls -lh "${OUTPUT_DIR}/${name}"
 }
 
-build_iso '.#packages.x86_64-linux.iso-minimal' 'bora-minimal.iso'
-build_iso '.#packages.x86_64-linux.iso-desktop' 'bora-desktop.iso'
-build_iso '.#packages.x86_64-linux.iso-laptop' 'bora-laptop.iso'
-build_iso '.#packages.x86_64-linux.iso-server' 'bora-server.iso'
+build_iso '.#packages.x86_64-linux.iso-minimal' 'flakeos-minimal.iso'
+build_iso '.#packages.x86_64-linux.iso-desktop' 'flakeos-desktop.iso'
+build_iso '.#packages.x86_64-linux.iso-laptop' 'flakeos-laptop.iso'
+build_iso '.#packages.x86_64-linux.iso-server' 'flakeos-server.iso'
 
 echo ""
 echo "All ISOs built in ${OUTPUT_DIR}:"
-ls -lh "${OUTPUT_DIR}"/bora-*.iso
+ls -lh "${OUTPUT_DIR}"/flakeos-*.iso

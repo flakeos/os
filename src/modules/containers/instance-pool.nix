@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 with lib;
 let
-  cfg = config.bora.containers.instancePool;
+  cfg = config.flakeos.containers.instancePool;
   scriptsDir = ./../../../scripts/pool;
   poolManager = pkgs.writeShellScriptBin "pool-manager"
     (builtins.readFile (scriptsDir + "/pool-manager.sh"));
@@ -13,7 +13,7 @@ let
     (builtins.readFile (scriptsDir + "/stats.sh"));
 in
 {
-  options.bora.containers.instancePool = {
+  options.flakeos.containers.instancePool = {
     enable = mkEnableOption "MicroVM instance pool orchestrator";
     maxInstances = mkOption {
       type = types.int;
@@ -52,7 +52,7 @@ in
     systemd.services = {
       create-pool-zfs = {
         description = "Create ZFS dataset for instance pool";
-        before = [ "bora-pool.service" ];
+        before = [ "flakeos-pool.service" ];
         wantedBy = [ "multi-user.target" ];
         path = with pkgs; [ zfs ];
         script = ''
@@ -62,12 +62,12 @@ in
             zroot/root/instance-pool 2>/dev/null || true
         '';
       };
-      bora-cgroup-pool = {
+      flakeos-cgroup-pool = {
         description = "Instance pool cgroup v2 hierarchy";
-        before = [ "bora-pool.service" ];
+        before = [ "flakeos-pool.service" ];
         wantedBy = [ "multi-user.target" ];
         script = ''
-          CG="/sys/fs/cgroup/bora/pool"
+          CG="/sys/fs/cgroup/flakeos/pool"
           mkdir -p "$CG"
           echo ${cfg.memPerInstance} > "$CG/memory.max"
           echo ${cfg.memPerInstance} > "$CG/memory.high"
@@ -77,7 +77,7 @@ in
           echo "8:0  ${cfg.storagePerInstance}" > "$CG/io.max"
         '';
       };
-      bora-pool = {
+      flakeos-pool = {
         description = "MicroVM Instance Pool";
         after = [ "network.target" "microvm-host.service" "create-pool-zfs.service" ];
         wants = [ "microvm-host.service" ];
@@ -113,7 +113,7 @@ in
           trusted_proxies static private_ranges
              }
       '';
-      virtualHosts."*.pool.bora.local" = {
+      virtualHosts."*.pool.flakeos.local" = {
         extraConfig = ''
           @ws {
             header Connection *Upgrade*

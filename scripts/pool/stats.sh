@@ -13,6 +13,6 @@ for dir in "${POOL_DIR}"/running/*; do
   [ -d "${dir}" ] || continue
   INST_ID=$(basename "${dir}")
   PORT=$(cut -d: -f2 < "${dir}/.metadata" 2>/dev/null || true)
-  MEM=$(cat /sys/fs/cgroup/bora/pool/"${INST_ID}"/memory.current 2>/dev/null | numfmt --to=iec 2>/dev/null || echo "N/A")
+  MEM=$(cat /sys/fs/cgroup/flakeos/pool/"${INST_ID}"/memory.current 2>/dev/null | numfmt --to=iec 2>/dev/null || echo "N/A")
   printf "  %-35s port=%-6s mem=%s\n" "${INST_ID}" "${PORT}" "${MEM}"
 done

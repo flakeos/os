@@ -1,6 +1,6 @@
 { lib, ... }:
 with lib; {
-  options.bora.filesystem.bootDevice = mkOption {
+  options.flakeos.filesystem.bootDevice = mkOption {
     type = types.str;
     default = "/dev/disk/by-uuid/BOOT-UUID";
     description = "Boot partition device path";
