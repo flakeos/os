@@ -18,6 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
       - uses: DeterminateSystems/magic-nix-cache-action@v8
         with:
           use-flakehub: false
