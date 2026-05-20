@@ -3,7 +3,7 @@ with lib;
 let
   cfg = config.bora.desktop.kde;
   kdeMinimal = with pkgs; [
-    plasma6
+    kdePackages.plasma-desktop
     kdePackages.plasma-workspace
     kdePackages.kwin
     kdePackages.kirigami
@@ -11,11 +11,11 @@ let
     kdePackages.plasma-integration
     kdePackages.breeze-icons
     kdePackages.breeze-gtk
-    kdePackages.breeze-qt5
+
     kdePackages.konsole
     kdePackages.systemsettings
-    dolphin
-    kate
+    kdePackages.dolphin
+    kdePackages.kate
   ];
 in
 {
@@ -70,10 +70,11 @@ in
       enableDefaultPackages = true;
       packages = with pkgs; [
         noto-fonts
-        noto-fonts-cjk
-        noto-fonts-emoji
+        noto-fonts-cjk-sans
+        noto-fonts-color-emoji
         source-code-pro
-        (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" ]; })
+        nerd-fonts.jetbrains-mono
+        nerd-fonts.fira-code
       ];
       fontconfig.defaultFonts = {
         serif = [ "Noto Serif" ];

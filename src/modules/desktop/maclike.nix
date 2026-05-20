@@ -1,11 +1,11 @@
-{ config, lib, pkgs, username, ... }:
+{ config, lib, pkgs, ... }:
 with lib;
 let
   cfg = config.bora.desktop.layout;
   initScript = pkgs.writeShellScriptBin "bora-desktop-init"
-    (builtins.readFile ./../../../../scripts/maclike/init-desktop.sh);
+    (builtins.readFile ./../../../scripts/maclike/init-desktop.sh);
   finalizeScript = pkgs.writeShellScriptBin "bora-desktop-finalize"
-    (builtins.readFile ./../../../../scripts/maclike/finalize.sh);
+    (builtins.readFile ./../../../scripts/maclike/finalize.sh);
 in
 {
   options.bora.desktop.layout = {
@@ -33,7 +33,7 @@ in
   config = mkIf cfg.enable {
     environment = {
       systemPackages = with pkgs; [
-        plasma6
+        kdePackages.plasma-desktop
         kdePackages.plasma-workspace
         kdePackages.kwin
         kdePackages.konsole
@@ -44,11 +44,10 @@ in
         kdePackages.qqc2-breeze-style
         kdePackages.breeze-icons
         kdePackages.breeze-gtk
-        kdePackages.breeze-qt5
+
         kdePackages.plasma-integration
         tela-circle-icon-theme
-        (kdePackages.plasma6.pkgs.applet-window-buttons or kdePackages.applet-window-buttons)
-        (kdePackages.plasma6.pkgs.applet-window-title or kdePackages.applet-window-title)
+        kdePackages.applet-window-buttons6
         initScript
         finalizeScript
       ];
@@ -63,14 +62,14 @@ in
       };
       etc = {
         "skel/.config/plasma-org.kde.plasma.desktop-appletsrc".source =
-          ./../../../../config/desktop/plasma-appletsrc;
+          ./../../../config/desktop/plasma-appletsrc;
         "skel/.config/kdeglobals".source =
-          ./../../../../config/desktop/kdeglobals;
+          ./../../../config/desktop/kdeglobals;
         "skel/.config/kwinrc".source =
-          ./../../../../config/desktop/kwinrc;
+          ./../../../config/desktop/kwinrc;
         "skel/.config/khotkeysrc".text =
           builtins.replaceStrings [ "Alt+F1" ] [ cfg.nexusKey ]
-            (builtins.readFile ./../../../../config/desktop/khotkeysrc);
+            (builtins.readFile ./../../../config/desktop/khotkeysrc);
         "skel/.config/plasmarc".text = ''
           [Theme]
           name=Breeze
