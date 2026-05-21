@@ -4,7 +4,7 @@ set -euo pipefail
 STATE_DIR="${1:?STATE_DIR required}"
 CGROUP_PARENT="${2:?CGROUP_PARENT required}"
 MICROVM_DIR="${3:?MICROVM_DIR required}"
-INTERVAL="${4:-30}"
+INTERVAL="${4:?INTERVAL required}"
 
 mkdir -p "$STATE_DIR"
 echo "+cpu +memory +io +pids" > /sys/fs/cgroup/cgroup.subtree_control 2>/dev/null || true

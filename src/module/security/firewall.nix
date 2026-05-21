@@ -3,11 +3,15 @@ with lib;
 let cfg = config.flakeos.security.firewall; in {
   options.flakeos.security.firewall = {
     enable = mkEnableOption "nftables firewall";
-    lanRanges = mkOption { type = types.listOf types.str; default = [ "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16" ]; };
+    lanRanges = mkOption { type = types.listOf types.str; default = [ "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/24" ]; };
     sshPort = mkOption { type = types.port; default = 22; };
     wanInterface = mkOption { type = types.str; default = "eth0"; };
     microvmInterface = mkOption { type = types.str; default = "microvm"; };
     icmpRateLimit = mkOption { type = types.str; default = "10/second"; };
+    mdnsPort = mkOption { type = types.port; default = 5353; };
+    dhcpPorts = mkOption { type = types.listOf types.port; default = [ 67 68 ]; };
+    inputLogPrefix = mkOption { type = types.str; default = "NF:DROP-INPUT: "; };
+    forwardLogPrefix = mkOption { type = types.str; default = "NF:DROP-FORWARD: "; };
   };
   config = mkIf cfg.enable {
     networking.nftables = {
@@ -32,17 +36,17 @@ let cfg = config.flakeos.security.firewall; in {
             tcp dport ${toString cfg.sshPort} ip saddr {
               ${builtins.concatStringsSep ", " cfg.lanRanges}
             } accept;
-            udp dport 5353 ip saddr {
+            udp dport ${toString cfg.mdnsPort} ip saddr {
               ${builtins.concatStringsSep ", " cfg.lanRanges}
             } accept;
-            udp dport { 67, 68 } accept;
-            log prefix "NF:DROP-INPUT: " drop;
+            udp dport { ${concatStringsSep ", " (map toString cfg.dhcpPorts)} } accept;
+            log prefix "${cfg.inputLogPrefix}" drop;
           }
           chain forward {
             type filter hook forward priority 0; policy drop;
             ct state { established, related } accept;
             iifname "${cfg.microvmInterface}" accept;
-            log prefix "NF:DROP-FORWARD: " drop;
+            log prefix "${cfg.forwardLogPrefix}" drop;
           }
           chain output {
             type filter hook output priority 0; policy accept;

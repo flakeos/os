@@ -28,11 +28,12 @@ in
       type = types.enum [ "cyan" "purple" "blue" "green" "orange" ];
       default = "cyan";
     };
-  };
-
-  config = mkIf cfg.enable {
-    environment = {
-      systemPackages = with pkgs; [
+    enableSddmWayland = mkOption { type = types.bool; default = true; };
+    enableQt5Integration = mkOption { type = types.bool; default = false; };
+    enablePolkit = mkOption { type = types.bool; default = true; };
+    packages = mkOption {
+      type = types.listOf types.package;
+      default = with pkgs; [
         kdePackages.plasma-desktop
         kdePackages.plasma-workspace
         kdePackages.kwin
@@ -44,13 +45,20 @@ in
         kdePackages.qqc2-breeze-style
         kdePackages.breeze-icons
         kdePackages.breeze-gtk
-
         kdePackages.plasma-integration
         tela-circle-icon-theme
         kdePackages.applet-window-buttons6
         initScript
         finalizeScript
       ];
+    };
+    plasmarcTheme = mkOption { type = types.str; default = "Breeze"; };
+    wallpaperFillMode = mkOption { type = types.int; default = 2; };
+  };
+
+  config = mkIf cfg.enable {
+    environment = {
+      systemPackages = cfg.packages;
       sessionVariables = {
         KDE_SESSION_VERSION = "6";
         XDG_CURRENT_DESKTOP = "KDE";
@@ -72,9 +80,9 @@ in
             (builtins.readFile ./../../config/desktop/khotkeysrc);
         "skel/.config/plasmarc".text = ''
           [Theme]
-          name=Breeze
+          name=${cfg.plasmarcTheme}
           [Wallpaper]
-          fillMode=2
+          fillMode=${toString cfg.wallpaperFillMode}
           [PlasmaViews]
           PanelOpacity=${if cfg.enableTransparency then "0.70" else "1.0"}
         '';
@@ -83,9 +91,9 @@ in
       };
     };
 
-    services.displayManager.sddm.wayland.enable = true;
-    services.desktopManager.plasma6.enableQt5Integration = false;
-    security.polkit.enable = true;
+    services.displayManager.sddm.wayland.enable = cfg.enableSddmWayland;
+    services.desktopManager.plasma6.enableQt5Integration = cfg.enableQt5Integration;
+    security.polkit.enable = cfg.enablePolkit;
 
     systemd.user.services.flakeos-desktop-autostart = {
       description = "FlakeOS desktop finalizer";

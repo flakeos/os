@@ -7,6 +7,10 @@ with lib;
     vcpu = mkOption { type = types.int; default = 2; };
     packages = mkOption { type = types.listOf types.package; default = with pkgs; [ firefox chromium ]; };
     hostUid = mkOption { type = types.int; default = 1000; };
+    homeSource = mkOption { type = types.str; default = "/home"; };
+    homeMountPoint = mkOption { type = types.str; default = "/mnt/home"; };
+    x11Socket = mkOption { type = types.str; default = "/tmp/.X11-unix/X0"; };
+    enablePipewire = mkOption { type = types.bool; default = true; };
   };
 
   config = mkIf config.flakeos.guest.sandbox.enable
@@ -22,12 +26,12 @@ with lib;
             host = "microvm";
           }];
           shares = [{
-            source = "/home";
-            mountPoint = "/mnt/home";
+            source = config.flakeos.guest.sandbox.homeSource;
+            mountPoint = config.flakeos.guest.sandbox.homeMountPoint;
             type = "virtiofs";
           }];
           sockets = [
-            "/tmp/.X11-unix/X0"
+            config.flakeos.guest.sandbox.x11Socket
             "/run/user/${uidStr}/wayland-0"
             "/run/user/${uidStr}/pipewire-0"
             "/run/user/${uidStr}/pulse"
@@ -35,9 +39,8 @@ with lib;
           mem = config.flakeos.guest.sandbox.mem;
           vcpu = config.flakeos.guest.sandbox.vcpu;
         };
-        services.pipewire.enable = true;
+        services.pipewire.enable = config.flakeos.guest.sandbox.enablePipewire;
         environment.systemPackages = config.flakeos.guest.sandbox.packages;
-        system.stateVersion = "25.11";
       }
     );
 }

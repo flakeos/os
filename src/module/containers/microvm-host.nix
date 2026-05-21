@@ -6,7 +6,18 @@ let cfg = config.flakeos.containers.microvm; in {
     stateDir = mkOption {
       type = types.path;
       default = "/var/lib/microvm";
-      description = "Directory for MicroVM storage";
+    };
+    zfsDataset = mkOption {
+      type = types.str;
+      default = "zroot/root/microvm";
+    };
+    kernelModules = mkOption {
+      type = types.listOf types.str;
+      default = [ "virtio" "virtio_net" "virtio_blk" "virtiofs" "virtio_gpu" ];
+    };
+    initrdKernelModules = mkOption {
+      type = types.listOf types.str;
+      default = [ "virtiofs" ];
     };
   };
   config = mkIf cfg.enable {
@@ -15,12 +26,12 @@ let cfg = config.flakeos.containers.microvm; in {
       inherit (cfg) stateDir;
     };
     fileSystems.${cfg.stateDir} = {
-      device = "zroot/root/microvm";
+      device = cfg.zfsDataset;
       fsType = "zfs";
       neededForBoot = true;
     };
-    boot.kernelModules = [ "virtio" "virtio_net" "virtio_blk" "virtiofs" "virtio_gpu" ];
-    boot.initrd.kernelModules = [ "virtiofs" ];
+    boot.kernelModules = cfg.kernelModules;
+    boot.initrd.kernelModules = cfg.initrdKernelModules;
     users.groups.microvm = { };
   };
 }

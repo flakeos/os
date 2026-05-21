@@ -3,7 +3,7 @@ set -euo pipefail
 
 POOL="${1:?POOL name required}"
 MOUNTPOINT="${2:?MOUNTPOINT required}"
-QUOTA="${3:-2G}"
+QUOTA="${3:?QUOTA required}"
 
 zfs create -o mountpoint="${MOUNTPOINT}" \
   -o atime=off -o compression=zstd-3 \

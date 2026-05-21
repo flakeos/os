@@ -6,6 +6,12 @@ let cfg = config.flakeos.core.nix; in {
     maxSubstitutionJobs = mkOption { type = types.int; default = 64; };
     minFree = mkOption { type = types.int; default = 1073741824; };
     maxFree = mkOption { type = types.int; default = 5368709120; };
+    package = mkOption { type = types.package; default = pkgs.nixVersions.stable; };
+    experimentalFeatures = mkOption {
+      type = types.listOf types.str;
+      default = [ "nix-command" "flakes" "auto-allocate-uids" "ca-derivations" ];
+    };
+    autoOptimiseStore = mkOption { type = types.bool; default = true; };
     substituters = mkOption {
       type = types.listOf types.str;
       default = [
@@ -24,9 +30,15 @@ let cfg = config.flakeos.core.nix; in {
       ];
     };
     trustedUsers = mkOption { type = types.listOf types.str; default = [ "root" "@wheel" ]; };
-    gcInterval = mkOption { type = types.str; default = "weekly"; };
-    gcOptions = mkOption { type = types.str; default = "--delete-older-than 14d"; };
-    optimizeInterval = mkOption { type = types.listOf types.str; default = [ "03:00" ]; };
+    gc = {
+      automatic = mkOption { type = types.bool; default = true; };
+      interval = mkOption { type = types.str; default = "weekly"; };
+      options = mkOption { type = types.str; default = "--delete-older-than 14d"; };
+    };
+    optimise = {
+      automatic = mkOption { type = types.bool; default = true; };
+      dates = mkOption { type = types.listOf types.str; default = [ "03:00" ]; };
+    };
     nixPathEntries = mkOption {
       type = types.listOf types.str;
       default = [
@@ -37,10 +49,10 @@ let cfg = config.flakeos.core.nix; in {
   };
   config = {
     nix = {
-      package = pkgs.nixVersions.stable;
+      package = cfg.package;
       settings = {
-        experimental-features = [ "nix-command" "flakes" "auto-allocate-uids" "ca-derivations" ];
-        auto-optimise-store = true;
+        experimental-features = cfg.experimentalFeatures;
+        auto-optimise-store = cfg.autoOptimiseStore;
         max-jobs = mkDefault cfg.maxJobs;
         max-substitution-jobs = cfg.maxSubstitutionJobs;
         min-free = cfg.minFree;
@@ -50,13 +62,13 @@ let cfg = config.flakeos.core.nix; in {
         trusted-users = cfg.trustedUsers;
       };
       gc = {
-        automatic = true;
-        dates = cfg.gcInterval;
-        options = cfg.gcOptions;
+        automatic = cfg.gc.automatic;
+        dates = cfg.gc.interval;
+        options = cfg.gc.options;
       };
       optimise = {
-        automatic = true;
-        dates = cfg.optimizeInterval;
+        automatic = cfg.optimise.automatic;
+        dates = cfg.optimise.dates;
       };
       nixPath = cfg.nixPathEntries;
     };

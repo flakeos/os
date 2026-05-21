@@ -4,6 +4,11 @@ let cfg = config.flakeos.filesystem.impermanence; in {
   options.flakeos.filesystem.impermanence = {
     persistPath = mkOption { type = types.str; default = "/persist"; };
     zfsPool = mkOption { type = types.str; default = "zroot"; };
+    hideMounts = mkOption { type = types.bool; default = true; };
+    persistFsType = mkOption { type = types.str; default = "zfs"; };
+    persistNeededForBoot = mkOption { type = types.bool; default = true; };
+    homeFsType = mkOption { type = types.str; default = "zfs"; };
+    homeNeededForBoot = mkOption { type = types.bool; default = true; };
     persistDirectories = mkOption {
       type = types.listOf types.str;
       default = [
@@ -59,7 +64,7 @@ let cfg = config.flakeos.filesystem.impermanence; in {
   };
   config = mkIf (username != "") {
     environment.persistence."${cfg.persistPath}" = {
-      hideMounts = true;
+      hideMounts = cfg.hideMounts;
       directories = cfg.persistDirectories;
       files = cfg.persistFiles;
       users.${username} = {
@@ -69,13 +74,13 @@ let cfg = config.flakeos.filesystem.impermanence; in {
     };
     fileSystems."${cfg.persistPath}" = {
       device = "${cfg.zfsPool}/root/persist";
-      fsType = "zfs";
-      neededForBoot = true;
+      fsType = cfg.persistFsType;
+      neededForBoot = cfg.persistNeededForBoot;
     };
     fileSystems."/home" = {
       device = "${cfg.zfsPool}/root/home";
-      fsType = "zfs";
-      neededForBoot = true;
+      fsType = cfg.homeFsType;
+      neededForBoot = cfg.homeNeededForBoot;
     };
   };
 }

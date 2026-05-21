@@ -3,15 +3,27 @@ with lib;
 let cfg = config.flakeos.filesystem.disko; in {
   options.flakeos.filesystem.disko = {
     enable = mkEnableOption "disko declarative partitioning";
-    disk = mkOption {
-      type = types.str;
-      default = "/dev/nvme0n1";
-      description = "Target disk device for partitioning";
-    };
-    zfsPool = mkOption {
-      type = types.str;
-      default = "zroot";
-      description = "ZFS pool name";
+    disk = mkOption { type = types.str; };
+    zfsPool = mkOption { type = types.str; default = "zroot"; };
+    bootSize = mkOption { type = types.str; default = "1G"; };
+    bootPartitionType = mkOption { type = types.str; default = "EF00"; };
+    bootFormat = mkOption { type = types.str; default = "vfat"; };
+    bootMountpoint = mkOption { type = types.str; default = "/boot"; };
+    zfsSize = mkOption { type = types.str; default = "100%"; };
+    datasets = mkOption {
+      type = types.attrsOf (types.submodule {
+        options = {
+          mountpoint = mkOption { type = types.str; };
+        };
+      });
+      default = {
+        "root" = { mountpoint = "/"; };
+        "root/nix" = { mountpoint = "/nix"; };
+        "root/home" = { mountpoint = "/home"; };
+        "root/persist" = { mountpoint = "/persist"; };
+        "root/var" = { mountpoint = "/var"; };
+        "root/tmp" = { mountpoint = "/tmp"; };
+      };
     };
   };
   config = mkIf cfg.enable {
@@ -23,16 +35,16 @@ let cfg = config.flakeos.filesystem.disko; in {
           type = "gpt";
           partitions = {
             boot = {
-              size = "1G";
-              type = "EF00";
+              size = cfg.bootSize;
+              type = cfg.bootPartitionType;
               content = {
                 type = "filesystem";
-                format = "vfat";
-                mountpoint = "/boot";
+                format = cfg.bootFormat;
+                mountpoint = cfg.bootMountpoint;
               };
             };
             zfs = {
-              size = "100%";
+              size = cfg.zfsSize;
               content = {
                 type = "zfs";
                 pool = cfg.zfsPool;
@@ -44,14 +56,12 @@ let cfg = config.flakeos.filesystem.disko; in {
       zpool.${cfg.zfsPool} = {
         type = "zpool";
         mode = "";
-        datasets = {
-          "root" = { type = "zfs_fs"; mountpoint = "/"; };
-          "root/nix" = { type = "zfs_fs"; mountpoint = "/nix"; };
-          "root/home" = { type = "zfs_fs"; mountpoint = "/home"; };
-          "root/persist" = { type = "zfs_fs"; mountpoint = "/persist"; };
-          "root/var" = { type = "zfs_fs"; mountpoint = "/var"; };
-          "root/tmp" = { type = "zfs_fs"; mountpoint = "/tmp"; };
-        };
+        datasets = builtins.mapAttrs
+          (_name: ds: {
+            type = "zfs_fs";
+            mountpoint = ds.mountpoint;
+          })
+          cfg.datasets;
       };
     };
   };

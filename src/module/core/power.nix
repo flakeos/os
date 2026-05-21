@@ -8,6 +8,7 @@ let cfg = config.flakeos.core.power; in {
     };
     earlyoom = {
       enable = mkOption { type = types.bool; default = true; };
+      enableNotifications = mkOption { type = types.bool; default = true; };
     };
     panicTimeout = mkOption { type = types.int; default = 10; };
     enableOopsPanic = mkOption { type = types.bool; default = false; };
@@ -21,7 +22,7 @@ let cfg = config.flakeos.core.power; in {
     services.thermald.enable = cfg.thermald.enable;
     services.earlyoom = {
       enable = cfg.earlyoom.enable;
-      enableNotifications = true;
+      enableNotifications = cfg.earlyoom.enableNotifications;
     };
     powerManagement.cpuFreqGovernor = mkDefault cfg.cpuFreqGovernor;
   };

@@ -7,11 +7,20 @@ with lib;
     vcpu = mkOption { type = types.int; default = 1; };
     hostUid = mkOption { type = types.int; default = 1000; };
     workspaceDir = mkOption { type = types.str; default = "/var/lib/instance-pool/workspaces"; };
+    x11Socket = mkOption { type = types.str; default = "/tmp/.X11-unix/X0"; };
+    waylandSocket = mkOption { type = types.str; default = ""; };
   };
 
   config = mkIf config.flakeos.guest.example.enable
     (
-      let uidStr = toString config.flakeos.guest.example.hostUid; in {
+      let
+        uidStr = toString config.flakeos.guest.example.hostUid;
+        waylandPath =
+          if config.flakeos.guest.example.waylandSocket != ""
+          then config.flakeos.guest.example.waylandSocket
+          else "/run/user/${uidStr}/wayland-0";
+      in
+      {
         microvm = {
           guest.enable = true;
           interfaces = [{
@@ -24,13 +33,12 @@ with lib;
             type = "virtiofs";
           }];
           sockets = [
-            "/tmp/.X11-unix/X0"
-            "/run/user/${uidStr}/wayland-0"
+            config.flakeos.guest.example.x11Socket
+            waylandPath
           ];
           mem = config.flakeos.guest.example.mem;
           vcpu = config.flakeos.guest.example.vcpu;
         };
-        system.stateVersion = "25.11";
       }
     );
 }
