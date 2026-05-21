@@ -68,6 +68,12 @@ in
     };
   };
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = !config.flakeos.desktop.hyprland.enable;
+        message = "KDE Plasma 6 cannot be enabled alongside Hyprland";
+      }
+    ];
     services = {
       displayManager.sddm = mkIf cfg.enableSddm {
         enable = true;
