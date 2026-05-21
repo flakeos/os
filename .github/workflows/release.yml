@@ -96,20 +96,22 @@ jobs:
                 >> release-notes.md
             fi
           fi
-      - name: Split large ISOs and package with join script
+      - name: Package ISOs with join script
         run: |
           for iso in isos/*.iso; do
+            base="$(basename "$iso")"
+            dir="isos/${base}-bundle"
+            mkdir -p "$dir"
             size=$(stat -c%s "$iso")
             if [ "$size" -gt 1900000000 ]; then
-              base="$(basename "$iso")"
-              dir="isos/${base}-parts"
-              mkdir -p "$dir"
               split -b 1900M "$iso" "${dir}/${base}.part-"
-              cp src/scripts/build/iso-join.sh "${dir}/join.sh"
-              chmod +x "${dir}/join.sh"
-              (cd "$dir" && zip -r "../${base}.zip" .)
-              rm -rf "$iso" "$dir"
+            else
+              cp "$iso" "${dir}/${base}"
             fi
+            cp src/scripts/build/iso-join.sh "${dir}/join.sh"
+            chmod +x "${dir}/join.sh"
+            (cd "$dir" && zip -r "../${base}.zip" .)
+            rm -rf "$iso" "$dir"
           done
       - name: Create Release
         env:
