@@ -44,7 +44,7 @@ jobs:
     needs: [validate]
     strategy:
       matrix:
-        variant: [minimal, desktop, laptop, server, hyprland]
+        variant: [minimal, desktop, laptop, server, hyprland, gnome]
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
