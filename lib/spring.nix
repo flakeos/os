@@ -1,6 +1,6 @@
 { lib, pkgs, ... }:
 let
-  inherit (builtins) toString mapAttrs;
+  inherit (builtins) toString mapAttrs attrNames genList elemAt head filter tail;
   inherit (lib)
     types mkOption mkEnableOption
     mapAttrsToList filterAttrs
@@ -136,35 +136,23 @@ rec {
 
   tsort = items:
     let
-      sorted = lib.toposort
-        (a: b:
-          let
-            aDependsOnB = any (dep: dep == b.name) a.allDeps;
-            bDependsOnA = any (dep: dep == a.name) b.allDeps;
-          in
-          if aDependsOnB then lib.TO_AFTER
-          else if bDependsOnA then lib.TO_BEFORE
-          else lib.TO_UNORDERED
-        )
-        items;
+      names = map (n: n.name) items;
+      depsOf = name: builtins.head (map (i: i.allDeps) (builtins.filter (i: i.name == name) items));
+      sorted = lib.sort (a: b: any (dep: dep == b) (depsOf a)) names;
     in
-      sorted.result or [ ];
+      map (n: builtins.head (builtins.filter (i: i.name == n) items)) sorted;
 
   detectCircular = beans:
     let
-      result = lib.toposort
-        (a: b:
-          let
-            aDependsOnB = any (dep: dep == b.name) a.allDeps;
-            bDependsOnA = any (dep: dep == a.name) b.allDeps;
-          in
-          if aDependsOnB then lib.TO_AFTER
-          else if bDependsOnA then lib.TO_BEFORE
-          else lib.TO_UNORDERED
-        )
-        (beanGraph beans);
+      graph = beanGraph beans;
+      names = map (n: n.name) graph;
+      depsOf = name: builtins.head (map (i: i.allDeps) (builtins.filter (i: i.name == name) graph));
+      visit = current: visited: stack:
+        if builtins.elem current stack then true
+        else if builtins.elem current visited then false
+        else builtins.foldl' (acc: dep: acc || visit dep (visited ++ [ current ]) (stack ++ [ current ])) false (depsOf current);
     in
-      result.cyclic or [ ];
+      builtins.filter (name: visit name [ ] [ ]) names;
 
   resolveBeanConfig = beans:
     let

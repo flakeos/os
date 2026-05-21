@@ -2,7 +2,7 @@
 
 let
   inherit (nixpkgs) lib;
-  flakeosLib = import ../lib { inherit nixpkgs; };
+  flakeosLib = import ../../lib { inherit nixpkgs; };
   hw = flakeosLib.hardware;
 
   inherit (builtins) toString;
@@ -146,7 +146,7 @@ in
 
 (
   let
-    flakeosLib = import ../lib { inherit nixpkgs; };
+    flakeosLib = import ../../lib { inherit nixpkgs; };
   in
   {
     testAtomicPreRebuildSnapshot = assertEq "atomic.preRebuildSnapshot"
