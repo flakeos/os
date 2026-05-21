@@ -178,7 +178,7 @@ rec {
       })
       sortedNames);
 
-  scriptsDir = ../scripts/spring;
+  scriptsDir = ../src/scripts/spring;
   circuitBreaker = builtins.readFile (scriptsDir + "/circuit-breaker.sh");
   healthcheck = builtins.readFile (scriptsDir + "/healthcheck.sh");
   beanWrapper = builtins.readFile (scriptsDir + "/bean-wrapper.sh");
