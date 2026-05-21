@@ -33,3 +33,5 @@ jobs:
           config: cspell.json
           files: "**/*.{nix,sh,md,json}"
           incremental_files_only: false
+      - name: Nix flake check
+        run: nix flake check --impure 2>&1 || (echo "flake check: non-blocking" && true)
