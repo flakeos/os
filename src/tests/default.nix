@@ -14,9 +14,6 @@ let
 
 in
 
-# =============================================================================
-  # hardware.nix tests
-  # =============================================================================
 (
   let
     cpuVendors = hw.cpu;
@@ -25,7 +22,6 @@ in
   in
 
   {
-    # CPU vendor structures
     testCpuIntel = assertEq "cpu.intel.name" cpuVendors.intel.name "Intel";
     testCpuIntelModules = assertEq "cpu.intel.kernelModules" cpuVendors.intel.kernelModules [ "kvm-intel" "intel_rapl" "intel_uncore" ];
 
@@ -34,14 +30,11 @@ in
 
     testCpuARM = assertEq "cpu.arm.name" cpuVendors.arm.name "ARM";
 
-    # gpuConfig / cpuConfig accessors
     testGpuConfig = assertEq "gpuConfig nvidia" (hw.gpuConfig "nvidia").name "NVIDIA";
     testCpuConfig = assertEq "cpuConfig intel" (hw.cpuConfig "intel").name "Intel";
 
-    # fallback: unknown GPU returns AMD
     testGpuConfigFallback = assertEq "gpuConfig unknown->amd" (hw.gpuConfig "unknown").name "AMD";
 
-    # GPU vendor structures
     testGpuNvidia = assertEq "gpu.nvidia.name" gpuVendors.nvidia.name "NVIDIA";
     testGpuNvidiaDrivers = assertEq "gpu.nvidia.drivers" gpuVendors.nvidia.drivers [ "nvidia" ];
     testGpuNvidiaPrime = assertEq "gpu.nvidia.prime.sync" gpuVendors.nvidia.prime.sync false;
@@ -53,21 +46,16 @@ in
     testGpuIntel = assertEq "gpu.intel.name" gpuVendors.intel.name "Intel";
     testGpuIntelDrivers = assertEq "gpu.intel.drivers" gpuVendors.intel.drivers [ "modesetting" ];
 
-    # Profile options
     testProfileDesktop = assertEq "profileOpts.desktop.powerManagement.enable" profiles.desktop.powerManagement.enable true;
     testProfileLaptop = assertEq "profileOpts.laptop.powerManagement.enable" profiles.laptop.powerManagement.enable true;
     testProfileServer = assertEq "profileOpts.server.powerManagement.enable" profiles.server.powerManagement.enable false;
   }
 ) //
 
-# =============================================================================
-# spring.nix tests
-# =============================================================================
 (
   let
     spring = import ../../lib/spring.nix { inherit lib; pkgs = nixpkgs; };
 
-    # Minimal bean set for topological sort test
     healthyBeans = {
       webapp = { enable = true; class = "WebApp"; deps = [ "database" "cache" ]; };
       database = { enable = true; class = "Database"; deps = [ ]; };
@@ -75,19 +63,16 @@ in
       queue = { enable = true; class = "Queue"; deps = [ "cache" ]; };
     };
 
-    # Beans with circular dependency for circular detection test
     circularBeans = {
       a = { enable = true; class = "A"; deps = [ "b" ]; };
       b = { enable = true; class = "B"; deps = [ "c" ]; };
       c = { enable = true; class = "C"; deps = [ "a" ]; };
     };
 
-    # Empty bean set edge case
     emptyBeans = { };
 
   in
   {
-    # Test bean graph construction
     testBeanGraphWebapp = assertEq "beanGraph.webapp.deps"
       (builtins.head (builtins.filter (e: e.name == "webapp") (spring.beanGraph healthyBeans))).deps
       [ "database" "cache" ];
@@ -96,7 +81,6 @@ in
       (builtins.head (builtins.filter (e: e.name == "database") (spring.beanGraph healthyBeans))).deps
       [ ];
 
-    # Test topological sort produces valid order
     testTsortProducesAll = assertEq "tsort length"
       (builtins.length (spring.tsort (spring.beanGraph healthyBeans)))
       4;
@@ -110,7 +94,6 @@ in
       in
       assertEq "tsort.database_before_webapp" (dbIdx < webappIdx) true;
 
-    # Test circular dependency detection
     testCircularDetection = assertEq "detectCircular"
       (builtins.length (spring.detectCircular circularBeans) > 0)
       true;
@@ -119,12 +102,10 @@ in
       (spring.detectCircular emptyBeans)
       [ ];
 
-    # Test resolveBeanConfig
     testResolveConfig = assertEq "resolveBeanConfig"
       (builtins.length (builtins.attrNames (spring.resolveBeanConfig healthyBeans)))
       4;
 
-    # Test bean wrapper structure
     testMkSystemdService =
       let
         service = spring.mkSystemdService "testapp" "mybean" {
@@ -163,9 +144,6 @@ in
   }
 ) //
 
-# =============================================================================
-# lib/default.nix tests
-# =============================================================================
 (
   let
     flakeosLib = import ../lib { inherit nixpkgs; };
@@ -181,9 +159,6 @@ in
   }
 ) //
 
-  # =============================================================================
-  # Benchmark: topological sort performance with N beans
-  # =============================================================================
 (
   let
     spring = import ../../lib/spring.nix { inherit lib; pkgs = nixpkgs; };

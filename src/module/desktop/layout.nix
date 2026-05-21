@@ -83,7 +83,7 @@ in
 
     system.activationScripts.flakeos-desktop = stringAfter [ "etc" ] ''
       mkdir -p /etc/skel/.config/autostart
-      cat > /etc/skel/.config/autostart/flakeos-desktop-setup.desktop << 'EOF'
+      cat > /etc/skel/.config/autostart/flakeos-desktop-setup.desktop << EOF
       [Desktop Entry]
       Type=Application
       Name=FlakeOS Desktop Initializer

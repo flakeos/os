@@ -7,14 +7,10 @@ let
     else { ${name} = { ok = false; inherit expected actual; }; };
 in
 
-# =============================================================================
-  # NixOS module integration tests
-  # =============================================================================
 (
   let
     hardwareDB = import ../../lib/hardware.nix { inherit (nixpkgs) lib; };
 
-    # Minimal NixOS config that exercises module loading via configuration.nix
     minimalConfig = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -44,14 +40,12 @@ in
       in
       assertEq "module.loading.hostname" cfg.networking.hostName "test";
 
-    # Verify flakeos modules registered their options
     testBoraOptionsExist =
       let
         cfg = minimalConfig.config;
       in
       assertEq "flakeos.options.exist" (cfg ? flakeos) true;
 
-    # Verify enableNvidiaPrime defaults to false
     testEnableNvidiaPrimeDefault =
       let
         cfg = minimalConfig.config;
@@ -60,7 +54,6 @@ in
         (if cfg ? flakeos && cfg.flakeos ? hardware then (cfg.flakeos.hardware.enableNvidiaPrime or false) else false)
         false;
 
-    # Verify flakeos container options registered
     testBoraContainerOptions =
       let
         cfg = minimalConfig.config;
@@ -69,9 +62,6 @@ in
   }
 ) //
 
-# =============================================================================
-# Module composition tests: profile + module interaction
-# =============================================================================
 (
   let
     hardwareDB = import ../../lib/hardware.nix { inherit (nixpkgs) lib; };
@@ -123,9 +113,6 @@ in
   }
 ) //
 
-  # =============================================================================
-  # Spring bean config integration
-  # =============================================================================
 (
   let
     hardwareDB = import ../../lib/hardware.nix { inherit (nixpkgs) lib; };

@@ -14,6 +14,5 @@ with lib;
   };
 
   services.openssh.enable = true;
-  networking.firewall.allowedTCPPorts = [ 22 80 443 ];
   systemd.services.sshd.wantedBy = [ "multi-user.target" ];
 }

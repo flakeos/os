@@ -1,5 +1,5 @@
 {
-  description = "FlakeOS NixOS — Modulare · Atomico · Universale · Strict-Hard — ALPHA v0.1.0";
+  description = "FlakeOS NixOS — Modulare · Atomico · Universale · Strict-Hard";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
@@ -79,6 +79,32 @@
         { }
         availableHosts;
 
+      mkIso = { system, username, hostname, hardwareProfile, systemProfile, baseName, kernelPackages }:
+        nixos-generators.nixosGenerate {
+          inherit system;
+          specialArgs = {
+            inherit hardwareDB;
+            hostname = hostname;
+            username = username;
+            inherit hardwareProfile systemProfile;
+          };
+          modules = [
+            impermanence.nixosModules.impermanence
+            microvm.nixosModules.host
+            disko.nixosModules.disko
+            ./configuration.nix
+            ({ pkgs, lib, ... }: {
+              image.baseName = lib.mkDefault baseName;
+              boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
+              boot.kernelPackages = kernelPackages;
+              nixpkgs.config.allowUnfree = true;
+              system.stateVersion = "25.11";
+              users.users.${username} = { isNormalUser = true; };
+            })
+          ];
+          format = "iso";
+        };
+
     in
     {
       nixosConfigurations = hosts;
@@ -86,110 +112,36 @@
       packages = forAllSystems (system:
         let
           pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
+          iso = args: mkIso (args // { inherit system; kernelPackages = pkgs.linuxPackages_6_6; });
         in
         {
-          iso-minimal = nixos-generators.nixosGenerate {
-            inherit system;
-            specialArgs = {
-              inherit hardwareDB;
-              hostname = "flakeos-iso";
-              username = "flakeos";
-              hardwareProfile = "desktop";
-              systemProfile = "minimal";
-            };
-            modules = [
-              impermanence.nixosModules.impermanence
-              microvm.nixosModules.host
-              disko.nixosModules.disko
-              ./configuration.nix
-              ({ pkgs, lib, ... }: {
-                image.baseName = lib.mkDefault "flakeos";
-                boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
-                boot.kernelPackages = pkgs.linuxPackages_6_6;
-                nixpkgs.config.allowUnfree = true;
-                system.stateVersion = "25.11";
-                users.users.flakeos = { isNormalUser = true; };
-              })
-            ];
-            format = "iso";
+          iso-minimal = iso {
+            username = "flakeos";
+            hostname = "flakeos-iso";
+            hardwareProfile = "desktop";
+            systemProfile = "minimal";
+            baseName = "flakeos";
           };
-
-          iso-desktop = nixos-generators.nixosGenerate {
-            inherit system;
-            specialArgs = {
-              inherit hardwareDB;
-              hostname = "flakeos-iso";
-              username = "flakeos";
-              hardwareProfile = "desktop";
-              systemProfile = "workstation";
-            };
-            modules = [
-              impermanence.nixosModules.impermanence
-              microvm.nixosModules.host
-              disko.nixosModules.disko
-              ./configuration.nix
-              ({ pkgs, lib, ... }: {
-                image.baseName = lib.mkDefault "flakeos-desktop";
-                boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
-                boot.kernelPackages = pkgs.linuxPackages_6_6;
-                nixpkgs.config.allowUnfree = true;
-                system.stateVersion = "25.11";
-                users.users.flakeos = { isNormalUser = true; };
-              })
-            ];
-            format = "iso";
+          iso-desktop = iso {
+            username = "flakeos";
+            hostname = "flakeos-iso";
+            hardwareProfile = "desktop";
+            systemProfile = "workstation";
+            baseName = "flakeos-desktop";
           };
-
-          iso-laptop = nixos-generators.nixosGenerate {
-            inherit system;
-            specialArgs = {
-              inherit hardwareDB;
-              hostname = "flakeos-iso";
-              username = "flakeos";
-              hardwareProfile = "laptop";
-              systemProfile = "minimal";
-            };
-            modules = [
-              impermanence.nixosModules.impermanence
-              microvm.nixosModules.host
-              disko.nixosModules.disko
-              ./configuration.nix
-              ({ pkgs, lib, ... }: {
-                image.baseName = lib.mkDefault "flakeos-laptop";
-                boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
-                boot.kernelPackages = pkgs.linuxPackages_6_6;
-                nixpkgs.config.allowUnfree = true;
-                system.stateVersion = "25.11";
-                users.users.flakeos = { isNormalUser = true; };
-              })
-            ];
-            format = "iso";
+          iso-laptop = iso {
+            username = "flakeos";
+            hostname = "flakeos-iso";
+            hardwareProfile = "laptop";
+            systemProfile = "minimal";
+            baseName = "flakeos-laptop";
           };
-
-          iso-server = nixos-generators.nixosGenerate {
-            inherit system;
-            specialArgs = {
-              inherit hardwareDB;
-              hostname = "flakeos-iso";
-              username = "flakeos";
-              hardwareProfile = "server";
-              systemProfile = "server";
-            };
-            modules = [
-              impermanence.nixosModules.impermanence
-              microvm.nixosModules.host
-              disko.nixosModules.disko
-              ./configuration.nix
-              ({ pkgs, lib, ... }: {
-                image.baseName = lib.mkDefault "flakeos-server";
-                boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
-                boot.kernelPackages = pkgs.linuxPackages_6_6;
-                nixpkgs.config.allowUnfree = true;
-                system.stateVersion = "25.11";
-                users.users.flakeos = { isNormalUser = true; };
-              })
-            ];
-            format = "iso";
+          iso-server = iso {
+            username = "flakeos";
+            hostname = "flakeos-iso";
+            hardwareProfile = "server";
+            systemProfile = "server";
+            baseName = "flakeos-server";
           };
         });
 

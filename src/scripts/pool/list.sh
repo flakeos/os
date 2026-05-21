@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-POOL_DIR="${POOL_DIR:-/var/lib/instance-pool}"
+POOL_DIR="${POOL_DIR:?POOL_DIR required}"
 
 for dir in "${POOL_DIR}"/running/*; do
   [ -d "${dir}" ] || continue

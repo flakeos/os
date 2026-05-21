@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-POOL_DIR="${POOL_DIR:-/var/lib/instance-pool}"
-MAX="${MAX_INSTANCES:-899}"
+POOL_DIR="${POOL_DIR:?POOL_DIR required}"
+MAX="${MAX_INSTANCES:?MAX_INSTANCES required}"
 
 RUNNING=$(ls -d "${POOL_DIR}"/running/* 2>/dev/null | wc -l)
 
