@@ -3,9 +3,9 @@ with lib;
 let
   cfg = config.flakeos.desktop.layout;
   initScript = pkgs.writeShellScriptBin "flakeos-desktop-init"
-    (builtins.readFile ./../../scripts/maclike/init-desktop.sh);
+    (builtins.readFile ./../../scripts/desktop/init-desktop.sh);
   finalizeScript = pkgs.writeShellScriptBin "flakeos-desktop-finalize"
-    (builtins.readFile ./../../scripts/maclike/finalize.sh);
+    (builtins.readFile ./../../scripts/desktop/finalize.sh);
 in
 {
   options.flakeos.desktop.layout = {

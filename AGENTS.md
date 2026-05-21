@@ -85,7 +85,7 @@ Hardware Detection with the goal of auto configuring CPU GPU and Platform. It in
 
 ### Sprint 5
 
-Desktop and FlakeOS Layout with the goal of creating minimal KDE Plasma 6 with original FlakeOS layout. It includes the kde-minimal module for essential Plasma 6 the maclike module for the FlakeOS theme the pipewire module for audio the maclike scripts for init and finalize shell and the desktop config files for plasma-appletsrc kdeglobals and kwinrc.
+Desktop and FlakeOS Layout with the goal of creating minimal KDE Plasma 6 with original FlakeOS layout. It includes the kde-minimal module for essential Plasma 6 the layout module for the FlakeOS theme the pipewire module for audio the layout scripts for init and finalize shell and the desktop config files for plasma-appletsrc kdeglobals and kwinrc.
 
 ### Sprint 6
 
