@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           flakehub: false
@@ -34,6 +36,8 @@ jobs:
           config: cspell.json
           files: "**/*.{nix,sh,md,json}"
           incremental_files_only: false
+      - name: Nix flake check
+        run: nix flake check --impure 2>&1 || (echo "flake check: non-blocking" && true)
 
   build-iso:
     runs-on: ubuntu-latest
@@ -70,31 +74,18 @@ jobs:
     needs: [build-iso]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Download all ISOs
         uses: actions/download-artifact@v4
         with:
           pattern: flakeos-*
           path: isos
           merge-multiple: true
-      - name: Generate changelog from .changelog
+      - name: Generate release notes
         run: |
-          TAG="${{ github.ref_name }}"
-          VERSION="${TAG#v}"
-          CHANGELOG_FILE=".changelog/${VERSION}.md"
-          if [ -f "$CHANGELOG_FILE" ]; then
-            cp "$CHANGELOG_FILE" release-notes.md
-          else
-            CHANGELOG_FILE=".changelog/${TAG}.md"
-            if [ -f "$CHANGELOG_FILE" ]; then
-              cp "$CHANGELOG_FILE" release-notes.md
-            else
-              echo "Release ${TAG}" > release-notes.md
-              echo "" >> release-notes.md
-              git log --oneline --no-decorate "$(git tag --sort=-version:refname | head -2 | tail -1)..${TAG}" 2>/dev/null \
-                || git log --oneline --no-decorate "${TAG}" 2>/dev/null \
-                >> release-notes.md
-            fi
-          fi
+          bash src/scripts/build/release-notes.sh "${{ github.ref_name }}" > release-notes.md
+          cat release-notes.md
       - name: Package ISOs with join script
         run: |
           for iso in isos/*.iso; do
@@ -112,6 +103,20 @@ jobs:
             (cd "$dir" && zip -r "../${base}.zip" .)
             rm -rf "$iso" "$dir"
           done
+      - name: Generate SHA256 checksums
+        run: |
+          cd isos
+          sha256sum *.zip > SHA256SUMS
+          cat SHA256SUMS
+      - name: Sign checksums
+        if: ${{ secrets.GPG_PRIVATE_KEY != '' }}
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --import --batch --passphrase "$GPG_PASSPHRASE" 2>/dev/null
+          cd isos
+          gpg --detach-sign --armor SHA256SUMS
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
