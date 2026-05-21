@@ -3,9 +3,9 @@ with lib;
 let
   cfg = config.flakeos.desktop.layout;
   initScript = pkgs.writeShellScriptBin "flakeos-desktop-init"
-    (builtins.readFile ./../../../scripts/maclike/init-desktop.sh);
+    (builtins.readFile ./../../scripts/maclike/init-desktop.sh);
   finalizeScript = pkgs.writeShellScriptBin "flakeos-desktop-finalize"
-    (builtins.readFile ./../../../scripts/maclike/finalize.sh);
+    (builtins.readFile ./../../scripts/maclike/finalize.sh);
 in
 {
   options.flakeos.desktop.layout = {
@@ -62,14 +62,14 @@ in
       };
       etc = {
         "skel/.config/plasma-org.kde.plasma.desktop-appletsrc".source =
-          ./../../../config/desktop/plasma-appletsrc;
+          ./../../config/desktop/plasma-appletsrc;
         "skel/.config/kdeglobals".source =
-          ./../../../config/desktop/kdeglobals;
+          ./../../config/desktop/kdeglobals;
         "skel/.config/kwinrc".source =
-          ./../../../config/desktop/kwinrc;
+          ./../../config/desktop/kwinrc;
         "skel/.config/khotkeysrc".text =
           builtins.replaceStrings [ "Alt+F1" ] [ cfg.nexusKey ]
-            (builtins.readFile ./../../../config/desktop/khotkeysrc);
+            (builtins.readFile ./../../config/desktop/khotkeysrc);
         "skel/.config/plasmarc".text = ''
           [Theme]
           name=Breeze

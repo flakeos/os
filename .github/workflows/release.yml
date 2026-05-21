@@ -27,8 +27,8 @@ jobs:
           nix develop --impure --command nixpkgs-fmt --check src
       - name: Evaluation tests
         run: |
-          nix-instantiate --eval --strict tests/default.nix
-          nix-instantiate --eval --strict tests/modules.nix
+          nix-instantiate --eval --strict src/tests/default.nix
+          nix-instantiate --eval --strict src/tests/modules.nix
 
   build-iso:
     runs-on: ubuntu-latest
@@ -90,6 +90,15 @@ jobs:
                 >> release-notes.md
             fi
           fi
+      - name: Split large ISOs
+        run: |
+          for iso in isos/*.iso; do
+            size=$(stat -c%s "$iso")
+            if [ "$size" -gt 1900000000 ]; then
+              split -b 1900M "$iso" "${iso}.part-"
+              rm "$iso"
+            fi
+          done
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -97,4 +106,4 @@ jobs:
           gh release create "${{ github.ref_name }}" \
             --notes-file release-notes.md \
             --title "${{ github.ref_name }}" \
-            isos/*.iso
+            isos/*

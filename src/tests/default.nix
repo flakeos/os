@@ -65,7 +65,7 @@ in
 # =============================================================================
 (
   let
-    spring = import ../lib/spring.nix { inherit lib; pkgs = nixpkgs; };
+    spring = import ../../lib/spring.nix { inherit lib; pkgs = nixpkgs; };
 
     # Minimal bean set for topological sort test
     healthyBeans = {
@@ -186,7 +186,7 @@ in
   # =============================================================================
 (
   let
-    spring = import ../lib/spring.nix { inherit lib; pkgs = nixpkgs; };
+    spring = import ../../lib/spring.nix { inherit lib; pkgs = nixpkgs; };
 
     genChainBeans = n:
       let
