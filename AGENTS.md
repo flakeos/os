@@ -76,46 +76,6 @@ Tests evaluate pure library functions with assertEq. Module integration tests us
 
 All host specific parameters are declared in src/hosts/hostname/meta.nix and injected via specialArgs. The generic meta.nix template contains system as system architecture hardware as hardware type profile as usage profile hostname as host name and username as user name. The substitution rules are that username in users.users becomes the username value username in home paths becomes home with username hostname in networking.hostName becomes the hostname value hostname in spring.application.name becomes the hostname value persist in environment.persistence reads from option and absolute paths for config and scripts are relative paths.
 
-## Sprint Definitions
-
-### Sprint 1
-
-Foundation with the goal of creating the base system structure. It includes flake.nix as pure entry point with declarative inputs configuration.nix as auto scan module loader lib/default.nix exporting all libraries lib/hardware.nix as CPU GPU and Platform database src/module/core for Boot Nix Locale and Sysctl src/hosts/hostname with meta default and hardware and AGENTS.md.
-
-### Sprint 2
-
-Filesystem and Immutability with the goal of implementing ZFS Impermanence and Disko. It includes the zfs module for pool ARC and snapshot the impermanence module for persist config desktop for external config files sanoid for automatic snapshot retention and disko for declarative partitioning.
-
-### Sprint 3
-
-Security with the goal of implementing extreme hardening firewall and SSH. It includes the firewall module with nftables default drop the external nftables configuration the hardening module for kernel and AppArmor the ssh module with keys only LAN only and audit logging with fail2ban.
-
-### Sprint 4
-
-Hardware Detection with the goal of auto configuring CPU GPU and Platform. It includes the cpu module for Intel AMD and ARM the gpu module for NVIDIA AMD and Intel the platform module for Desktop Laptop and Server and lib/hardware.nix as vendor optimization database.
-
-### Sprint 5
-
-Desktop and FlakeOS Layout with the goal of creating minimal KDE Plasma 6 with original FlakeOS layout. It includes the kde-minimal module for essential Plasma 6 the layout module for the FlakeOS theme the pipewire module for audio the layout scripts for init and finalize shell and the desktop config files for plasma-appletsrc kdeglobals and kwinrc.
-
-### Sprint 6
-
-Container Engine with the goal of creating the container engine with hardware level isolation. It includes the microvm-host module for host and bridge the orchestrator module for pool manager the sandbox guest as generic template the containers configuration for bridge and networking and SocketVM for desktop apps with X11 and Wayland forwarding.
-
-### Sprint 7
-
-Spring Framework with the goal of implementing Dependency Injection and Circuit Breaker. It includes lib/spring.nix for bean definitions topological sort mkSystemdService with resource limits circuit breaker with failure success and state circular dependency detection and the spring scripts for circuit-breaker and health. It also includes the orchestrator update to use Spring beans.
-
-### Sprint 8
-
-Instance Pool Orchestrator with the goal of creating the pool of isolated instances for any application. It includes the instance-pool module with pool options the guest definition per application the pool configuration the pool scripts for pool-manager spawn list and stats cgroup v2 for per instance resource isolation and Caddy reverse proxy for routing to instances.
-
-### Sprint 9
-
-Testing and Documentation with the goal of implementing pure Nix tests and complete documentation. It includes src/tests/default.nix for pure library tests docs as user manual in text format AGENTS.md with always updated agentic rules and ISO generation for immediate deploy.
-
-The sprint flow proceeds from Sprint 1 to Sprint 2 to Sprint 3 to Sprint 4 from which it branches to Sprint 5 which continues to Sprint 6 which leads to Sprint 7 and Sprint 8 and finally Sprint 9. Each sprint produces a working NixOS generation without unsatisfied dependencies. All sprints from number 1 to number 9 are completed.
-
 ## Spring Framework Specification
 
 ### Bean Definition
