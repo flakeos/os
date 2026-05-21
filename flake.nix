@@ -143,6 +143,13 @@
             systemProfile = "server";
             baseName = "flakeos-server";
           };
+          iso-hyprland = iso {
+            username = "flakeos";
+            hostname = "flakeos-iso";
+            hardwareProfile = "desktop";
+            systemProfile = "hyprland";
+            baseName = "flakeos-hyprland";
+          };
         });
 
       devShells = forAllSystems (system:

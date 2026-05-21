@@ -49,11 +49,11 @@ The sprint flow proceeds from Sprint 1 through Sprint 9 sequentially. Each sprin
 Goal: production-grade release pipeline with automated ISO publishing.
 
 - [x] Package split ISOs in zip with join.sh reassembly script
-- [ ] Automate release notes generation from .changelog
-- [ ] Add GPG signing for release assets
-- [ ] Add SHA256 checksum file per release
+- [x] Automate release notes generation from .changelog
+- [x] Add GPG signing for release assets (conditional on secret)
+- [x] Add SHA256 checksum file per release
 - [ ] Add smoke tests for ISO boot in CI
-- [ ] Add `nix flake check` to validation gate
+- [x] Add `nix flake check` to validation gate
 - [ ] Multi-architecture ISO builds (aarch64)
 
 ## Sprint 11 — Extended Hardware Support
