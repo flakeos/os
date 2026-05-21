@@ -11,10 +11,7 @@ let
     (builtins.readFile (scriptsDir + "/list.sh"));
   statsScript = pkgs.writeShellScriptBin "pool-stats"
     (builtins.readFile (scriptsDir + "/stats.sh"));
-  setupCgroup = pkgs.writeShellScriptBin "setup-cgroup"
-    (builtins.readFile ./../../scripts/containers/setup-cgroup.sh);
-  createPoolZfs = pkgs.writeShellScriptBin "create-pool-zfs"
-    (builtins.readFile ./../../scripts/containers/create-pool-zfs.sh);
+  cpuQuota = toString (builtins.floor (builtins.fromJSON cfg.cpuPerInstance * 100)) + "%";
 in
 {
   options.flakeos.containers.instancePool = {
@@ -40,62 +37,47 @@ in
     serviceLimitNProc = mkOption { type = types.int; default = 1048576; };
   };
   config = mkIf cfg.enable {
-    systemd.services = {
-      create-pool-zfs = {
-        description = "Create ZFS dataset for instance pool";
-        before = [ "flakeos-pool.service" ];
-        wantedBy = [ "multi-user.target" ];
-        path = with pkgs; [ zfs ];
-        script = ''
-          ${createPoolZfs}/bin/create-pool-zfs \
-            "${cfg.zfsPool}" \
-            "${cfg.poolDir}" \
-            "${toString (cfg.maxInstances * 2)}G"
-        '';
+    boot.zfs.datasets."${cfg.zfsPool}/instance-pool" = {
+      mountpoint = cfg.poolDir;
+      options = {
+        atime = "off";
+        compression = "zstd-3";
+        quota = "${toString (cfg.maxInstances * 2)}G";
       };
-      flakeos-cgroup-pool = {
-        description = "Instance pool cgroup v2 hierarchy";
-        before = [ "flakeos-pool.service" ];
-        wantedBy = [ "multi-user.target" ];
-        script = ''
-          ${setupCgroup}/bin/setup-cgroup \
-            "${cfg.cgroupDir}" \
-            "${cfg.memPerInstance}" \
-            "${cfg.cpuPerInstance}" \
-            "${cfg.pidsPerInstance}" \
-            "${cfg.storagePerInstance}" \
-            "${cfg.cgroupIoDevice}"
-        '';
+    };
+    systemd.services.flakeos-pool = {
+      description = "MicroVM Instance Pool";
+      after = [ "network.target" "microvm-host.service" "zfs.target" ];
+      wants = [ "microvm-host.service" ];
+      wantedBy = [ "multi-user.target" ];
+      path = with pkgs; [ microvm coreutils bash curl ];
+      environment = {
+        POOL_DIR = cfg.poolDir;
+        BASE_PORT = toString cfg.basePort;
+        MAX_INSTANCES = toString cfg.maxInstances;
+        MEM_LIMIT = cfg.memPerInstance;
+        CPU_LIMIT = cfg.cpuPerInstance;
+        APP_COMMAND = cfg.appCommand or "";
+        HEALTHCHECK_CMD = cfg.healthcheckCmd or "";
+        CG_DIR = cfg.cgroupDir;
       };
-      flakeos-pool = {
-        description = "MicroVM Instance Pool";
-        after = [ "network.target" "microvm-host.service" "create-pool-zfs.service" ];
-        wants = [ "microvm-host.service" ];
-        wantedBy = [ "multi-user.target" ];
-        path = with pkgs; [ microvm coreutils bash curl ];
-        environment = {
-          POOL_DIR = cfg.poolDir;
-          BASE_PORT = toString cfg.basePort;
-          MAX_INSTANCES = toString cfg.maxInstances;
-          MEM_LIMIT = cfg.memPerInstance;
-          CPU_LIMIT = cfg.cpuPerInstance;
-          APP_COMMAND = cfg.appCommand or "";
-          HEALTHCHECK_CMD = cfg.healthcheckCmd or "";
-          CG_DIR = cfg.cgroupDir;
-        };
-        serviceConfig = {
-          Type = cfg.serviceType;
-          Restart = cfg.serviceRestart;
-          RestartSec = cfg.serviceRestartSec;
-          StateDirectory = "instance-pool";
-          NotifyAccess = "all";
-          LimitNOFILE = cfg.serviceLimitNoFile;
-          LimitNPROC = cfg.serviceLimitNProc;
-        };
-        script = ''
-          ${builtins.readFile (scriptsDir + "/pool-manager.sh")}
-        '';
+      serviceConfig = {
+        Type = cfg.serviceType;
+        Restart = cfg.serviceRestart;
+        RestartSec = cfg.serviceRestartSec;
+        StateDirectory = "instance-pool";
+        NotifyAccess = "all";
+        LimitNOFILE = cfg.serviceLimitNoFile;
+        LimitNPROC = cfg.serviceLimitNProc;
+        Delegate = "yes";
+        MemoryMax = cfg.memPerInstance;
+        MemoryHigh = cfg.memPerInstance;
+        CPUQuota = cpuQuota;
+        TasksMax = cfg.pidsPerInstance;
       };
+      script = ''
+        ${builtins.readFile (scriptsDir + "/pool-manager.sh")}
+      '';
     };
     services.caddy = {
       enable = true;
