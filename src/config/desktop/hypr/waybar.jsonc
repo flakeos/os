@@ -1,0 +1,50 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "margin-top": 0,
+  "margin-bottom": 0,
+  "margin-left": 0,
+  "margin-right": 0,
+  "modules-left": ["hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": ["network", "pulseaudio", "bluetooth", "tray"],
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "on-click": "activate",
+    "format-icons": {
+      "urgent": "",
+      "focused": "",
+      "default": "",
+      "sort-by-number": true
+    }
+  },
+  "clock": {
+    "format": "{:%a %b %d  %H:%M}",
+    "tooltip-format": "{:%A, %B %d %Y}",
+    "interval": 60
+  },
+  "network": {
+    "format-ethernet": "󰈁",
+    "format-wifi": "",
+    "format-disconnected": "󰤭",
+    "tooltip-format": "{ifname}: {ipaddr}"
+  },
+  "pulseaudio": {
+    "format": "{icon}",
+    "format-icons": {
+      "default": ["", "", ""]
+    },
+    "on-click": "pavucontrol",
+    "scroll-step": 5
+  },
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "",
+    "tooltip-format": "{status}"
+  },
+  "tray": {
+    "icon-size": 16,
+    "spacing": 6
+  }
+}

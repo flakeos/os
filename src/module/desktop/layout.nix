@@ -57,6 +57,12 @@ in
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = !config.flakeos.desktop.hyprland.enable;
+        message = "FlakeOS desktop layout is incompatible with Hyprland";
+      }
+    ];
     environment = {
       systemPackages = cfg.packages;
       sessionVariables = {
