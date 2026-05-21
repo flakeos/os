@@ -9,6 +9,7 @@ let cfg = config.flakeos.security.ssh; in {
     pubkeyAuth = mkOption { type = types.bool; default = true; };
     maxAuthTries = mkOption { type = types.int; default = 3; };
     maxSessions = mkOption { type = types.int; default = 4; };
+    maxStartups = mkOption { type = types.str; default = "10:30:60"; };
     tcpForwarding = mkOption { type = types.bool; default = false; };
     agentForwarding = mkOption { type = types.bool; default = false; };
     ciphers = mkOption { type = types.listOf types.str; default = [ "chacha20-poly1305@openssh.com" "aes256-gcm@openssh.com" ]; };
@@ -35,7 +36,7 @@ let cfg = config.flakeos.security.ssh; in {
         UsePAM = false;
         MaxAuthTries = cfg.maxAuthTries;
         MaxSessions = cfg.maxSessions;
-        MaxStartups = "10:30:60";
+        MaxStartups = cfg.maxStartups;
         LoginGraceTime = 30;
         AllowTcpForwarding = cfg.tcpForwarding;
         AllowAgentForwarding = cfg.agentForwarding;

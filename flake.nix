@@ -1,5 +1,5 @@
 {
-  description = "FlakeOS NixOS — Modulare · Atomico · Universale · Strict-Hard";
+  description = "FlakeOS NixOS — Modular · Atomic · Universal · Strict-Hard";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";

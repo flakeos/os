@@ -32,14 +32,8 @@ in
         Restart = "always";
         RestartSec = 10;
         StateDirectory = "flakeos-orchestrator";
+        ExecStart = "${orchestratorScript}/bin/flakeos-orchestrator ${cfg.stateDir} ${cfg.cgroupParent} ${cfg.microvmDir} 30";
       };
-      script = ''
-        ${orchestratorScript}/bin/flakeos-orchestrator \
-          "${cfg.stateDir}" \
-          "${cfg.cgroupParent}" \
-          "${cfg.microvmDir}" \
-          "30"
-      '';
     };
   };
 }

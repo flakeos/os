@@ -78,20 +78,10 @@ in
           [PlasmaViews]
           PanelOpacity=${if cfg.enableTransparency then "0.70" else "1.0"}
         '';
+        "skel/.config/autostart/flakeos-desktop-setup.desktop".text =
+          "[Desktop Entry]\nType=Application\nName=FlakeOS Desktop Initializer\nExec=${initScript}/bin/flakeos-desktop-init\nX-KDE-autostart-phase=2\nOnlyShowIn=KDE\n";
       };
     };
-
-    system.activationScripts.flakeos-desktop = stringAfter [ "etc" ] ''
-      mkdir -p /etc/skel/.config/autostart
-      cat > /etc/skel/.config/autostart/flakeos-desktop-setup.desktop << EOF
-      [Desktop Entry]
-      Type=Application
-      Name=FlakeOS Desktop Initializer
-      Exec=${initScript}/bin/flakeos-desktop-init
-      X-KDE-autostart-phase=2
-      OnlyShowIn=KDE
-      EOF
-    '';
 
     services.displayManager.sddm.wayland.enable = true;
     services.desktopManager.plasma6.enableQt5Integration = false;

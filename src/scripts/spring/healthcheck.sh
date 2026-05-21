@@ -3,14 +3,14 @@ set -euo pipefail
 
 BEAN="${1:?BEAN required}"
 COMMAND="${2:?HEALTHCHECK COMMAND required}"
-INTERVAL="${3:-10}"
-MAX_RETRIES="${4:-3}"
-RETRY_DELAY="${5:-2}"
-CB_SCRIPT="${CB_BIN:-${6:-/run/current-system/sw/bin/circuit-breaker}}"
-THRESHOLD="${CB_THRESHOLD:-5}"
-TIMEOUT_MS="${CB_TIMEOUT:-30000}"
-SUCCESS_THR="${CB_SUCCESS_THRESHOLD:-2}"
-HALF_OPEN_MAX="${CB_HALF_OPEN_MAX:-3}"
+INTERVAL="${3:?INTERVAL required}"
+MAX_RETRIES="${4:?MAX_RETRIES required}"
+RETRY_DELAY="${5:?RETRY_DELAY required}"
+CB_SCRIPT="${CB_BIN:?CB_BIN required}"
+THRESHOLD="${CB_THRESHOLD:?CB_THRESHOLD required}"
+TIMEOUT_MS="${CB_TIMEOUT:?CB_TIMEOUT required}"
+SUCCESS_THR="${CB_SUCCESS_THRESHOLD:?CB_SUCCESS_THRESHOLD required}"
+HALF_OPEN_MAX="${CB_HALF_OPEN_MAX:?CB_HALF_OPEN_MAX required}"
 
 run_check() {
   if eval "${COMMAND}" >/dev/null 2>&1; then

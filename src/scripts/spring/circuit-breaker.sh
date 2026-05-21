@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CB_DIR="${CB_DIR:-/run/flakeos-cb}"
+CB_DIR="${CB_DIR:?CB_DIR required}"
 mkdir -p "${CB_DIR}"
 
 BEAN="${1:?BEAN name required}"
-THRESHOLD="${2:-5}"
-TIMEOUT_MS="${3:-30000}"
-SUCCESS_THRESHOLD="${4:-2}"
-HALF_OPEN_MAX="${5:-3}"
+THRESHOLD="${2:?THRESHOLD required}"
+TIMEOUT_MS="${3:?TIMEOUT_MS required}"
+SUCCESS_THRESHOLD="${4:?SUCCESS_THRESHOLD required}"
+HALF_OPEN_MAX="${5:?HALF_OPEN_MAX required}"
 
 STATE_FILE="${CB_DIR}/${BEAN}-state"
 FAILURES_FILE="${CB_DIR}/${BEAN}-failures"
@@ -94,7 +94,7 @@ circuit_success() {
   fi
 }
 
-case "${6:-trip}" in
+case "${6:?ACTION required (trip|success|status)}" in
   trip)
     circuit_trip
     exit $?
