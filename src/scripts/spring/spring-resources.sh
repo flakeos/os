@@ -2,9 +2,10 @@
 set -euo pipefail
 
 APP="${1:?APP name required}"
+CGROUP_PARENT="${2:?CGROUP_PARENT required}"
 
 printf "=== Resource usage: %s ===\n" "${APP}"
-for cg in /sys/fs/cgroup/${APP}/*; do
+for cg in ${CGROUP_PARENT}/${APP}/*; do
   [ -d "${cg}" ] || continue
   name="${cg##*/}"
   mem=$(cat "${cg}/memory.current" 2>/dev/null | numfmt --to=iec 2>/dev/null || echo "N/A")

@@ -7,7 +7,9 @@ MICROVM_DIR="${3:?MICROVM_DIR required}"
 INTERVAL="${4:?INTERVAL required}"
 
 mkdir -p "$STATE_DIR"
-echo "+cpu +memory +io +pids" > /sys/fs/cgroup/cgroup.subtree_control 2>/dev/null || true
+CGROUP_ROOT="${CGROUP_PARENT%/flakeos}"
+CGROUP_ROOT="${CGROUP_ROOT:-/sys/fs/cgroup}"
+echo "+cpu +memory +io +pids" > "${CGROUP_ROOT}/cgroup.subtree_control" 2>/dev/null || true
 mkdir -p "${CGROUP_PARENT}" 2>/dev/null || true
 
 while true; do

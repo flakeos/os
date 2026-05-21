@@ -4,6 +4,8 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 OUTPUT_DIR="${PROJECT_DIR}/dist"
 NIXPKGS_ALLOW_BROKEN="${NIXPKGS_ALLOW_BROKEN:?NIXPKGS_ALLOW_BROKEN required}"
+FLAKE_REF="${FLAKE_REF:?FLAKE_REF required}"
+ISO_TARGETS="${ISO_TARGETS:?ISO_TARGETS required}"
 
 cd "${PROJECT_DIR}"
 mkdir -p "${OUTPUT_DIR}"
@@ -33,11 +35,12 @@ build_iso() {
   ls -lh "${OUTPUT_DIR}/${name}"
 }
 
-build_iso '.#packages.x86_64-linux.iso-minimal' 'flakeos-minimal.iso'
-build_iso '.#packages.x86_64-linux.iso-desktop' 'flakeos-desktop.iso'
-build_iso '.#packages.x86_64-linux.iso-laptop' 'flakeos-laptop.iso'
-build_iso '.#packages.x86_64-linux.iso-server' 'flakeos-server.iso'
+for entry in ${ISO_TARGETS}; do
+  variant="${entry%:*}"
+  name="${entry#*:}"
+  build_iso "${FLAKE_REF}.iso-${variant}" "flakeos-${name}.iso"
+done
 
 echo ""
-echo "All ISOs built in ${OUTPUT_DIR}:"
+echo "ISOs built in ${OUTPUT_DIR}:"
 ls -lh "${OUTPUT_DIR}"/flakeos-*.iso
