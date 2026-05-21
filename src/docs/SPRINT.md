@@ -20,7 +20,7 @@ Goal: auto configure CPU GPU and Platform. Includes the cpu module for Intel AMD
 
 ### Sprint 5 — Desktop and FlakeOS Layout
 
-Goal: create minimal KDE Plasma 6 with original FlakeOS layout. Includes the kde-minimal module for essential Plasma 6, the pipewire module for audio, and the desktop config files for plasma-appletsrc kdeglobals and kwinrc. The FlakeOS custom layout has been replaced with GNOME Yaru and Hyprland Yaru Ubuntu-like desktops.
+Goal: create minimal KDE Plasma 6 desktop. Includes the kde-minimal module for essential Plasma 6, the pipewire module for audio, and impermanence persistence for KDE state. The FlakeOS macOS-like layout was replaced with GNOME Yaru and Hyprland Yaru Ubuntu-like desktops.
 
 ### Sprint 6 — Container Engine
 
@@ -60,23 +60,24 @@ Goal: production-grade release pipeline with automated ISO publishing.
 
 Goal: auto-detect and optimize for all common hardware.
 
-- [ ] Add CPU microcode updates for Intel/AMD
-- [ ] Add GPU modesetting and VA-API for Intel/AMD/NVIDIA
-- [ ] Add platform-specific power management (laptop battery, desktop performance)
-- [ ] Add NVMe SSD optimizations
-- [ ] Add Thunderbolt and USB4 support
-- [ ] Add fingerprint reader and other biometrics
+- [x] Add CPU microcode updates for Intel/AMD
+- [x] Add GPU modesetting and VA-API for Intel/AMD/NVIDIA
+- [x] Add platform-specific power management (laptop battery, desktop performance)
+- [x] Add NVMe SSD optimizations (IO scheduler, power saving)
+- [x] Add Thunderbolt and USB4 support (bolt daemon)
+- [x] Add fingerprint reader and other biometrics (fprintd)
 
 ## Sprint 12 — Enhanced Desktop
 
 Goal: polished desktop experience out of the box.
 
+- [x] Add GNOME desktop variant with Yaru Ubuntu theme
+- [x] Add Hyprland desktop variant with Waybar and Yaru Ubuntu theme
+- [x] Add KDE Plasma 6 minimal desktop variant
 - [ ] Add default application set (Firefox, Thunderbird, LibreOffice, GIMP)
 - [ ] Add FlakeOS wallpaper and cursor theme
-- [ ] Add preconfigured desktop activities per profile
 - [ ] Add print support (CUPS)
 - [ ] Add Bluetooth audio codec configuration
-- [ ] Add desktop notifications and Do Not Disturb workflow
 - [ ] Add fractional scaling defaults
 
 ## Sprint 13 — Security Hardening

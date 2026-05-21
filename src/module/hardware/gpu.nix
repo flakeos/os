@@ -30,8 +30,37 @@ in
       enable32Bit = mkOption { type = types.bool; default = true; };
       extraPackages = mkOption {
         type = types.listOf types.package;
-        default = with pkgs; [ (if gpuVendor == "intel" then intel-media-driver else libva-vdpau-driver) ];
+        default = with pkgs;
+          if gpuVendor == "intel" then [
+            intel-media-driver
+            vaapiIntel
+            intel-compute-runtime
+            libva
+            libvdpau-va-gl
+          ] else if gpuVendor == "nvidia" then [
+            libva-vdpau-driver
+            nvidia-vaapi-driver
+            libva
+          ] else [
+            mesa
+            libva
+          ];
       };
+    };
+    enableNvmeOptimizations = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Enable NVMe SSD optimizations (IO scheduler, power saving)";
+    };
+    enableThunderbolt = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Enable Thunderbolt and USB4 support (bolt daemon)";
+    };
+    enableFingerprint = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Enable fingerprint reader support (fprintd)";
     };
   };
   config = {
@@ -56,6 +85,16 @@ in
       enable = config.flakeos.hardware.graphics.enable;
       enable32Bit = config.flakeos.hardware.graphics.enable32Bit;
       extraPackages = config.flakeos.hardware.graphics.extraPackages;
+    };
+    boot.kernelParams = mkIf config.flakeos.hardware.enableNvmeOptimizations [
+      "nvme_core.default_ps_max_latency_us=0"
+    ];
+    services.hardware.bolt = mkIf config.flakeos.hardware.enableThunderbolt {
+      enable = true;
+    };
+    services.fprintd = mkIf config.flakeos.hardware.enableFingerprint {
+      enable = true;
+      tod.enable = true;
     };
   };
 }
