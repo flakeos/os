@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-POOL_DIR="${POOL_DIR:-/var/lib/instance-pool}"
-BASE_PORT="${BASE_PORT:-8443}"
+POOL_DIR="${POOL_DIR:?POOL_DIR required}"
+BASE_PORT="${BASE_PORT:?BASE_PORT required}"
 RUNNING=$(ls -d "${POOL_DIR}"/running/* 2>/dev/null | wc -l)
 PORT="${1:-$((BASE_PORT + RUNNING + 1))}"
 INST_ID="instance-manual-$$"

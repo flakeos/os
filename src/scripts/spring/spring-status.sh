@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP="${1:-flakeos}"
+APP="${1:?APP name required}"
 
 printf "=== Spring Application: %s ===\n" "${APP}"
 printf "Active beans:\n"

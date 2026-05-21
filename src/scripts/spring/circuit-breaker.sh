@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CB_DIR="/run/flakeos-cb"
+CB_DIR="${CB_DIR:-/run/flakeos-cb}"
 mkdir -p "${CB_DIR}"
 
 BEAN="${1:?BEAN name required}"

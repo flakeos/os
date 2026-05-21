@@ -5,16 +5,20 @@ BEAN="${1:?BEAN required}"
 EXEC="${2:?EXEC required}"
 shift 2
 
-CB="/run/current-system/sw/bin/circuit-breaker"
-HC="/run/current-system/sw/bin/healthcheck"
+CB="${CB_BIN:-/run/current-system/sw/bin/circuit-breaker}"
+HC="${HC_BIN:-/run/current-system/sw/bin/healthcheck}"
+THRESHOLD="${CB_THRESHOLD:-5}"
+TIMEOUT_MS="${CB_TIMEOUT:-30000}"
+SUCCESS_THR="${CB_SUCCESS_THRESHOLD:-2}"
+HALF_OPEN_MAX="${CB_HALF_OPEN_MAX:-3}"
 
-if ! "${CB}" "${BEAN}" 5 30000 2 3 status; then
+if ! "${CB}" "${BEAN}" "${THRESHOLD}" "${TIMEOUT_MS}" "${SUCCESS_THR}" "${HALF_OPEN_MAX}" status; then
   exit 1
 fi
 
 if ! "${EXEC}" "$@"; then
-  "${CB}" "${BEAN}" 5 30000 2 3 trip
+  "${CB}" "${BEAN}" "${THRESHOLD}" "${TIMEOUT_MS}" "${SUCCESS_THR}" "${HALF_OPEN_MAX}" trip
   exit 1
 fi
 
-"${CB}" "${BEAN}" 5 30000 2 3 success
+"${CB}" "${BEAN}" "${THRESHOLD}" "${TIMEOUT_MS}" "${SUCCESS_THR}" "${HALF_OPEN_MAX}" success

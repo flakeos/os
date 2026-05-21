@@ -1,30 +1,24 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 with lib;
 let
   cfg = config.flakeos.orchestrator;
+  orchestratorScript = pkgs.writeShellScriptBin "flakeos-orchestrator"
+    (builtins.readFile ./../../scripts/containers/orchestrator.sh);
 in
 {
   options.flakeos.orchestrator = {
     enable = mkEnableOption "MicroVM instance orchestrator";
-    maxInstances = mkOption {
-      type = types.int;
-      default = 10000;
-      description = "Maximum number of simultaneous MicroVM instances";
-    };
-    defaultMem = mkOption {
-      type = types.int;
-      default = 256;
-      description = "Default memory per instance (MB)";
-    };
-    defaultVcpu = mkOption {
-      type = types.int;
-      default = 1;
-      description = "Default vCPUs per instance";
-    };
-    portRange = mkOption {
+    stateDir = mkOption {
       type = types.str;
-      default = "8443-18443";
-      description = "Port range for exposed services";
+      default = "/var/lib/flakeos-orchestrator";
+    };
+    microvmDir = mkOption {
+      type = types.str;
+      default = "/var/lib/microvm";
+    };
+    cgroupParent = mkOption {
+      type = types.str;
+      default = "/sys/fs/cgroup/flakeos";
     };
   };
   config = mkIf cfg.enable {
@@ -40,19 +34,11 @@ in
         StateDirectory = "flakeos-orchestrator";
       };
       script = ''
-        set -euo pipefail
-        STATE_DIR="/var/lib/flakeos-orchestrator"
-        mkdir -p "$STATE_DIR"
-        echo "+cpu +memory +io +pids" > /sys/fs/cgroup/cgroup.subtree_control 2>/dev/null || true
-        mkdir -p /sys/fs/cgroup/flakeos 2>/dev/null || true
-        while true; do
-          for vm in /var/lib/microvm/*/; do
-            [ -d "$vm" ] || continue
-            vm_name=$(basename "$vm")
-            echo "checking microvm $vm_name"
-          done
-          sleep 30
-        done
+        ${orchestratorScript}/bin/flakeos-orchestrator \
+          "${cfg.stateDir}" \
+          "${cfg.cgroupParent}" \
+          "${cfg.microvmDir}" \
+          "30"
       '';
     };
   };

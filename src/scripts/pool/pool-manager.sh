@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-POOL_DIR="${POOL_DIR:-/var/lib/instance-pool}"
-BASE_PORT="${BASE_PORT:-8443}"
-MAX="${MAX_INSTANCES:-899}"
-MEM="${MEM_LIMIT:-256M}"
-CPU="${CPU_LIMIT:-0.5}"
+POOL_DIR="${POOL_DIR:?POOL_DIR required}"
+BASE_PORT="${BASE_PORT:?BASE_PORT required}"
+MAX="${MAX_INSTANCES:?MAX_INSTANCES required}"
+MEM="${MEM_LIMIT:?MEM_LIMIT required}"
+CPU="${CPU_LIMIT:?CPU_LIMIT required}"
 APP="${APP_COMMAND:-}"
 HC="${HEALTHCHECK_CMD:-curl -sf http://localhost:${PORT}/health}"
 

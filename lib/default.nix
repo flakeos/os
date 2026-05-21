@@ -1,18 +1,17 @@
 { nixpkgs }:
 let
   inherit (nixpkgs) lib;
-  inherit (builtins) readDir pathExists;
+  inherit (builtins) readDir pathExists readFile replaceStrings;
   inherit (lib) attrNames filter hasPrefix;
+  snapshotTmpl = readFile ../src/scripts/system/pre-rebuild-snapshot.sh;
+  listGenScript = readFile ../src/scripts/system/list-generations.sh;
 in
 {
   hardware = import ./hardware.nix { inherit lib; };
   atomic = {
-    preRebuildSnapshot = pool: dataset: ''
-      zfs snapshot ${pool}/${dataset}@pre-rebuild-$(date +%Y%m%d-%H%M%S)
-    '';
-    backupGeneration = ''
-      nix-env --list-generations -p /nix/var/nix/profiles/system
-    '';
+    preRebuildSnapshot = pool: dataset:
+      replaceStrings [ "@POOL@" "@DATASET@" ] [ pool dataset ] snapshotTmpl;
+    backupGeneration = listGenScript;
   };
   scanModules = dir:
     let
