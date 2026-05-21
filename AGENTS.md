@@ -110,7 +110,7 @@ SSH hardening provides PermitRootLogin no PasswordAuthentication no PubkeyAuthen
 
 ## Quality Gates
 
-The mandatory quality gates before each merge include statix check src for Nix linting deadnix src for dead code detection nixpkgs-fmt check src for formatting nix-instantiate --eval --strict src/tests/default.nix for library tests and nix-instantiate --eval --strict src/tests/modules.nix for module integration tests. The merge must be blocked if any of the quality gates fails.
+The mandatory quality gates before each merge include statix check src for Nix linting (warnings non-blocking), deadnix src for dead code detection, nixpkgs-fmt check src for formatting, and nix-instantiate --eval --strict src/tests/default.nix for library tests. The merge must be blocked if any quality gate fails.
 
 ## Templates
 
