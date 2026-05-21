@@ -20,7 +20,7 @@ Goal: auto configure CPU GPU and Platform. Includes the cpu module for Intel AMD
 
 ### Sprint 5 — Desktop and FlakeOS Layout
 
-Goal: create minimal KDE Plasma 6 with original FlakeOS layout. Includes the kde-minimal module for essential Plasma 6, the layout module for the FlakeOS theme, the pipewire module for audio, the layout scripts for init and finalize shell, and the desktop config files for plasma-appletsrc kdeglobals and kwinrc.
+Goal: create minimal KDE Plasma 6 with original FlakeOS layout. Includes the kde-minimal module for essential Plasma 6, the pipewire module for audio, and the desktop config files for plasma-appletsrc kdeglobals and kwinrc. The FlakeOS custom layout has been replaced with GNOME Yaru and Hyprland Yaru Ubuntu-like desktops.
 
 ### Sprint 6 — Container Engine
 
@@ -69,11 +69,11 @@ Goal: auto-detect and optimize for all common hardware.
 
 ## Sprint 12 — Enhanced Desktop
 
-Goal: polished KDE Plasma 6 experience out of the box.
+Goal: polished desktop experience out of the box.
 
 - [ ] Add default application set (Firefox, Thunderbird, LibreOffice, GIMP)
 - [ ] Add FlakeOS wallpaper and cursor theme
-- [ ] Add preconfigured KDE activities per profile
+- [ ] Add preconfigured desktop activities per profile
 - [ ] Add print support (CUPS)
 - [ ] Add Bluetooth audio codec configuration
 - [ ] Add desktop notifications and Do Not Disturb workflow

@@ -73,7 +73,12 @@ in
         assertion = !config.flakeos.desktop.hyprland.enable;
         message = "KDE Plasma 6 cannot be enabled alongside Hyprland";
       }
+      {
+        assertion = !config.flakeos.desktop.gnome.enable;
+        message = "KDE Plasma 6 cannot be enabled alongside GNOME";
+      }
     ];
+    security.polkit.enable = true;
     services = {
       displayManager.sddm = mkIf cfg.enableSddm {
         enable = true;

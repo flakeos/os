@@ -5,7 +5,6 @@ with lib;
     desktop = {
       kde.enable = mkDefault false;
       audio.enable = mkDefault false;
-      layout.enable = mkDefault false;
     };
     containers.instancePool.enable = mkDefault false;
     security.ssh.enable = mkDefault true;
