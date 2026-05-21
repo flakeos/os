@@ -4,7 +4,7 @@
 
 To deploy FLAKEOS on a new machine first create a host directory under src/hosts with a meta.nix file containing the system architecture hardware profile hostname and username. Then run nixos-install flake hash target-host. After installation reboot and verify the system.
 
-If you are deploying from an ISO the ISO is available in four variants. minimal is headless with no desktop for servers and containers. desktop includes KDE Plasma 6 with FlakeOS layout for workstations with GPU. laptop includes the desktop variant plus power management and touchpad configuration. server includes the minimal variant plus container orchestrator and instance pool.
+If you are deploying from an ISO the ISO is available in five variants. minimal is headless with no desktop for servers and containers. desktop includes KDE Plasma 6 with FlakeOS layout for workstations with GPU. hyprland includes Hyprland with GNOME-like Waybar desktop for workstations with GPU. laptop includes the desktop variant plus power management and touchpad configuration. server includes the minimal variant plus container orchestrator and instance pool.
 
 ## Host Configuration
 
@@ -26,7 +26,7 @@ After creating meta.nix run sudo nixos-install --flake path hash devbox to insta
 
 ## Profile Selection
 
-Profiles define which modules are enabled. The workstation profile enables desktop KDE and FlakeOS layout. The developer profile adds development tools like git vscode docker and language runtimes on top of workstation. The server profile is headless with container orchestrator for running MicroVM guests. The minimal profile is a headless base system with networking SSH and security hardening only.
+Profiles define which modules are enabled. The workstation profile enables desktop KDE and FlakeOS layout. The hyprland profile enables Hyprland compositor with Waybar system tray and GNOME-like appearance. The developer profile adds development tools like git vscode docker and language runtimes on top of workstation. The server profile is headless with container orchestrator for running MicroVM guests. The minimal profile is a headless base system with networking SSH and security hardening only.
 
 To change the profile of an existing host edit the profile key in meta.nix and run nixos-rebuild switch. The system will reconfigure itself with the new module set.
 
@@ -54,7 +54,7 @@ Pool instances are managed via scripts/pool/pool-manager.sh which supports spawn
 
 ## Desktop Environment
 
-KDE Plasma 6 minimal with custom FlakeOS layout including top bar dock global menu and dark color scheme. PipeWire provides audio with low latency configuration.
+KDE Plasma 6 minimal with custom FlakeOS layout including top bar dock global menu and dark color scheme. Hyprland with Waybar top bar rofi launcher and sway notifications styled after GNOME for a clean modern workspace. PipeWire provides audio with low latency configuration.
 
 The desktop layout is applied automatically on first login through initialization scripts. Key customizations include a top panel with global menu app launcher system tray and workspace switcher. A bottom dock with application favorites and running tasks. Window decorations use BoraDark color scheme with cyan accent.
 
