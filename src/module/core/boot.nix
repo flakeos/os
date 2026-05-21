@@ -2,13 +2,28 @@
 with lib;
 let cfg = config.flakeos.core.boot; in {
   options.flakeos.core.boot = {
-    enableSystemdBoot = mkOption { type = types.bool; default = true; };
-    canTouchEfiVariables = mkOption { type = types.bool; default = true; };
-    configurationLimit = mkOption { type = types.int; default = 20; };
-    timeout = mkOption { type = types.int; default = 3; };
-    kernelParams = mkOption {
-      type = types.listOf types.str;
-      default = [
+    enableSystemdBoot = mkOption { type = types.bool; };
+    canTouchEfiVariables = mkOption { type = types.bool; };
+    configurationLimit = mkOption { type = types.int; };
+    timeout = mkOption { type = types.int; };
+    kernelParams = mkOption { type = types.listOf types.str; };
+    consoleLogLevel = mkOption { type = types.int; };
+    initrdVerbose = mkOption { type = types.bool; };
+    initrdSystemd = mkOption { type = types.bool; };
+    supportedFilesystems = mkOption { type = types.listOf types.str; };
+    kernelPackage = mkOption { type = types.package; };
+    enableRedistributableFirmware = mkOption { type = types.bool; };
+    enableAllFirmware = mkOption { type = types.bool; };
+    enableIntelMicrocode = mkOption { type = types.bool; };
+    enableAmdMicrocode = mkOption { type = types.bool; };
+  };
+  config = {
+    flakeos.core.boot = {
+      enableSystemdBoot = mkDefault true;
+      canTouchEfiVariables = mkDefault true;
+      configurationLimit = mkDefault 20;
+      timeout = mkDefault 3;
+      kernelParams = mkDefault [
         "quiet"
         "splash"
         "mitigations=auto"
@@ -22,18 +37,16 @@ let cfg = config.flakeos.core.boot; in {
         "vsyscall=none"
         "debugfs=off"
       ];
+      consoleLogLevel = mkDefault 0;
+      initrdVerbose = mkDefault false;
+      initrdSystemd = mkDefault true;
+      supportedFilesystems = mkDefault [ "zfs" "btrfs" "ntfs" "exfat" "vfat" "xfs" ];
+      kernelPackage = mkDefault pkgs.linuxPackages_latest;
+      enableRedistributableFirmware = mkDefault true;
+      enableAllFirmware = mkDefault true;
+      enableIntelMicrocode = mkDefault true;
+      enableAmdMicrocode = mkDefault true;
     };
-    consoleLogLevel = mkOption { type = types.int; default = 0; };
-    initrdVerbose = mkOption { type = types.bool; default = false; };
-    initrdSystemd = mkOption { type = types.bool; default = true; };
-    supportedFilesystems = mkOption { type = types.listOf types.str; default = [ "zfs" "btrfs" "ntfs" "exfat" "vfat" "xfs" ]; };
-    kernelPackage = mkOption { type = types.package; default = pkgs.linuxPackages_latest; };
-    enableRedistributableFirmware = mkOption { type = types.bool; default = true; };
-    enableAllFirmware = mkOption { type = types.bool; default = true; };
-    enableIntelMicrocode = mkOption { type = types.bool; default = true; };
-    enableAmdMicrocode = mkOption { type = types.bool; default = true; };
-  };
-  config = {
     boot = {
       loader = {
         systemd-boot = {

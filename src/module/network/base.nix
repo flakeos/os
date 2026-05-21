@@ -2,29 +2,39 @@
 with lib;
 let cfg = config.flakeos.network.base; in {
   options.flakeos.network.base = {
-    enable = mkEnableOption "base network configuration";
-    enableNetworkManager = mkOption { type = types.bool; default = true; };
-    useDHCP = mkOption { type = types.bool; default = true; };
-    enableFirewall = mkOption { type = types.bool; default = false; };
+    enable = mkOption { type = types.bool; description = "base network configuration"; };
+    enableNetworkManager = mkOption { type = types.bool; };
+    useDHCP = mkOption { type = types.bool; };
+    enableFirewall = mkOption { type = types.bool; };
     avahi = {
-      enable = mkOption { type = types.bool; default = false; };
-      nssmdns4 = mkOption { type = types.bool; default = true; };
-      publishAddresses = mkOption { type = types.bool; default = true; };
-      publishWorkstation = mkOption { type = types.bool; default = true; };
-      publishUserServices = mkOption { type = types.bool; default = true; };
+      enable = mkOption { type = types.bool; };
+      nssmdns4 = mkOption { type = types.bool; };
+      publishAddresses = mkOption { type = types.bool; };
+      publishWorkstation = mkOption { type = types.bool; };
+      publishUserServices = mkOption { type = types.bool; };
     };
-    packages = mkOption {
-      type = types.listOf types.package;
-      default = with pkgs; [
+    packages = mkOption { type = types.listOf types.package; };
+  };
+  config = mkIf cfg.enable {
+    flakeos.network.base = {
+      enableNetworkManager = mkDefault true;
+      useDHCP = mkDefault true;
+      enableFirewall = mkDefault false;
+      avahi = {
+        enable = mkDefault false;
+        nssmdns4 = mkDefault true;
+        publishAddresses = mkDefault true;
+        publishWorkstation = mkDefault true;
+        publishUserServices = mkDefault true;
+      };
+      packages = mkDefault (with pkgs; [
         networkmanagerapplet
         iwd
         iw
         wirelesstools
         ethtool
-      ];
+      ]);
     };
-  };
-  config = mkIf cfg.enable {
     networking = {
       networkmanager.enable = cfg.enableNetworkManager;
       useDHCP = mkDefault cfg.useDHCP;

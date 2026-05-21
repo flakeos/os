@@ -2,30 +2,45 @@
 with lib;
 let cfg = config.flakeos.security.hardening; in {
   options.flakeos.security.hardening = {
-    enable = mkEnableOption "system hardening";
+    enable = mkOption { type = types.bool; };
     apparmor = {
-      enable = mkOption { type = types.bool; default = true; };
-      enableCache = mkOption { type = types.bool; default = true; };
-      packages = mkOption { type = types.listOf types.package; default = [ pkgs.apparmor-profiles ]; };
+      enable = mkOption { type = types.bool; };
+      enableCache = mkOption { type = types.bool; };
+      packages = mkOption { type = types.listOf types.package; };
     };
-    protectKernelImage = mkOption { type = types.bool; default = true; };
-    allowUserNamespaces = mkOption { type = types.bool; default = true; };
-    lockKernelModules = mkOption { type = types.bool; default = false; };
+    protectKernelImage = mkOption { type = types.bool; };
+    allowUserNamespaces = mkOption { type = types.bool; };
+    lockKernelModules = mkOption { type = types.bool; };
     audit = {
-      enable = mkOption { type = types.bool; default = true; };
-      rules = mkOption {
-        type = types.listOf types.str;
-        default = [
+      enable = mkOption { type = types.bool; };
+      rules = mkOption { type = types.listOf types.str; };
+    };
+    kernelParams = mkOption { type = types.listOf types.str; };
+    disableServices = mkOption { type = types.listOf types.str; };
+    systemdTimeoutStopSec = mkOption { type = types.str; };
+    systemdTimeoutStartSec = mkOption { type = types.str; };
+    systemdDeviceTimeoutSec = mkOption { type = types.str; };
+  };
+  config = mkIf cfg.enable {
+    flakeos.security.hardening = {
+      apparmor = {
+        enable = mkDefault true;
+        enableCache = mkDefault true;
+        packages = mkDefault [ pkgs.apparmor-profiles ];
+      };
+      protectKernelImage = mkDefault true;
+      allowUserNamespaces = mkDefault true;
+      lockKernelModules = mkDefault false;
+      audit = {
+        enable = mkDefault true;
+        rules = mkDefault [
           "-w /etc/nixos -p wa -k nixos-config"
           "-w /nix/store -p wa -k nix-store"
           "-a exit,always -S execve -k process-exec"
           "-a exit,always -S mount -k mount"
         ];
       };
-    };
-    kernelParams = mkOption {
-      type = types.listOf types.str;
-      default = [
+      kernelParams = mkDefault [
         "quiet"
         "slab_nomerge"
         "init_on_alloc=1"
@@ -37,16 +52,11 @@ let cfg = config.flakeos.security.hardening; in {
         "module.sig_enforce=1"
         "lockdown=confidentiality"
       ];
+      disableServices = mkDefault [ "avahi-daemon" "cups" "bluetooth" ];
+      systemdTimeoutStopSec = mkDefault "10s";
+      systemdTimeoutStartSec = mkDefault "30s";
+      systemdDeviceTimeoutSec = mkDefault "30s";
     };
-    disableServices = mkOption {
-      type = types.listOf types.str;
-      default = [ "avahi-daemon" "cups" "bluetooth" ];
-    };
-    systemdTimeoutStopSec = mkOption { type = types.str; default = "10s"; };
-    systemdTimeoutStartSec = mkOption { type = types.str; default = "30s"; };
-    systemdDeviceTimeoutSec = mkOption { type = types.str; default = "30s"; };
-  };
-  config = mkIf cfg.enable {
     security = {
       apparmor = {
         enable = cfg.apparmor.enable;

@@ -6,10 +6,13 @@ let
 in
 {
   options.flakeos.desktop.hyprland = {
-    enable = mkEnableOption "Hyprland Wayland compositor with Ubuntu-like desktop";
-    packages = mkOption {
-      type = types.listOf types.package;
-      default = with pkgs; [
+    enable = mkOption { type = types.bool; description = "Hyprland Wayland compositor with Ubuntu-like desktop"; };
+    packages = mkOption { type = types.listOf types.package; };
+    extraPackages = mkOption { type = types.listOf types.package; };
+  };
+  config = mkIf cfg.enable {
+    flakeos.desktop.hyprland = {
+      packages = mkDefault (with pkgs; [
         hyprland
         waybar
         rofi-wayland
@@ -32,14 +35,9 @@ in
         brightnessctl
         pavucontrol
         wireplumber
-      ];
+      ]);
+      extraPackages = mkDefault [ ];
     };
-    extraPackages = mkOption {
-      type = types.listOf types.package;
-      default = [ ];
-    };
-  };
-  config = mkIf cfg.enable {
     assertions = [
       {
         assertion = !config.flakeos.desktop.kde.enable;

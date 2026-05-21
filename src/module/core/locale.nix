@@ -2,21 +2,30 @@
 with lib;
 let cfg = config.flakeos.core.locale; in {
   options.flakeos.core.locale = {
-    timeZone = mkOption { type = types.str; default = "Europe/Rome"; };
-    defaultLocale = mkOption { type = types.str; default = "it_IT.UTF-8"; };
-    extraLocales = mkOption { type = types.listOf types.str; default = [ "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ]; };
-    consoleFont = mkOption { type = types.str; default = "Lat2-Terminus16"; };
-    consoleKeyMap = mkOption { type = types.str; default = "it"; };
-    consoleFontPackages = mkOption {
-      type = types.listOf types.package;
-      default = with pkgs; [ terminus_font ];
-    };
-    enableDbus = mkOption { type = types.bool; default = true; };
-    enableUdisks2 = mkOption { type = types.bool; default = true; };
-    enableUpower = mkOption { type = types.bool; default = true; };
-    enableFwupd = mkOption { type = types.bool; default = true; };
+    timeZone = mkOption { type = types.str; };
+    defaultLocale = mkOption { type = types.str; };
+    extraLocales = mkOption { type = types.listOf types.str; };
+    consoleFont = mkOption { type = types.str; };
+    consoleKeyMap = mkOption { type = types.str; };
+    consoleFontPackages = mkOption { type = types.listOf types.package; };
+    enableDbus = mkOption { type = types.bool; };
+    enableUdisks2 = mkOption { type = types.bool; };
+    enableUpower = mkOption { type = types.bool; };
+    enableFwupd = mkOption { type = types.bool; };
   };
   config = {
+    flakeos.core.locale = {
+      timeZone = mkDefault "Europe/Rome";
+      defaultLocale = mkDefault "it_IT.UTF-8";
+      extraLocales = mkDefault [ "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ];
+      consoleFont = mkDefault "Lat2-Terminus16";
+      consoleKeyMap = mkDefault "it";
+      consoleFontPackages = mkDefault (with pkgs; [ terminus_font ]);
+      enableDbus = mkDefault true;
+      enableUdisks2 = mkDefault true;
+      enableUpower = mkDefault true;
+      enableFwupd = mkDefault true;
+    };
     time.timeZone = mkDefault cfg.timeZone;
     i18n = {
       defaultLocale = mkDefault cfg.defaultLocale;

@@ -2,25 +2,19 @@
 with lib;
 let cfg = config.flakeos.containers.microvm; in {
   options.flakeos.containers.microvm = {
-    enable = mkEnableOption "MicroVM host support";
-    stateDir = mkOption {
-      type = types.path;
-      default = "/var/lib/microvm";
-    };
-    zfsDataset = mkOption {
-      type = types.str;
-      default = "zroot/root/microvm";
-    };
-    kernelModules = mkOption {
-      type = types.listOf types.str;
-      default = [ "virtio" "virtio_net" "virtio_blk" "virtiofs" "virtio_gpu" ];
-    };
-    initrdKernelModules = mkOption {
-      type = types.listOf types.str;
-      default = [ "virtiofs" ];
-    };
+    enable = mkOption { type = types.bool; };
+    stateDir = mkOption { type = types.path; };
+    zfsDataset = mkOption { type = types.str; };
+    kernelModules = mkOption { type = types.listOf types.str; };
+    initrdKernelModules = mkOption { type = types.listOf types.str; };
   };
   config = mkIf cfg.enable {
+    flakeos.containers.microvm = {
+      stateDir = mkDefault "/var/lib/microvm";
+      zfsDataset = mkDefault "zroot/root/microvm";
+      kernelModules = mkDefault [ "virtio" "virtio_net" "virtio_blk" "virtiofs" "virtio_gpu" ];
+      initrdKernelModules = mkDefault [ "virtiofs" ];
+    };
     microvm = {
       host.enable = true;
       inherit (cfg) stateDir;

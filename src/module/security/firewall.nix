@@ -2,18 +2,29 @@
 with lib;
 let cfg = config.flakeos.security.firewall; in {
   options.flakeos.security.firewall = {
-    enable = mkEnableOption "nftables firewall";
-    lanRanges = mkOption { type = types.listOf types.str; default = [ "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16" ]; };
-    sshPort = mkOption { type = types.port; default = 22; };
-    wanInterface = mkOption { type = types.str; default = "eth0"; };
-    microvmInterface = mkOption { type = types.str; default = "microvm"; };
-    icmpRateLimit = mkOption { type = types.str; default = "10/second"; };
-    mdnsPort = mkOption { type = types.port; default = 5353; };
-    dhcpPorts = mkOption { type = types.listOf types.port; default = [ 67 68 ]; };
-    inputLogPrefix = mkOption { type = types.str; default = "NF:DROP-INPUT: "; };
-    forwardLogPrefix = mkOption { type = types.str; default = "NF:DROP-FORWARD: "; };
+    enable = mkOption { type = types.bool; description = "nftables firewall"; };
+    lanRanges = mkOption { type = types.listOf types.str; };
+    sshPort = mkOption { type = types.port; };
+    wanInterface = mkOption { type = types.str; };
+    microvmInterface = mkOption { type = types.str; };
+    icmpRateLimit = mkOption { type = types.str; };
+    mdnsPort = mkOption { type = types.port; };
+    dhcpPorts = mkOption { type = types.listOf types.port; };
+    inputLogPrefix = mkOption { type = types.str; };
+    forwardLogPrefix = mkOption { type = types.str; };
   };
   config = mkIf cfg.enable {
+    flakeos.security.firewall = {
+      lanRanges = mkDefault [ "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16" ];
+      sshPort = mkDefault 22;
+      wanInterface = mkDefault "eth0";
+      microvmInterface = mkDefault "microvm";
+      icmpRateLimit = mkDefault "10/second";
+      mdnsPort = mkDefault 5353;
+      dhcpPorts = mkDefault [ 67 68 ];
+      inputLogPrefix = mkDefault "NF:DROP-INPUT: ";
+      forwardLogPrefix = mkDefault "NF:DROP-FORWARD: ";
+    };
     networking.nftables = {
       enable = true;
       ruleset = ''
@@ -39,7 +50,7 @@ let cfg = config.flakeos.security.firewall; in {
             udp dport ${toString cfg.mdnsPort} ip saddr {
               ${builtins.concatStringsSep ", " cfg.lanRanges}
             } accept;
-            udp dport { ${concatStringsSep ", " (map toString cfg.dhcpPorts)} } accept;
+            udp dport ${concatStringsSep ", " (map toString cfg.dhcpPorts)} accept;
             log prefix "${cfg.inputLogPrefix}" drop;
           }
           chain forward {

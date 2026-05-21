@@ -2,15 +2,23 @@
 with lib;
 let cfg = config.flakeos.network.dns; in {
   options.flakeos.network.dns = {
-    enable = mkEnableOption "systemd-resolved DNS";
-    primaryDns = mkOption { type = types.listOf types.str; default = [ "9.9.9.9" "149.112.112.112" ]; };
-    fallbackDns = mkOption { type = types.listOf types.str; default = [ "2620:fe::fe" "2620:fe::9" ]; };
-    dnsOverTls = mkOption { type = types.bool; default = true; };
-    dnssec = mkOption { type = types.str; default = "true"; };
-    stubListener = mkOption { type = types.bool; default = true; };
-    domains = mkOption { type = types.listOf types.str; default = [ "~." ]; };
+    enable = mkOption { type = types.bool; description = "systemd-resolved DNS"; };
+    primaryDns = mkOption { type = types.listOf types.str; };
+    fallbackDns = mkOption { type = types.listOf types.str; };
+    dnsOverTls = mkOption { type = types.bool; };
+    dnssec = mkOption { type = types.str; };
+    stubListener = mkOption { type = types.bool; };
+    domains = mkOption { type = types.listOf types.str; };
   };
   config = mkIf cfg.enable {
+    flakeos.network.dns = {
+      primaryDns = mkDefault [ "9.9.9.9" "149.112.112.112" ];
+      fallbackDns = mkDefault [ "2620:fe::fe" "2620:fe::9" ];
+      dnsOverTls = mkDefault true;
+      dnssec = mkDefault "true";
+      stubListener = mkDefault true;
+      domains = mkDefault [ "~." ];
+    };
     services.resolved = {
       enable = true;
       dnssec = cfg.dnssec;

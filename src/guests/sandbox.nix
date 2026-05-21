@@ -1,46 +1,50 @@
 { pkgs, lib, ... }:
 with lib;
-{
+let cfg = config.flakeos.guest.sandbox; in {
   options.flakeos.guest.sandbox = {
-    enable = mkEnableOption "Sandbox guest template";
-    mem = mkOption { type = types.int; default = 2048; };
-    vcpu = mkOption { type = types.int; default = 2; };
-    packages = mkOption { type = types.listOf types.package; default = with pkgs; [ firefox chromium ]; };
-    hostUid = mkOption { type = types.int; default = 1000; };
-    homeSource = mkOption { type = types.str; default = "/home"; };
-    homeMountPoint = mkOption { type = types.str; default = "/mnt/home"; };
-    x11Socket = mkOption { type = types.str; default = "/tmp/.X11-unix/X0"; };
-    enablePipewire = mkOption { type = types.bool; default = true; };
+    enable = mkOption { type = types.bool; };
+    mem = mkOption { type = types.int; };
+    vcpu = mkOption { type = types.int; };
+    packages = mkOption { type = types.listOf types.package; };
+    hostUid = mkOption { type = types.int; };
+    homeSource = mkOption { type = types.str; };
+    homeMountPoint = mkOption { type = types.str; };
+    x11Socket = mkOption { type = types.str; };
+    enablePipewire = mkOption { type = types.bool; };
   };
 
-  config = mkIf config.flakeos.guest.sandbox.enable
-    (
-      let
-        uidStr = toString config.flakeos.guest.sandbox.hostUid;
-      in
-      {
-        microvm = {
-          guest.enable = true;
-          interfaces = [{
-            type = "bridge";
-            host = "microvm";
-          }];
-          shares = [{
-            source = config.flakeos.guest.sandbox.homeSource;
-            mountPoint = config.flakeos.guest.sandbox.homeMountPoint;
-            type = "virtiofs";
-          }];
-          sockets = [
-            config.flakeos.guest.sandbox.x11Socket
-            "/run/user/${uidStr}/wayland-0"
-            "/run/user/${uidStr}/pipewire-0"
-            "/run/user/${uidStr}/pulse"
-          ];
-          mem = config.flakeos.guest.sandbox.mem;
-          vcpu = config.flakeos.guest.sandbox.vcpu;
-        };
-        services.pipewire.enable = config.flakeos.guest.sandbox.enablePipewire;
-        environment.systemPackages = config.flakeos.guest.sandbox.packages;
-      }
-    );
+  config = mkIf cfg.enable {
+    flakeos.guest.sandbox = {
+      mem = mkDefault 2048;
+      vcpu = mkDefault 2;
+      packages = mkDefault (with pkgs; [ firefox chromium ]);
+      hostUid = mkDefault 1000;
+      homeSource = mkDefault "/home";
+      homeMountPoint = mkDefault "/mnt/home";
+      x11Socket = mkDefault "/tmp/.X11-unix/X0";
+      enablePipewire = mkDefault true;
+    };
+    microvm = {
+      guest.enable = true;
+      interfaces = [{
+        type = "bridge";
+        host = "microvm";
+      }];
+      shares = [{
+        source = cfg.homeSource;
+        mountPoint = cfg.homeMountPoint;
+        type = "virtiofs";
+      }];
+      sockets = [
+        cfg.x11Socket
+        "/run/user/${toString cfg.hostUid}/wayland-0"
+        "/run/user/${toString cfg.hostUid}/pipewire-0"
+        "/run/user/${toString cfg.hostUid}/pulse"
+      ];
+      mem = cfg.mem;
+      vcpu = cfg.vcpu;
+    };
+    services.pipewire.enable = cfg.enablePipewire;
+    environment.systemPackages = cfg.packages;
+  };
 }

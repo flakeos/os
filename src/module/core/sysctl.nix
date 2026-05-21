@@ -2,10 +2,13 @@
 with lib;
 let cfg = config.flakeos.core.sysctl; in {
   options.flakeos.core.sysctl = {
-    enable = mkEnableOption "Kernel sysctl hardening";
-    settings = mkOption {
-      type = types.attrsOf types.anything;
-      default = {
+    enable = mkOption { type = types.bool; };
+    settings = mkOption { type = types.attrsOf types.anything; };
+    disableCoredump = mkOption { type = types.bool; };
+  };
+  config = mkIf cfg.enable {
+    flakeos.core.sysctl = {
+      settings = mkDefault {
         "kernel.kptr_restrict" = 2;
         "kernel.dmesg_restrict" = 1;
         "kernel.perf_event_paranoid" = 3;
@@ -25,7 +28,6 @@ let cfg = config.flakeos.core.sysctl; in {
         "net.ipv4.conf.all.send_redirects" = 0;
         "net.ipv4.conf.default.send_redirects" = 0;
         "net.ipv6.conf.all.accept_redirects" = 0;
-        "net.ipv6.conf.default.accept_redirects" = 0;
         "net.ipv4.icmp_echo_ignore_all" = 0;
         "net.ipv4.icmp_echo_ignore_broadcasts" = 1;
         "net.ipv4.icmp_ignore_bogus_error_responses" = 1;
@@ -61,10 +63,8 @@ let cfg = config.flakeos.core.sysctl; in {
         "vm.oom_kill_allocating_task" = 0;
         "vm.panic_on_oom" = 0;
       };
+      disableCoredump = mkDefault true;
     };
-    disableCoredump = mkOption { type = types.bool; default = true; };
-  };
-  config = mkIf cfg.enable {
     boot.kernel.sysctl = cfg.settings;
     systemd.coredump.enable = !cfg.disableCoredump;
   };
