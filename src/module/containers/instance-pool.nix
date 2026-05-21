@@ -81,6 +81,7 @@ in
           CPU_LIMIT = cfg.cpuPerInstance;
           APP_COMMAND = cfg.appCommand or "";
           HEALTHCHECK_CMD = cfg.healthcheckCmd or "";
+          CG_DIR = cfg.cgroupDir;
         };
         serviceConfig = {
           Type = cfg.serviceType;

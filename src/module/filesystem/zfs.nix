@@ -2,6 +2,7 @@
 with lib;
 let cfg = config.flakeos.filesystem.zfs; in {
   options.flakeos.filesystem.zfs = {
+    zfsPool = mkOption { type = types.str; default = "zroot"; };
     bootDevice = mkOption { type = types.str; };
     hostId = mkOption { type = types.str; };
     arcMax = mkOption { type = types.str; };

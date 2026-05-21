@@ -2,6 +2,7 @@
 set -euo pipefail
 
 APP="${1:?APP name required}"
+CB_DIR="${2:?CB_DIR required}"
 
 printf "=== Spring Application: %s ===\n" "${APP}"
 printf "Active beans:\n"
@@ -11,7 +12,7 @@ systemctl list-units "spring-${APP}-*" --no-legend | \
   done
 
 printf "\nCircuit breaker states:\n"
-for f in /run/flakeos-cb/*-state; do
+for f in "${CB_DIR}"/*-state; do
   [ -f "${f}" ] || continue
   name="${f%-state}"
   name="${name##*/}"

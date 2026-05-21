@@ -7,12 +7,11 @@ with lib;
       audio.enable = mkDefault false;
       layout.enable = mkDefault false;
     };
+    security.ssh.enable = mkDefault true;
     hardwareProfile = mkDefault "server";
     hardware = {
       cpuVendor = mkDefault "intel";
       gpuVendor = mkDefault "intel";
     };
   };
-
-  services.openssh.enable = true;
 }

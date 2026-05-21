@@ -1,6 +1,6 @@
 { config, lib, modulesPath, ... }:
 let
-  fsCfg = config.flakeos.filesystem;
+  zfsCfg = config.flakeos.filesystem.zfs;
 in
 
 {
@@ -16,12 +16,12 @@ in
   };
 
   fileSystems = {
-    "/" = { device = "zroot/root"; fsType = "zfs"; };
-    "/nix" = { device = "zroot/root/nix"; fsType = "zfs"; };
-    "/home" = { device = "zroot/root/home"; fsType = "zfs"; };
-    "/var" = { device = "zroot/root/var"; fsType = "zfs"; };
-    "/tmp" = { device = "zroot/root/tmp"; fsType = "zfs"; };
-    "/boot" = { device = fsCfg.bootDevice; fsType = "vfat"; };
+    "/" = { device = "${zfsCfg.zfsPool}/root"; fsType = "zfs"; };
+    "/nix" = { device = "${zfsCfg.zfsPool}/root/nix"; fsType = "zfs"; };
+    "/home" = { device = "${zfsCfg.zfsPool}/root/home"; fsType = "zfs"; };
+    "/var" = { device = "${zfsCfg.zfsPool}/root/var"; fsType = "zfs"; };
+    "/tmp" = { device = "${zfsCfg.zfsPool}/root/tmp"; fsType = "zfs"; };
+    "/boot" = { device = zfsCfg.bootDevice; fsType = "vfat"; };
   };
 
   swapDevices = [ ];

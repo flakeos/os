@@ -8,9 +8,10 @@ MEM="${MEM_LIMIT:?MEM_LIMIT required}"
 CPU="${CPU_LIMIT:?CPU_LIMIT required}"
 APP_COMMAND="${APP_COMMAND:?APP_COMMAND required}"
 HC="${HEALTHCHECK_CMD:?HEALTHCHECK_CMD required}"
+CG_DIR="${CG_DIR:?CG_DIR required}"
 
 mkdir -p "${POOL_DIR}"/{running,logs}
-mkdir -p /sys/fs/cgroup/flakeos/pool
+mkdir -p "${CG_DIR}"
 
 cleanup() {
   for dir in "${POOL_DIR}"/running/*; do
