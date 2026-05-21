@@ -6,7 +6,7 @@ let
 in
 {
   options.flakeos.desktop.hyprland = {
-    enable = mkEnableOption "Hyprland Wayland compositor with GNOME-like desktop";
+    enable = mkEnableOption "Hyprland Wayland compositor with Ubuntu-like desktop";
     packages = mkOption {
       type = types.listOf types.package;
       default = with pkgs; [
@@ -25,8 +25,7 @@ in
         polkit-gnome
         qt6ct
         libsForQt5.qt5ct
-        adwaita-icon-theme
-        gnome-themes-extra
+        yaru-theme
         glib
         gsettings-desktop-schemas
         gtk3
@@ -41,10 +40,16 @@ in
     };
   };
   config = mkIf cfg.enable {
-    assertions = [{
-      assertion = !config.flakeos.desktop.kde.enable;
-      message = "Hyprland and KDE cannot be enabled simultaneously";
-    }];
+    assertions = [
+      {
+        assertion = !config.flakeos.desktop.kde.enable;
+        message = "Hyprland and KDE cannot be enabled simultaneously";
+      }
+      {
+        assertion = !config.flakeos.desktop.gnome.enable;
+        message = "Hyprland and GNOME cannot be enabled simultaneously";
+      }
+    ];
     programs.hyprland = {
       enable = true;
       withUWSM = true;
@@ -60,25 +65,25 @@ in
     security.polkit.enable = true;
     qt = {
       enable = true;
-      platformTheme = "qtct";
-      style = "adwaita";
+      platformTheme = "gtk2";
+      style = "gtk2";
     };
     gtk = {
       enable = true;
       theme = {
-        name = "Adwaita";
-        package = pkgs.gnome-themes-extra;
+        name = "Yaru";
+        package = pkgs.yaru-theme;
       };
       iconTheme = {
-        name = "Adwaita";
-        package = pkgs.adwaita-icon-theme;
+        name = "Yaru";
+        package = pkgs.yaru-theme;
       };
       cursorTheme = {
-        name = "Adwaita";
-        package = pkgs.gnome-themes-extra;
+        name = "Yaru";
+        package = pkgs.yaru-theme;
       };
     };
-    fonts.packages = with pkgs; [ cantarell-fonts noto-fonts ];
+    fonts.packages = with pkgs; [ ubuntu-font-family cantarell-fonts ];
     environment.systemPackages = cfg.packages ++ cfg.extraPackages;
     environment.etc = {
       "hypr/hyprland.conf".source = hyprConfigDir + "/hyprland.conf";
