@@ -2,7 +2,7 @@
 with lib;
 let
   cfg = config.flakeos.containers.instancePool;
-  scriptsDir = ./../../../scripts/pool;
+  scriptsDir = ./../../scripts/pool;
   poolManager = pkgs.writeShellScriptBin "pool-manager"
     (builtins.readFile (scriptsDir + "/pool-manager.sh"));
   spawnScript = pkgs.writeShellScriptBin "pool-spawn"

@@ -7,7 +7,7 @@ Version 2.1.0
 
 The repository directory tree follows this structure. The root contains flake.nix which is the stateless pure entry point. configuration.nix is the module loader that performs dynamic auto scan. AGENTS.md is this file with agentic rules and sprint definitions. lib contains Nix libraries with pure functions exported by default.nix hardware.nix for CPU GPU and platform auto detection and spring.nix for the DI IoC Container with Circuit Breaker. src contains the NixOS source with hosts for per machine host definitions profiles for per use case profile definitions modules organized by category guests for MicroVM guest definitions config for runtime config files scripts for shell scripts assets for static assets secrets for secrets encrypted with SOPS and age tests for Nix tests and docs for documentation. .changelog contains per release changelog entries following conventional commits format.
 
-The architectural principles are as follows. Single responsibility means every Nix file has one purpose. No side effects means lib functions are pure with no side effects. Auto discovery means configuration.nix scans src/modules without manual imports. Parameterization means everything uses options with mkOption without hardcoding. External shell means shell scripts in scripts referenced via builtins.readFile. External config means config files in config referenced via relative path.
+The architectural principles are as follows. Single responsibility means every Nix file has one purpose. No side effects means lib functions are pure with no side effects. Auto discovery means configuration.nix scans src/module without manual imports. Parameterization means everything uses options with mkOption without hardcoding. External shell means shell scripts in scripts referenced via builtins.readFile. External config means config files in config referenced via relative path.
 
 ## Conventional Commits
 
@@ -33,7 +33,7 @@ Structural Atomicity. Every modification must produce an atomic new generation. 
 
 ### Rule 5
 
-Dynamic Modularity. configuration.nix scans src/modules automatically. Each category corresponds to src/modules/category. Each category has default.nix which imports submodules. Modules are enabled via mkIf cfg.enable. Profiles activate combinations of modules. To create a new module create src/modules/category/name.nix update src/modules/category/default.nix define options with enable and parameters and use mkIf cfg.enable for config.
+Dynamic Modularity. configuration.nix scans src/module automatically. Each category corresponds to src/module/category. Each category has default.nix which imports submodules. Modules are enabled via mkIf cfg.enable. Profiles activate combinations of modules. To create a new module create src/module/category/name.nix update src/module/category/default.nix define options with enable and parameters and use mkIf cfg.enable for config.
 
 ### Rule 6
 
@@ -69,7 +69,7 @@ All host specific parameters are declared in src/hosts/hostname/meta.nix and inj
 
 ### Sprint 1
 
-Foundation with the goal of creating the base system structure. It includes flake.nix as pure entry point with declarative inputs configuration.nix as auto scan module loader lib/default.nix exporting all libraries lib/hardware.nix as CPU GPU and Platform database src/modules/core for Boot Nix Locale and Sysctl src/hosts/hostname with meta default and hardware and AGENTS.md.
+Foundation with the goal of creating the base system structure. It includes flake.nix as pure entry point with declarative inputs configuration.nix as auto scan module loader lib/default.nix exporting all libraries lib/hardware.nix as CPU GPU and Platform database src/module/core for Boot Nix Locale and Sysctl src/hosts/hostname with meta default and hardware and AGENTS.md.
 
 ### Sprint 2
 
@@ -101,7 +101,7 @@ Instance Pool Orchestrator with the goal of creating the pool of isolated instan
 
 ### Sprint 9
 
-Testing and Documentation with the goal of implementing pure Nix tests and complete documentation. It includes tests/default.nix for pure library tests tests/shell.nix for linting environment with statix and deadnix docs as user manual in text format AGENTS.md with always updated agentic rules and ISO generation for immediate deploy.
+Testing and Documentation with the goal of implementing pure Nix tests and complete documentation. It includes src/tests/default.nix for pure library tests src/tests/shell.nix for linting environment with statix and deadnix docs as user manual in text format AGENTS.md with always updated agentic rules and ISO generation for immediate deploy.
 
 The sprint flow proceeds from Sprint 1 to Sprint 2 to Sprint 3 to Sprint 4 from which it branches to Sprint 5 which continues to Sprint 6 which leads to Sprint 7 and Sprint 8 and finally Sprint 9. Each sprint produces a working NixOS generation without unsatisfied dependencies. All sprints from number 1 to number 9 are completed.
 
@@ -139,7 +139,7 @@ SSH hardening provides PermitRootLogin no PasswordAuthentication no PubkeyAuthen
 
 ## Quality Gates
 
-The mandatory quality gates before each merge include statix check src for Nix linting deadnix src for dead code detection nixpkgs-fmt check src for formatting nix-instantiate --eval --strict tests/default.nix for library tests and nix-instantiate --eval --strict tests/modules.nix for module integration tests. The merge must be blocked if any of the quality gates fails.
+The mandatory quality gates before each merge include statix check src for Nix linting deadnix src for dead code detection nixpkgs-fmt check src for formatting nix-instantiate --eval --strict src/tests/default.nix for library tests and nix-instantiate --eval --strict src/tests/modules.nix for module integration tests. The merge must be blocked if any of the quality gates fails.
 
 ## Templates
 
@@ -161,7 +161,7 @@ The idempotency rules require that nixos-rebuild switch is idempotent running it
 
 ## Agent Workflow
 
-When the user requests a modification the agent searches src/modules for the relevant module. If it does not exist it creates a new category creates default.nix and creates the module file. Then it modifies options and config. If shell scripts are needed they go in scripts never inline. If config files are needed they go in config never inline. If hardcoding exists it is replaced with options mkDefault and mkIf. If comments exist in Nix files they are removed and placed in AGENTS.md. Then it runs statix deadnix and nixpkgs-fmt. It verifies idempotency. Every modification must be submitted as a pull request on the alpha branch targeting main. Direct commits to main are forbidden. Merges are performed only when explicitly requested by the user. Merge commits use squash strategy with empty body and no pull request number in the title.
+When the user requests a modification the agent searches src/module for the relevant module. If it does not exist it creates a new category creates default.nix and creates the module file. Then it modifies options and config. If shell scripts are needed they go in scripts never inline. If config files are needed they go in config never inline. If hardcoding exists it is replaced with options mkDefault and mkIf. If comments exist in Nix files they are removed and placed in AGENTS.md. Then it runs statix deadnix and nixpkgs-fmt. It verifies idempotency. Every modification must be submitted as a pull request on the alpha branch targeting main. Direct commits to main are forbidden. Merges are performed only when explicitly requested by the user. Merge commits use squash strategy with empty body and no pull request number in the title.
 
 ---
 

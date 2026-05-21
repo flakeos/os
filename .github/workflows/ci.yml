@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths-ignore:
-      - "docs/**"
+      - "src/docs/**"
       - "**.md"
 
 jobs:
@@ -26,6 +26,6 @@ jobs:
       - name: Formatting check
         run: nix develop --impure --command nixpkgs-fmt --check src
       - name: Library tests
-        run: nix-instantiate --eval --strict tests/default.nix
+        run: nix-instantiate --eval --strict src/tests/default.nix
       - name: Module integration tests
-        run: nix-instantiate --eval --strict tests/modules.nix
+        run: nix-instantiate --eval --strict src/tests/modules.nix

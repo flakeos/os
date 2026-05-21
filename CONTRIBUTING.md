@@ -33,8 +33,8 @@ Before merge, all checks must pass:
 - `statix check src` -- Nix linting
 - `deadnix src` -- dead code detection
 - `nixpkgs-fmt --check src` -- formatting
-- `nix-instantiate --eval --strict tests/default.nix` -- library tests
-- `nix-instantiate --eval --strict tests/modules.nix` -- module integration tests
+- `nix-instantiate --eval --strict src/tests/default.nix` -- library tests
+- `nix-instantiate --eval --strict src/tests/modules.nix` -- module integration tests
 
 ## No Hardcoding
 

@@ -14,7 +14,7 @@ Nix package manager with flakes enabled.
 
 ## Project Structure
 
-src/hosts contains per machine configurations with meta.nix for system hardware profile hostname and username. src/modules contains categorized modules for core filesystem security containers desktop hardware and network. src/profiles defines use case profiles like workstation developer server and minimal. lib contains pure Nix libraries including hardware detection and the Spring framework.
+src/hosts contains per machine configurations with meta.nix for system hardware profile hostname and username. src/module contains categorized modules for core filesystem security containers desktop hardware and network. src/profiles defines use case profiles like workstation developer server and minimal. lib contains pure Nix libraries including hardware detection and the Spring framework.
 
 ## License
 

@@ -12,13 +12,13 @@ in
   # =============================================================================
 (
   let
-    hardwareDB = import ../lib/hardware.nix { inherit (nixpkgs) lib; };
+    hardwareDB = import ../../lib/hardware.nix { inherit (nixpkgs) lib; };
 
     # Minimal NixOS config that exercises module loading via configuration.nix
     minimalConfig = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
-        ../configuration.nix
+        ../../configuration.nix
         (_: {
           system.stateVersion = "25.11";
           users.users.root.hashedPassword = "!";
@@ -74,14 +74,14 @@ in
 # =============================================================================
 (
   let
-    hardwareDB = import ../lib/hardware.nix { inherit (nixpkgs) lib; };
+    hardwareDB = import ../../lib/hardware.nix { inherit (nixpkgs) lib; };
 
     makeConfig = profile:
       let
         cfg = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ../configuration.nix
+            ../../configuration.nix
             (_: {
               system.stateVersion = "25.11";
               users.users.root.hashedPassword = "!";
@@ -128,12 +128,12 @@ in
   # =============================================================================
 (
   let
-    hardwareDB = import ../lib/hardware.nix { inherit (nixpkgs) lib; };
+    hardwareDB = import ../../lib/hardware.nix { inherit (nixpkgs) lib; };
 
     configWithSpring = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
-        ../configuration.nix
+        ../../configuration.nix
         (_: {
           system.stateVersion = "25.11";
           users.users.root.hashedPassword = "!";
