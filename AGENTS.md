@@ -1,6 +1,6 @@
 # FLAKEOS NixOS AgentiC Rules
 
-Version 2.2.0
+Version 2.3.0
 
 ## Architecture
 
@@ -22,17 +22,17 @@ Zero Comments. Inline hash comments block slash asterisk comments and multi line
 
 Zero Shell Inline. Writing shell scripts inside quoted Nix strings is forbidden. Using pkgs.writeShellScript with inline strings is forbidden. Using shell expressions inside Nix strings is forbidden. Every shell script must be in scripts as a separate file. The correct reference is pkgs.writeShellScriptBin name with builtins.readFile reading the script path. Shell scripts that consist of a single command or trivial invocations must be converted to Nix using pkgs.writeShellScriptBin with readFile.
 
-### Rule 3
+### Rule 3 — Zero Hardcoding
 
-Zero Hardcoding. Hardcoding usernames hostnames paths IPs ports UUIDs CPU GPU RAM or any literal value is forbidden. Every value must come from an option with mkOption. Fallback defaults with ${VAR:-default} in shell scripts are forbidden. Placeholder values like deadbeef or BOOT-UUID are forbidden. Every value must be a parameterized option with sensible mkDefault. Activation must use lib.mkIf. No literal values every value must be a variable.
+Hardcoding usernames hostnames paths IPs ports UUIDs CPU GPU RAM or any literal value is forbidden. Every value must come from an option with mkOption. Fallback defaults with ${VAR:-default} in shell scripts are forbidden. Placeholder values like deadbeef or BOOT-UUID are forbidden. Every value must be a parameterized option with sensible mkDefault. Activation must use lib.mkIf. No literal values every value must be a variable.
 
-### Rule 4
+### Rule 4 — Zero Fallbacks
 
-Zero Fallbacks. Shell scripts may not contain ${VAR:-default} patterns. Every variable must be required with ${VAR:?error message} or passed explicitly. Positional arguments in scripts must be validated. Defaults exist only as Nix option mkDefault values. Shell scripts are called with all values provided by the Nix module system. No runtime fallback logic in shell.
+Shell scripts may not contain ${VAR:-default} patterns. Every variable must be required with ${VAR:?error message} or passed explicitly. Positional arguments in scripts must be validated. Defaults exist only as Nix option mkDefault values. Shell scripts are called with all values provided by the Nix module system. No runtime fallback logic in shell.
 
-### Rule 5
+### Rule 5 — Nix Over Shell [GOLDEN RULE 2]
 
-Nix Over Shell. Any shell script that wraps a single command or performs trivial argument forwarding must be converted to Nix. Scripts that only set environment variables and call one binary must be Nix systemd service Config directives. Scripts that read runtime state or require persistent loops may remain shell. The default assumption is Nix. Shell is the exception.
+THE DEFAULT ASSUMPTION IS NIX. SHELL IS THE EXCEPTION. Any shell script that wraps a single command or performs trivial argument forwarding must be converted to Nix. Scripts that only set environment variables and call one binary must be Nix systemd service Config directives. Scripts that read runtime state or require persistent loops may remain shell. Scripts that COULD be Nix MUST be Nix. When in doubt write Nix. Shell is only justified when runtime state persistent loops or hardware probing make Nix provably impossible. Any shell script must pass review with a documented justification for why Nix was insufficient.
 
 ### Rule 6
 
@@ -54,11 +54,24 @@ Pull Request Only. Direct commits and pushes to the main branch are forbidden. E
 
 CI on PR Only. The CI workflow triggers exclusively on pull requests targeting main. Push triggers are forbidden except for release tags. The CI must run linting evaluation tests hardware validation and security audit. Every job must produce a pass or fail result with no skipped steps. ISO generation is not part of CI. ISO build happens only in the release workflow triggered by version tags or locally via scripts/build/iso-build.sh.
 
+### Rule 11 — Zero Defaults [GOLDEN RULE 1 — SOURCE OF TRUTH]
+
+Every mkOption MUST have NO default attribute. Zero. Nada. Hardcoded defaults in option definitions are forbidden. Every value must be calculated and dynamicized. This is the golden rule the single source of truth the creator god of heaven and earth the guinea pig of the gods.
+
+The ONLY way to provide a default value is via mkDefault in the module config block calculated from system state hardware detection or other configuration context. mkEnableOption is forbidden (it injects default = false). Use mkOption type = types.bool instead. mkDefault values in config blocks are lower priority and overridable by user configuration.
+
+When creating a new option the process MUST be:
+1. Define mkOption with type and description only — NO default
+2. In the config block calculate the value dynamically and wrap it in mkDefault
+3. If the value cannot be calculated require it from the user or profile
+
+Profiles and host files set mkDefault values as profile-appropriate overrides. The option definition itself never contains a literal fallback. Every option must die if unset rather than silently defaulting to a hardcoded value.
+
 ## Nix Best Practices
 
 ### Module Structure
 
-Each module defines an options block with an enable flag and all configurable parameters. The config block is wrapped in mkIf cfg.enable. Assertions validate parameter combinations at evaluation time. Options must use mkOption with explicit type and default. Default values use mkDefault for overridability. Conditional values use mkIf. Host specific values are never hardcoded they come from meta.nix or specialArgs. Every option must have types from lib.types. No option may use a bare string or number without a type wrapper.
+Each module defines an options block with an enable flag and all configurable parameters. The config block is wrapped in mkIf cfg.enable. Assertions validate parameter combinations at evaluation time. Options must use mkOption with explicit type and NO default. Default values are calculated dynamically in the config block via mkDefault. Conditional values use mkIf. Host specific values are never hardcoded they come from meta.nix or specialArgs. Every option must have types from lib.types. No option may use a bare string or number without a type wrapper. mkEnableOption is forbidden — use mkOption type = types.bool instead.
 
 ### Pure Functions
 
@@ -66,7 +79,7 @@ Library functions in lib must be pure with no side effects. They receive only th
 
 ### Parameterization
 
-Every configurable value uses Nix options with mkOption. Types must be explicit using types from lib.types. Defaults must be sensible and use mkDefault. Conditional overrides use mkIf. Assertions validate parameter combinations. Host specific values are injected via specialArgs from meta.nix.
+Every configurable value uses Nix options with mkOption. Types must be explicit using types from lib.types. Defaults must be calculated and use mkDefault in the config block. Conditional overrides use mkIf. Assertions validate parameter combinations. Host specific values are injected via specialArgs from meta.nix.
 
 ### Testing
 
@@ -116,7 +129,7 @@ The mandatory quality gates before each merge include statix check src for Nix l
 
 ### Module Template
 
-The template for a new module requires defining config lib pkgs using let cfg config.flakeos.category.module to access options. options.flakeos.category.module must contain enable as mkEnableOption and option1 as mkOption with type and default. config must be wrapped in mkIf cfg.enable with attr set to mkDefault cfg.option1.
+The template for a new module requires defining config lib pkgs using let cfg config.flakeos.category.module to access options. options.flakeos.category.module must contain enable as mkOption type = types.bool and option1 as mkOption with type. config must be wrapped in mkIf cfg.enable with attr set to mkDefault cfg.option1.
 
 ### Host Template
 
@@ -133,6 +146,19 @@ The idempotency rules require that nixos-rebuild switch is idempotent running it
 ## Agent Workflow
 
 When the user requests a modification the agent searches src/module for the relevant module. If it does not exist it creates a new category creates default.nix and creates the module file. Then it modifies options and config. If shell scripts are needed they go in scripts never inline. If config files are needed they go in config never inline. If hardcoding exists it is replaced with options mkDefault and mkIf. If comments exist in Nix files they are removed. No fallback defaults are permitted. Simple shell scripts must be converted to Nix. All text must be English. Then it runs statix deadnix and nixpkgs-fmt. It verifies idempotency. Every modification must be submitted as a pull request on the alpha branch targeting main. Direct commits to main are forbidden. Merges are performed only when explicitly requested by the user. Merge commits use squash strategy with empty body and no pull request number in the title.
+
+## Golden Rule Validation Checklist
+
+Before every commit verify:
+
+1. Every mkOption has NO default attribute. Zero. Nada. (grep for 'default =' inside mkOption)
+2. Every new option uses mkOption { type = types.X; } not mkEnableOption
+3. Every enable flag uses mkOption { type = types.bool; } not mkEnableOption
+4. Every default value is wrapped in mkDefault in the config block
+5. Every enable value is calculated from system state not hardcoded
+6. Every shell script is justified — could this be Nix?
+7. Every shell script has zero ${VAR:-default} patterns (use ${VAR:?error} instead)
+8. If a shell script wraps one command or sets env+exec it must be converted to Nix
 
 ---
 
