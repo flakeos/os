@@ -2,14 +2,22 @@
 with lib;
 let cfg = config.flakeos.host; in {
   options.flakeos.host = {
-    userGroups = mkOption { type = types.listOf types.str; default = [ "wheel" "networkmanager" "audio" "video" ]; };
-    shell = mkOption { type = types.package; default = pkgs.zsh; };
-    zshTheme = mkOption { type = types.str; default = "agnoster"; };
-    zshPlugins = mkOption { type = types.listOf types.str; default = [ "git" "sudo" "systemd" "zsh-navigation-tools" ]; };
-    sudoGroup = mkOption { type = types.str; default = "wheel"; };
-    sshAuthorizedKeys = mkOption { type = types.listOf types.str; default = [ ]; };
+    userGroups = mkOption { type = types.listOf types.str; };
+    shell = mkOption { type = types.package; };
+    zshTheme = mkOption { type = types.str; };
+    zshPlugins = mkOption { type = types.listOf types.str; };
+    sudoGroup = mkOption { type = types.str; };
+    sshAuthorizedKeys = mkOption { type = types.listOf types.str; };
   };
   config = {
+    flakeos.host = {
+      userGroups = mkDefault [ "wheel" "networkmanager" "audio" "video" ];
+      shell = mkDefault pkgs.zsh;
+      zshTheme = mkDefault "agnoster";
+      zshPlugins = mkDefault [ "git" "sudo" "systemd" "zsh-navigation-tools" ];
+      sudoGroup = mkDefault "wheel";
+      sshAuthorizedKeys = mkDefault [ ];
+    };
     networking.hostName = hostname;
 
     users = {

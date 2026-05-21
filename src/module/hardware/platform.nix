@@ -6,7 +6,6 @@ in
 {
   options.flakeos.hardwareProfile = mkOption {
     type = types.enum [ "desktop" "laptop" "server" ];
-    default = "desktop";
     description = "Hardware profile for power/mitigation tuning";
   };
   config = mkMerge [

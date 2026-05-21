@@ -2,16 +2,28 @@
 with lib;
 let cfg = config.flakeos.filesystem.impermanence; in {
   options.flakeos.filesystem.impermanence = {
-    persistPath = mkOption { type = types.str; default = "/persist"; };
-    zfsPool = mkOption { type = types.str; default = "zroot"; };
-    hideMounts = mkOption { type = types.bool; default = true; };
-    persistFsType = mkOption { type = types.str; default = "zfs"; };
-    persistNeededForBoot = mkOption { type = types.bool; default = true; };
-    homeFsType = mkOption { type = types.str; default = "zfs"; };
-    homeNeededForBoot = mkOption { type = types.bool; default = true; };
-    persistDirectories = mkOption {
-      type = types.listOf types.str;
-      default = [
+    persistPath = mkOption { type = types.str; };
+    zfsPool = mkOption { type = types.str; };
+    hideMounts = mkOption { type = types.bool; };
+    persistFsType = mkOption { type = types.str; };
+    persistNeededForBoot = mkOption { type = types.bool; };
+    homeFsType = mkOption { type = types.str; };
+    homeNeededForBoot = mkOption { type = types.bool; };
+    persistDirectories = mkOption { type = types.listOf types.str; };
+    persistFiles = mkOption { type = types.listOf types.str; };
+    userDirectories = mkOption { type = types.listOf types.str; };
+    userFiles = mkOption { type = types.listOf types.str; };
+  };
+  config = mkIf (username != "") {
+    flakeos.filesystem.impermanence = {
+      persistPath = mkDefault "/persist";
+      zfsPool = mkDefault "zroot";
+      hideMounts = mkDefault true;
+      persistFsType = mkDefault "zfs";
+      persistNeededForBoot = mkDefault true;
+      homeFsType = mkDefault "zfs";
+      homeNeededForBoot = mkDefault true;
+      persistDirectories = mkDefault [
         "/etc/nixos"
         "/etc/NetworkManager"
         "/etc/ssh"
@@ -23,18 +35,12 @@ let cfg = config.flakeos.filesystem.impermanence; in {
         "/var/log"
         "/var/lib/microvm"
       ];
-    };
-    persistFiles = mkOption {
-      type = types.listOf types.str;
-      default = [
+      persistFiles = mkDefault [
         "/etc/machine-id"
         "/etc/resolv.conf"
         "/etc/adjtime"
       ];
-    };
-    userDirectories = mkOption {
-      type = types.listOf types.str;
-      default = [
+      userDirectories = mkDefault [
         "Downloads"
         "Documents"
         "Video"
@@ -54,15 +60,10 @@ let cfg = config.flakeos.filesystem.impermanence; in {
         ".cache/mozilla"
         ".mozilla"
       ];
-    };
-    userFiles = mkOption {
-      type = types.listOf types.str;
-      default = [
+      userFiles = mkDefault [
         ".config/user-dirs.dirs"
       ];
     };
-  };
-  config = mkIf (username != "") {
     environment.persistence."${cfg.persistPath}" = {
       hideMounts = cfg.hideMounts;
       directories = cfg.persistDirectories;

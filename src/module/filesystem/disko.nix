@@ -2,21 +2,31 @@
 with lib;
 let cfg = config.flakeos.filesystem.disko; in {
   options.flakeos.filesystem.disko = {
-    enable = mkEnableOption "disko declarative partitioning";
+    enable = mkOption { type = types.bool; };
     disk = mkOption { type = types.str; };
-    zfsPool = mkOption { type = types.str; default = "zroot"; };
-    bootSize = mkOption { type = types.str; default = "1G"; };
-    bootPartitionType = mkOption { type = types.str; default = "EF00"; };
-    bootFormat = mkOption { type = types.str; default = "vfat"; };
-    bootMountpoint = mkOption { type = types.str; default = "/boot"; };
-    zfsSize = mkOption { type = types.str; default = "100%"; };
+    zfsPool = mkOption { type = types.str; };
+    bootSize = mkOption { type = types.str; };
+    bootPartitionType = mkOption { type = types.str; };
+    bootFormat = mkOption { type = types.str; };
+    bootMountpoint = mkOption { type = types.str; };
+    zfsSize = mkOption { type = types.str; };
     datasets = mkOption {
       type = types.attrsOf (types.submodule {
         options = {
           mountpoint = mkOption { type = types.str; };
         };
       });
-      default = {
+    };
+  };
+  config = mkIf cfg.enable {
+    flakeos.filesystem.disko = {
+      zfsPool = mkDefault "zroot";
+      bootSize = mkDefault "1G";
+      bootPartitionType = mkDefault "EF00";
+      bootFormat = mkDefault "vfat";
+      bootMountpoint = mkDefault "/boot";
+      zfsSize = mkDefault "100%";
+      datasets = mkDefault {
         "root" = { mountpoint = "/"; };
         "root/nix" = { mountpoint = "/nix"; };
         "root/home" = { mountpoint = "/home"; };
@@ -25,8 +35,6 @@ let cfg = config.flakeos.filesystem.disko; in {
         "root/tmp" = { mountpoint = "/tmp"; };
       };
     };
-  };
-  config = mkIf cfg.enable {
     disko.devices = {
       disk.main = {
         type = "disk";

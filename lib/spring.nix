@@ -1,8 +1,8 @@
 { lib, pkgs, ... }:
 let
-  inherit (builtins) toString mapAttrs attrNames genList elemAt head filter tail;
+  inherit (builtins) toString mapAttrs attrNames;
   inherit (lib)
-    types mkOption mkEnableOption
+    types mkOption
     mapAttrsToList filterAttrs
     optional any attrValues;
 in
@@ -12,108 +12,97 @@ rec {
       application = mkOption {
         type = types.submodule (_: {
           options = {
-            enable = mkEnableOption "Spring application context";
+            enable = mkOption { type = types.bool; };
             name = mkOption { type = types.str; };
-            version = mkOption { type = types.str; default = "1.0.0"; };
+            version = mkOption { type = types.str; };
             resourceGovernor = mkOption {
               type = types.enum [ "strict" "normal" "relaxed" ];
-              default = "strict";
             };
             globalLimits = mkOption {
               type = types.submodule {
                 options = {
-                  memory = mkOption { type = types.str; default = "0"; };
-                  cpu = mkOption { type = types.str; default = "0"; };
-                  pids = mkOption { type = types.int; default = 0; };
-                  io = mkOption { type = types.str; default = "0"; };
+                  memory = mkOption { type = types.str; };
+                  cpu = mkOption { type = types.str; };
+                  pids = mkOption { type = types.int; };
+                  io = mkOption { type = types.str; };
                 };
               };
-              default = { };
             };
             circuitBreaker = mkOption {
               type = types.submodule {
                 options = {
-                  enable = mkEnableOption "Circuit breaker";
-                  failureThreshold = mkOption { type = types.int; default = 5; };
-                  successThreshold = mkOption { type = types.int; default = 2; };
-                  timeoutMs = mkOption { type = types.int; default = 30000; };
-                  halfOpenMax = mkOption { type = types.int; default = 3; };
+                  enable = mkOption { type = types.bool; };
+                  failureThreshold = mkOption { type = types.int; };
+                  successThreshold = mkOption { type = types.int; };
+                  timeoutMs = mkOption { type = types.int; };
+                  halfOpenMax = mkOption { type = types.int; };
                 };
               };
-              default = { };
             };
           };
         });
-        default = { };
       };
       beans = mkOption {
         type = types.attrsOf (types.submodule (_: {
           options = {
-            enable = mkEnableOption "Spring bean";
+            enable = mkOption { type = types.bool; };
             class = mkOption { type = types.str; };
-            deps = mkOption { type = types.listOf types.str; default = [ ]; };
+            deps = mkOption { type = types.listOf types.str; };
             resources = mkOption {
               type = types.submodule {
                 options = {
-                  cpu = mkOption { type = types.str; default = "1"; };
-                  memory = mkOption { type = types.str; default = "256M"; };
-                  memoryMax = mkOption { type = types.str; default = "512M"; };
-                  pids = mkOption { type = types.int; default = 256; };
-                  ioRbps = mkOption { type = types.str; default = "100M"; };
-                  ioRops = mkOption { type = types.int; default = 1000; };
-                  ioWbps = mkOption { type = types.str; default = "100M"; };
-                  ioWops = mkOption { type = types.int; default = 1000; };
+                  cpu = mkOption { type = types.str; };
+                  memory = mkOption { type = types.str; };
+                  memoryMax = mkOption { type = types.str; };
+                  pids = mkOption { type = types.int; };
+                  ioRbps = mkOption { type = types.str; };
+                  ioRops = mkOption { type = types.int; };
+                  ioWbps = mkOption { type = types.str; };
+                  ioWops = mkOption { type = types.int; };
                   numa = mkOption {
                     type = types.nullOr (types.listOf types.int);
-                    default = null;
                   };
                 };
               };
-              default = { };
             };
-            healthcheck = mkOption { type = types.nullOr types.str; default = null; };
-            livenessProbe = mkOption { type = types.nullOr types.str; default = null; };
-            startupProbe = mkOption { type = types.nullOr types.str; default = null; };
-            dependsOn = mkOption { type = types.listOf types.str; default = [ ]; };
-            after = mkOption { type = types.listOf types.str; default = [ ]; };
-            wants = mkOption { type = types.listOf types.str; default = [ ]; };
+            healthcheck = mkOption { type = types.nullOr types.str; };
+            livenessProbe = mkOption { type = types.nullOr types.str; };
+            startupProbe = mkOption { type = types.nullOr types.str; };
+            dependsOn = mkOption { type = types.listOf types.str; };
+            after = mkOption { type = types.listOf types.str; };
+            wants = mkOption { type = types.listOf types.str; };
             restartPolicy = mkOption {
               type = types.enum [ "always" "on-failure" "no" ];
-              default = "always";
             };
-            restartSec = mkOption { type = types.int; default = 5; };
-            config = mkOption { type = types.attrsOf types.anything; default = { }; };
-            environment = mkOption { type = types.attrsOf types.str; default = { }; };
+            restartSec = mkOption { type = types.int; };
+            config = mkOption { type = types.attrsOf types.anything; };
+            environment = mkOption { type = types.attrsOf types.str; };
             serviceType = mkOption {
               type = types.enum [ "oneshot" "simple" "forking" "dbus" "notify" "idle" ];
-              default = "simple";
             };
-            timeoutStartSec = mkOption { type = types.int; default = 30; };
-            timeoutStopSec = mkOption { type = types.int; default = 10; };
+            timeoutStartSec = mkOption { type = types.int; };
+            timeoutStopSec = mkOption { type = types.int; };
           };
         }));
-        default = { };
       };
       profiles = mkOption {
         type = types.attrsOf (types.submodule {
           options = {
-            enable = mkEnableOption "Spring profile";
-            extends = mkOption { type = types.listOf types.str; default = [ ]; };
-            beans = mkOption { type = types.attrsOf types.anything; default = { }; };
-            config = mkOption { type = types.attrsOf types.anything; default = { }; };
+            enable = mkOption { type = types.bool; };
+            extends = mkOption { type = types.listOf types.str; };
+            beans = mkOption { type = types.attrsOf types.anything; };
+            config = mkOption { type = types.attrsOf types.anything; };
           };
         });
-        default = { };
       };
       autowire = mkOption {
         type = types.submodule {
           options = {
-            enable = mkEnableOption "Autowiring";
-            strict = mkOption { type = types.bool; default = true; };
-            circularCheck = mkOption { type = types.bool; default = true; };
+            enable = mkOption { type = types.bool; };
+            strict = mkOption { type = types.bool; };
+            circularCheck = mkOption { type = types.bool; };
           };
         };
-        default = { };
       };
     };
   });
@@ -140,7 +129,7 @@ rec {
       depsOf = name: builtins.head (map (i: i.allDeps) (builtins.filter (i: i.name == name) items));
       sorted = lib.sort (a: b: any (dep: dep == b) (depsOf a)) names;
     in
-      map (n: builtins.head (builtins.filter (i: i.name == n) items)) sorted;
+    map (n: builtins.head (builtins.filter (i: i.name == n) items)) sorted;
 
   detectCircular = beans:
     let
@@ -152,7 +141,7 @@ rec {
         else if builtins.elem current visited then false
         else builtins.foldl' (acc: dep: acc || visit dep (visited ++ [ current ]) (stack ++ [ current ])) false (depsOf current);
     in
-      builtins.filter (name: visit name [ ] [ ]) names;
+    builtins.filter (name: visit name [ ] [ ]) names;
 
   resolveBeanConfig = beans:
     let

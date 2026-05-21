@@ -1,44 +1,42 @@
 { lib, config, ... }:
 with lib;
-{
+let cfg = config.flakeos.guest.example; in {
   options.flakeos.guest.example = {
-    enable = mkEnableOption "Example instance guest";
-    mem = mkOption { type = types.int; default = 256; };
-    vcpu = mkOption { type = types.int; default = 1; };
-    hostUid = mkOption { type = types.int; default = 1000; };
-    workspaceDir = mkOption { type = types.str; default = "/var/lib/instance-pool/workspaces"; };
-    x11Socket = mkOption { type = types.str; default = "/tmp/.X11-unix/X0"; };
-    waylandSocket = mkOption { type = types.str; default = ""; };
+    enable = mkOption { type = types.bool; };
+    mem = mkOption { type = types.int; };
+    vcpu = mkOption { type = types.int; };
+    hostUid = mkOption { type = types.int; };
+    workspaceDir = mkOption { type = types.str; };
+    x11Socket = mkOption { type = types.str; };
+    waylandSocket = mkOption { type = types.str; };
   };
 
-  config = mkIf config.flakeos.guest.example.enable
-    (
-      let
-        uidStr = toString config.flakeos.guest.example.hostUid;
-        waylandPath =
-          if config.flakeos.guest.example.waylandSocket != ""
-          then config.flakeos.guest.example.waylandSocket
-          else "/run/user/${uidStr}/wayland-0";
-      in
-      {
-        microvm = {
-          guest.enable = true;
-          interfaces = [{
-            type = "bridge";
-            host = "microvm";
-          }];
-          shares = [{
-            source = config.flakeos.guest.example.workspaceDir;
-            mountPoint = "/workspace";
-            type = "virtiofs";
-          }];
-          sockets = [
-            config.flakeos.guest.example.x11Socket
-            waylandPath
-          ];
-          mem = config.flakeos.guest.example.mem;
-          vcpu = config.flakeos.guest.example.vcpu;
-        };
-      }
-    );
+  config = mkIf cfg.enable {
+    flakeos.guest.example = {
+      mem = mkDefault 256;
+      vcpu = mkDefault 1;
+      hostUid = mkDefault 1000;
+      workspaceDir = mkDefault "/var/lib/instance-pool/workspaces";
+      x11Socket = mkDefault "/tmp/.X11-unix/X0";
+      waylandSocket = mkDefault "/run/user/${toString cfg.hostUid}/wayland-0";
+    };
+    microvm = {
+      guest.enable = true;
+      interfaces = [{
+        type = "bridge";
+        host = "microvm";
+      }];
+      shares = [{
+        source = cfg.workspaceDir;
+        mountPoint = "/workspace";
+        type = "virtiofs";
+      }];
+      sockets = [
+        cfg.x11Socket
+        cfg.waylandSocket
+      ];
+      mem = cfg.mem;
+      vcpu = cfg.vcpu;
+    };
+  };
 }

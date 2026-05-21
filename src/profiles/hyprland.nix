@@ -7,5 +7,7 @@ with lib;
       audio.enable = mkDefault true;
     };
     hardwareProfile = mkDefault "desktop";
+    hardware.cpuVendor = mkDefault "intel";
+    hardware.gpuVendor = mkDefault "amd";
   };
 }

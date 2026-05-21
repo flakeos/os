@@ -5,13 +5,13 @@ let
 in
 {
   options.flakeos.desktop.gnome = {
-    enable = mkEnableOption "GNOME desktop with Yaru Ubuntu theme";
-    extraPackages = mkOption {
-      type = types.listOf types.package;
-      default = [ ];
-    };
+    enable = mkOption { type = types.bool; description = "GNOME desktop with Yaru Ubuntu theme"; };
+    extraPackages = mkOption { type = types.listOf types.package; };
   };
   config = mkIf cfg.enable {
+    flakeos.desktop.gnome = {
+      extraPackages = mkDefault [ ];
+    };
     assertions = [
       {
         assertion = !config.flakeos.desktop.hyprland.enable;

@@ -1,25 +1,28 @@
 { config, lib, hardwareDB, ... }:
 with lib;
 let
-  cpuVendor = config.flakeos.hardware.cpuVendor or "intel";
+  cpuVendor = config.flakeos.hardware.cpuVendor;
   cpuCfg = hardwareDB.cpu.${cpuVendor} or hardwareDB.cpu.intel;
 in
 {
   options.flakeos.hardware = {
     cpuVendor = mkOption {
       type = types.enum [ "intel" "amd" "arm" ];
-      default = "intel";
       description = "CPU vendor for optimal settings";
     };
     enableMitigations = mkOption {
       type = types.bool;
-      default = true;
       description = "Enable CPU vulnerability mitigations";
     };
-    enableIntelMicrocode = mkOption { type = types.bool; default = true; };
-    enableAmdMicrocode = mkOption { type = types.bool; default = true; };
+    enableIntelMicrocode = mkOption { type = types.bool; };
+    enableAmdMicrocode = mkOption { type = types.bool; };
   };
   config = {
+    flakeos.hardware = {
+      enableMitigations = mkDefault true;
+      enableIntelMicrocode = mkDefault (cpuVendor == "intel");
+      enableAmdMicrocode = mkDefault (cpuVendor == "amd");
+    };
     hardware.cpu.intel.updateMicrocode =
       mkIf (cpuVendor == "intel") config.flakeos.hardware.enableIntelMicrocode;
     hardware.cpu.amd.updateMicrocode =

@@ -2,20 +2,30 @@
 with lib;
 let cfg = config.flakeos.core.power; in {
   options.flakeos.core.power = {
-    enable = mkEnableOption "System power and reliability management";
+    enable = mkOption { type = types.bool; };
     thermald = {
-      enable = mkOption { type = types.bool; default = true; };
+      enable = mkOption { type = types.bool; };
     };
     earlyoom = {
-      enable = mkOption { type = types.bool; default = true; };
-      enableNotifications = mkOption { type = types.bool; default = true; };
+      enable = mkOption { type = types.bool; };
+      enableNotifications = mkOption { type = types.bool; };
     };
-    panicTimeout = mkOption { type = types.int; default = 10; };
-    enableOopsPanic = mkOption { type = types.bool; default = false; };
-    enableCrashDump = mkOption { type = types.bool; default = false; };
+    panicTimeout = mkOption { type = types.int; };
+    enableOopsPanic = mkOption { type = types.bool; };
+    enableCrashDump = mkOption { type = types.bool; };
     cpuFreqGovernor = mkOption { type = types.str; };
   };
   config = mkIf cfg.enable {
+    flakeos.core.power = {
+      thermald.enable = mkDefault true;
+      earlyoom = {
+        enable = mkDefault true;
+        enableNotifications = mkDefault true;
+      };
+      panicTimeout = mkDefault 10;
+      enableOopsPanic = mkDefault false;
+      enableCrashDump = mkDefault false;
+    };
     boot.kernelParams =
       (optional (cfg.panicTimeout > 0) "panic=${toString cfg.panicTimeout}")
       ++ optional cfg.enableOopsPanic "oops=panic";
