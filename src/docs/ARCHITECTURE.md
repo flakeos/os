@@ -1,6 +1,6 @@
 # FLAKEOS NixOS Architecture Document
 
-Version 2.1.0
+Version 2.2.0
 
 ## Introduction
 
@@ -20,7 +20,7 @@ Single Responsibility means each Nix file has exactly one purpose. A file equals
 
 Conditional Activation means modules are enabled or disabled via mkIf cfg.enable. The enable option is declared in the module options block. Profiles activate combinations of modules by setting these options to their preferred values. Idempotency means nixos-rebuild switch is idempotent. Running it twice produces the same result. No state is modified outside the Nix store. User state lives exclusively in persist and home. The root filesystem is ephemeral through impermanence.
 
-Atomicity means every nixos-rebuild produces a new generation. The previous generation remains intact and selectable from the boot menu. Rollback uses nixos-rebuild switch rollback. ZFS snapshots are taken automatically before and after rebuild via sanoid. Parameterization means all configurable values use Nix options with mkOption. Default values use mkDefault so they can be overridden. Conditional values use mkIf. No literal values appear in configuration logic.
+Atomicity means every nixos-rebuild produces a new generation. The previous generation remains intact and selectable from the boot menu. Rollback uses nixos-rebuild switch rollback. ZFS snapshots are taken automatically before and after rebuild via sanoid. Parameterization means all configurable values use Nix options with mkOption. No option definition contains a default attribute. All defaults are computed dynamically in the config block via mkDefault from system state hardware detection or configuration context. This is the golden rule the single source of truth. Conditional values use mkIf. No literal values appear in configuration logic.
 
 ## Module System
 
