@@ -3,7 +3,7 @@ with lib;
 let cfg = config.flakeos.security.firewall; in {
   options.flakeos.security.firewall = {
     enable = mkEnableOption "nftables firewall";
-    lanRanges = mkOption { type = types.listOf types.str; default = [ "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16" ]; };
+    lanRanges = mkOption { type = types.listOf types.str; default = [ "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/24" ]; };
     sshPort = mkOption { type = types.port; default = 22; };
     wanInterface = mkOption { type = types.str; default = "eth0"; };
     microvmInterface = mkOption { type = types.str; default = "microvm"; };
