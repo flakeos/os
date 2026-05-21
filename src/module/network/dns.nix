@@ -8,18 +8,19 @@ let cfg = config.flakeos.network.dns; in {
     dnsOverTls = mkOption { type = types.bool; default = true; };
     dnssec = mkOption { type = types.str; default = "true"; };
     stubListener = mkOption { type = types.bool; default = true; };
+    domains = mkOption { type = types.listOf types.str; default = [ "~." ]; };
   };
   config = mkIf cfg.enable {
     services.resolved = {
       enable = true;
       dnssec = cfg.dnssec;
-      domains = [ "~." ];
+      domains = cfg.domains;
       fallbackDns = cfg.fallbackDns;
       extraConfig = ''
         DNSStubListener=${if cfg.stubListener then "yes" else "no"}
         DNSOverTLS=${if cfg.dnsOverTls then "yes" else "no"}
         DNS=${builtins.concatStringsSep " " cfg.primaryDns}
-        Domains=~.
+        Domains=${builtins.concatStringsSep " " cfg.domains}
       '';
     };
   };

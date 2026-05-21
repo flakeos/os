@@ -20,6 +20,14 @@ in
       type = types.str;
       default = "/sys/fs/cgroup/flakeos";
     };
+    checkInterval = mkOption {
+      type = types.int;
+      default = 30;
+    };
+    serviceType = mkOption { type = types.str; default = "simple"; };
+    serviceRestart = mkOption { type = types.str; default = "always"; };
+    serviceRestartSec = mkOption { type = types.int; default = 10; };
+    stateDirectory = mkOption { type = types.str; default = "flakeos-orchestrator"; };
   };
   config = mkIf cfg.enable {
     systemd.services.flakeos-orchestrator = {
@@ -28,11 +36,11 @@ in
       wants = [ "microvm-host.service" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        Type = "simple";
-        Restart = "always";
-        RestartSec = 10;
-        StateDirectory = "flakeos-orchestrator";
-        ExecStart = "${orchestratorScript}/bin/flakeos-orchestrator ${cfg.stateDir} ${cfg.cgroupParent} ${cfg.microvmDir} 30";
+        Type = cfg.serviceType;
+        Restart = cfg.serviceRestart;
+        RestartSec = cfg.serviceRestartSec;
+        StateDirectory = cfg.stateDirectory;
+        ExecStart = "${orchestratorScript}/bin/flakeos-orchestrator ${cfg.stateDir} ${cfg.cgroupParent} ${cfg.microvmDir} ${toString cfg.checkInterval}";
       };
     };
   };

@@ -2,6 +2,8 @@
 with lib;
 let cfg = config.flakeos.core.boot; in {
   options.flakeos.core.boot = {
+    enableSystemdBoot = mkOption { type = types.bool; default = true; };
+    canTouchEfiVariables = mkOption { type = types.bool; default = true; };
     configurationLimit = mkOption { type = types.int; default = 20; };
     timeout = mkOption { type = types.int; default = 3; };
     kernelParams = mkOption {
@@ -22,6 +24,8 @@ let cfg = config.flakeos.core.boot; in {
       ];
     };
     consoleLogLevel = mkOption { type = types.int; default = 0; };
+    initrdVerbose = mkOption { type = types.bool; default = false; };
+    initrdSystemd = mkOption { type = types.bool; default = true; };
     supportedFilesystems = mkOption { type = types.listOf types.str; default = [ "zfs" "btrfs" "ntfs" "exfat" "vfat" "xfs" ]; };
     kernelPackage = mkOption { type = types.package; default = pkgs.linuxPackages_latest; };
     enableRedistributableFirmware = mkOption { type = types.bool; default = true; };
@@ -33,17 +37,17 @@ let cfg = config.flakeos.core.boot; in {
     boot = {
       loader = {
         systemd-boot = {
-          enable = true;
+          enable = cfg.enableSystemdBoot;
           configurationLimit = cfg.configurationLimit;
         };
-        efi.canTouchEfiVariables = true;
+        efi.canTouchEfiVariables = cfg.canTouchEfiVariables;
         timeout = mkDefault cfg.timeout;
       };
       kernelParams = cfg.kernelParams;
       consoleLogLevel = cfg.consoleLogLevel;
       initrd = {
-        verbose = false;
-        systemd.enable = true;
+        verbose = cfg.initrdVerbose;
+        systemd.enable = cfg.initrdSystemd;
       };
       supportedFilesystems = cfg.supportedFilesystems;
       kernelPackages = mkDefault cfg.kernelPackage;

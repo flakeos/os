@@ -2,30 +2,51 @@
 with lib;
 let
   cfg = config.flakeos.desktop.kde;
-  kdeMinimal = with pkgs; [
-    kdePackages.plasma-desktop
-    kdePackages.plasma-workspace
-    kdePackages.kwin
-    kdePackages.kirigami
-    kdePackages.qqc2-desktop-style
-    kdePackages.plasma-integration
-    kdePackages.breeze-icons
-    kdePackages.breeze-gtk
-
-    kdePackages.konsole
-    kdePackages.systemsettings
-    kdePackages.dolphin
-    kdePackages.kate
-  ];
 in
 {
   options.flakeos.desktop.kde = {
     enable = mkEnableOption "KDE Plasma 6 minimal desktop";
-    enableWayland = mkOption {
-      type = types.bool;
-      default = true;
-      description = "Enable Wayland session";
+    enableWayland = mkOption { type = types.bool; default = true; };
+    enableSddm = mkOption { type = types.bool; default = true; };
+    sddmTheme = mkOption { type = types.str; default = "breeze"; };
+    sddmAutoNumlock = mkOption { type = types.bool; default = true; };
+    enablePlasma6 = mkOption { type = types.bool; default = true; };
+    enableQt5Integration = mkOption { type = types.bool; default = false; };
+    enableGraphics = mkOption { type = types.bool; default = true; };
+    enableGraphics32Bit = mkOption { type = types.bool; default = true; };
+    enableXdgPortal = mkOption { type = types.bool; default = true; };
+    packages = mkOption {
+      type = types.listOf types.package;
+      default = with pkgs; [
+        kdePackages.plasma-desktop
+        kdePackages.plasma-workspace
+        kdePackages.kwin
+        kdePackages.kirigami
+        kdePackages.qqc2-desktop-style
+        kdePackages.plasma-integration
+        kdePackages.breeze-icons
+        kdePackages.breeze-gtk
+        kdePackages.konsole
+        kdePackages.systemsettings
+        kdePackages.dolphin
+        kdePackages.kate
+      ];
     };
+    fontPackages = mkOption {
+      type = types.listOf types.package;
+      default = with pkgs; [
+        noto-fonts
+        noto-fonts-cjk-sans
+        noto-fonts-color-emoji
+        source-code-pro
+        nerd-fonts.jetbrains-mono
+        nerd-fonts.fira-code
+      ];
+    };
+    defaultSerifFont = mkOption { type = types.listOf types.str; default = [ "Noto Serif" ]; };
+    defaultSansSerifFont = mkOption { type = types.listOf types.str; default = [ "Noto Sans" ]; };
+    defaultMonospaceFont = mkOption { type = types.listOf types.str; default = [ "JetBrainsMono Nerd Font" ]; };
+    defaultEmojiFont = mkOption { type = types.listOf types.str; default = [ "Noto Color Emoji" ]; };
     excludePackages = mkOption {
       type = types.listOf types.package;
       default = with pkgs.kdePackages; [
@@ -44,45 +65,37 @@ in
         akonadi
         kontact
       ];
-      description = "KDE packages to exclude";
     };
   };
   config = mkIf cfg.enable {
     services = {
-      displayManager.sddm = {
+      displayManager.sddm = mkIf cfg.enableSddm {
         enable = true;
         wayland.enable = cfg.enableWayland;
-        theme = "breeze";
-        autoNumlock = true;
+        theme = cfg.sddmTheme;
+        autoNumlock = cfg.sddmAutoNumlock;
       };
-      desktopManager.plasma6 = {
+      desktopManager.plasma6 = mkIf cfg.enablePlasma6 {
         enable = true;
-        enableQt5Integration = false;
+        enableQt5Integration = cfg.enableQt5Integration;
       };
     };
     environment.plasma6.excludePackages = cfg.excludePackages;
-    environment.systemPackages = kdeMinimal;
+    environment.systemPackages = cfg.packages;
     hardware.graphics = {
-      enable = true;
-      enable32Bit = true;
+      enable = cfg.enableGraphics;
+      enable32Bit = cfg.enableGraphics32Bit;
     };
     fonts = {
       enableDefaultPackages = true;
-      packages = with pkgs; [
-        noto-fonts
-        noto-fonts-cjk-sans
-        noto-fonts-color-emoji
-        source-code-pro
-        nerd-fonts.jetbrains-mono
-        nerd-fonts.fira-code
-      ];
+      packages = cfg.fontPackages;
       fontconfig.defaultFonts = {
-        serif = [ "Noto Serif" ];
-        sansSerif = [ "Noto Sans" ];
-        monospace = [ "JetBrainsMono Nerd Font" ];
-        emoji = [ "Noto Color Emoji" ];
+        serif = cfg.defaultSerifFont;
+        sansSerif = cfg.defaultSansSerifFont;
+        monospace = cfg.defaultMonospaceFont;
+        emoji = cfg.defaultEmojiFont;
       };
     };
-    xdg.portal.enable = true;
+    xdg.portal.enable = cfg.enableXdgPortal;
   };
 }

@@ -19,58 +19,25 @@ in
 {
   options.flakeos.containers.instancePool = {
     enable = mkEnableOption "MicroVM instance pool orchestrator";
-    zfsPool = mkOption {
-      type = types.str;
-      default = "zroot";
-    };
-    poolDir = mkOption {
-      type = types.str;
-      default = "/var/lib/instance-pool";
-    };
-    cgroupDir = mkOption {
-      type = types.str;
-      default = "/sys/fs/cgroup/flakeos/pool";
-    };
-    cgroupIoDevice = mkOption {
-      type = types.str;
-      default = "8:0";
-    };
-    maxInstances = mkOption {
-      type = types.int;
-      default = 899;
-    };
-    basePort = mkOption {
-      type = types.port;
-      default = 8443;
-    };
-    memPerInstance = mkOption {
-      type = types.str;
-      default = "256M";
-    };
-    cpuPerInstance = mkOption {
-      type = types.str;
-      default = "0.5";
-    };
-    storagePerInstance = mkOption {
-      type = types.str;
-      default = "2G";
-    };
-    appPackage = mkOption {
-      type = types.nullOr types.package;
-      default = null;
-    };
-    appCommand = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-    };
-    healthcheckCmd = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-    };
-    caddyDomain = mkOption {
-      type = types.str;
-      default = "pool.flakeos.local";
-    };
+    zfsPool = mkOption { type = types.str; default = "zroot"; };
+    poolDir = mkOption { type = types.str; default = "/var/lib/instance-pool"; };
+    cgroupDir = mkOption { type = types.str; default = "/sys/fs/cgroup/flakeos/pool"; };
+    cgroupIoDevice = mkOption { type = types.str; default = "8:0"; };
+    maxInstances = mkOption { type = types.int; default = 899; };
+    basePort = mkOption { type = types.port; default = 8443; };
+    memPerInstance = mkOption { type = types.str; default = "256M"; };
+    cpuPerInstance = mkOption { type = types.str; default = "0.5"; };
+    pidsPerInstance = mkOption { type = types.str; default = "512"; };
+    storagePerInstance = mkOption { type = types.str; default = "2G"; };
+    appPackage = mkOption { type = types.nullOr types.package; default = null; };
+    appCommand = mkOption { type = types.nullOr types.str; default = null; };
+    healthcheckCmd = mkOption { type = types.nullOr types.str; default = null; };
+    caddyDomain = mkOption { type = types.str; default = "pool.flakeos.local"; };
+    serviceType = mkOption { type = types.str; default = "notify"; };
+    serviceRestart = mkOption { type = types.str; default = "always"; };
+    serviceRestartSec = mkOption { type = types.int; default = 5; };
+    serviceLimitNoFile = mkOption { type = types.int; default = 1048576; };
+    serviceLimitNProc = mkOption { type = types.int; default = 1048576; };
   };
   config = mkIf cfg.enable {
     systemd.services = {
@@ -95,7 +62,7 @@ in
             "${cfg.cgroupDir}" \
             "${cfg.memPerInstance}" \
             "${cfg.cpuPerInstance}" \
-            "512" \
+            "${cfg.pidsPerInstance}" \
             "${cfg.storagePerInstance}" \
             "${cfg.cgroupIoDevice}"
         '';
@@ -116,13 +83,13 @@ in
           HEALTHCHECK_CMD = cfg.healthcheckCmd or "";
         };
         serviceConfig = {
-          Type = "notify";
-          Restart = "always";
-          RestartSec = 5;
+          Type = cfg.serviceType;
+          Restart = cfg.serviceRestart;
+          RestartSec = cfg.serviceRestartSec;
           StateDirectory = "instance-pool";
           NotifyAccess = "all";
-          LimitNOFILE = 1048576;
-          LimitNPROC = 1048576;
+          LimitNOFILE = cfg.serviceLimitNoFile;
+          LimitNPROC = cfg.serviceLimitNProc;
         };
         script = ''
           ${builtins.readFile (scriptsDir + "/pool-manager.sh")}

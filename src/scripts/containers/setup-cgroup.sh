@@ -2,11 +2,11 @@
 set -euo pipefail
 
 CG_DIR="${1:?CG_DIR required}"
-MEM="${2:-256M}"
-CPU="${3:-0.5}"
-PIDS="${4:-512}"
-STORAGE="${5:-2G}"
-IO_DEVICE="${6:-8:0}"
+MEM="${2:?MEM required}"
+CPU="${3:?CPU required}"
+PIDS="${4:?PIDS required}"
+STORAGE="${5:?STORAGE required}"
+IO_DEVICE="${6:?IO_DEVICE required}"
 
 mkdir -p "${CG_DIR}"
 echo "${MEM}" > "${CG_DIR}/memory.max"

@@ -4,7 +4,7 @@ set -euo pipefail
 POOL_DIR="${POOL_DIR:?POOL_DIR required}"
 BASE_PORT="${BASE_PORT:?BASE_PORT required}"
 RUNNING=$(ls -d "${POOL_DIR}"/running/* 2>/dev/null | wc -l)
-PORT="${1:-$((BASE_PORT + RUNNING + 1))}"
+PORT="${1:?PORT required}"
 INST_ID="instance-manual-$$"
 
 microvmctl start \
