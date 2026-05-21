@@ -88,6 +88,17 @@ in
       "xdg/swaync/config.json".source = hyprConfigDir + "/swaync-config.json";
     };
     systemd.user.services = {
+      polkit-gnome = {
+        description = "PolicyKit authentication agent for GNOME";
+        wantedBy = [ "graphical-session.target" ];
+        partOf = [ "graphical-session.target" ];
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.polkit-gnome}/libexec/polkit-gnome-authentication-agent-1";
+          Restart = "on-failure";
+          RestartSec = 1;
+        };
+      };
       swayidle = {
         description = "Sway idle management daemon";
         wantedBy = [ "graphical-session.target" ];

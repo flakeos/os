@@ -150,6 +150,13 @@
             systemProfile = "hyprland";
             baseName = "flakeos-hyprland";
           };
+          iso-gnome = iso {
+            username = "flakeos";
+            hostname = "flakeos-iso";
+            hardwareProfile = "desktop";
+            systemProfile = "gnome";
+            baseName = "flakeos-gnome";
+          };
         });
 
       devShells = forAllSystems (system:
