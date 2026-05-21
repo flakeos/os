@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 OUTPUT_DIR="${PROJECT_DIR}/dist"
-NIXPKGS_ALLOW_BROKEN="${NIXPKGS_ALLOW_BROKEN:-1}"
+NIXPKGS_ALLOW_BROKEN="${NIXPKGS_ALLOW_BROKEN:?NIXPKGS_ALLOW_BROKEN required}"
 
 cd "${PROJECT_DIR}"
 mkdir -p "${OUTPUT_DIR}"

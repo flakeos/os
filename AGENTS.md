@@ -1,7 +1,6 @@
 # FLAKEOS NixOS AgentiC Rules
 
-Strict Hard Zero Hardcoding Zero Comments Zero Inline Shell  
-Version 2.1.0
+Version 2.2.0
 
 ## Architecture
 
@@ -11,35 +10,47 @@ The architectural principles are as follows. Single responsibility means every N
 
 ## Conventional Commits
 
-Every commit must follow the conventional commits specification. The format is type(scope): description. The body is optional and must be empty for squash merges. Valid types are feat for a new feature fix for a bug fix refactor for code restructuring docs for documentation changes chore for maintenance tasks test for testing changes ci for CI workflow changes style for formatting changes perf for performance improvements. The scope is the module or area affected such as core security desktop spring lib. Examples include feat(core): add sysctl hardening module fix(security): resolve nftables input chain order refactor(lib): clean up spring.nix unused params chore: add MIT license file ci: trigger release on version tags only.
+Every commit must follow the conventional commits specification. The format is type(scope): description. The body is optional and must be empty for squash merges. Valid types are feat for a new feature fix for a bug fix refactor for code restructuring docs for documentation changes chore for maintenance tasks test for testing changes ci for CI workflow changes style for formatting changes perf for performance improvements. The scope is the module or area affected such as core security desktop spring lib. Every commit MUST be exactly one line. Multi-line commit bodies are forbidden. The subject must be a complete description under 72 characters.
 
 ## Rules
 
 ### Rule 1
 
-Zero Comments in Nix files. Inline hash comments are forbidden. Block slash asterisk comments are forbidden. Multi line comments are forbidden. Technical documentation goes in AGENTS.md and user documentation in docs. Only AGENTS.md and files in docs may contain text.
+Zero Comments. Inline hash comments block slash asterisk comments and multi line comments are forbidden in all code files. Technical documentation goes in AGENTS.md and user documentation in docs. Only AGENTS.md and files in docs may contain explanatory text. Comments that explain what code does are illegal. Code must be self-documenting through meaningful identifier names and pure functional patterns.
 
 ### Rule 2
 
-Zero Shell Inline in Nix. Writing shell scripts inside quoted Nix strings is forbidden. Using pkgs.writeShellScript with inline strings is forbidden. Using shell expressions inside Nix strings is forbidden. Every shell script must be in scripts as a separate file. The correct reference is pkgs.writeShellScriptBin name with builtins.readFile reading the script path.
+Zero Shell Inline. Writing shell scripts inside quoted Nix strings is forbidden. Using pkgs.writeShellScript with inline strings is forbidden. Using shell expressions inside Nix strings is forbidden. Every shell script must be in scripts as a separate file. The correct reference is pkgs.writeShellScriptBin name with builtins.readFile reading the script path. Shell scripts that consist of a single command or trivial invocations must be converted to Nix using pkgs.writeShellScriptBin with readFile.
 
 ### Rule 3
 
-Zero Hardcoding. Hardcoding usernames like alessio or kairosci is forbidden. Hardcoding hostnames like flakeos or os is forbidden. Hardcoding paths IPs ports or UUIDs is forbidden. Hardcoding CPU GPU or RAM config is forbidden. Username must come from meta.nix or option. Hostname must come from meta.nix or option. Hardware must use options with lib.mkDefault. Activation must use lib.mkIf. No literal values every value must be a variable.
+Zero Hardcoding. Hardcoding usernames hostnames paths IPs ports UUIDs CPU GPU RAM or any literal value is forbidden. Every value must come from an option with mkOption. Fallback defaults with ${VAR:-default} in shell scripts are forbidden. Placeholder values like deadbeef or BOOT-UUID are forbidden. Every value must be a parameterized option with sensible mkDefault. Activation must use lib.mkIf. No literal values every value must be a variable.
 
 ### Rule 4
 
-Structural Atomicity. Every modification must produce an atomic new generation. Workarounds fallbacks and placeholders are forbidden. TODO FIXME and HACK are forbidden. Comments to disable code are forbidden. To disable a module use mkIf false. An unimplemented function must not exist.
+Zero Fallbacks. Shell scripts may not contain ${VAR:-default} patterns. Every variable must be required with ${VAR:?error message} or passed explicitly. Positional arguments in scripts must be validated. Defaults exist only as Nix option mkDefault values. Shell scripts are called with all values provided by the Nix module system. No runtime fallback logic in shell.
 
 ### Rule 5
 
-Dynamic Modularity. configuration.nix scans src/module automatically. Each category corresponds to src/module/category. Each category has default.nix which imports submodules. Modules are enabled via mkIf cfg.enable. Profiles activate combinations of modules. To create a new module create src/module/category/name.nix update src/module/category/default.nix define options with enable and parameters and use mkIf cfg.enable for config.
+Nix Over Shell. Any shell script that wraps a single command or performs trivial argument forwarding must be converted to Nix. Scripts that only set environment variables and call one binary must be Nix systemd service Config directives. Scripts that read runtime state or require persistent loops may remain shell. The default assumption is Nix. Shell is the exception.
 
 ### Rule 6
 
-Pull Request Only. Direct commits and pushes to the main branch are forbidden. Every change must go through a pull request on GitHub. All CI jobs must pass before merge. The only exception is the chore initial commit on main which is created manually once. No agent or developer pushes directly to main. Merges must use squash strategy. Merge commits must have an empty body and must not include the pull request number in the title.
+Zero Redundancy. Modules are grouped by object not by layer. Configuration for a subsystem lives in one place. No value is defined twice. Options are declared once in the module. Profiles set mkDefault values only. Host files contain only meta.nix and host-specific imports. Repeated patterns are factored into shared functions or modules.
 
 ### Rule 7
+
+English Only. All code identifiers variable names option descriptions commit messages documentation and every text string must be in English. Non-English locale values like it_IT or keymap it are data not code and are acceptable. Everything else must be English. No translations no mixed language text.
+
+### Rule 8
+
+Single Line Commits. Every commit must have exactly one line in the message body. The line must be under 72 characters. Multi-line commit messages are forbidden. The commit message must follow conventional commits format. The first line is the entire message.
+
+### Rule 9
+
+Pull Request Only. Direct commits and pushes to the main branch are forbidden. Every change must go through a pull request on GitHub. All CI jobs must pass before merge. The only exception is the chore initial commit on main which is created manually once. No agent or developer pushes directly to main. Merges must use squash strategy. Merge commits must have an empty body and must not include the pull request number in the title.
+
+### Rule 10
 
 CI on PR Only. The CI workflow triggers exclusively on pull requests targeting main. Push triggers are forbidden except for release tags. The CI must run linting evaluation tests hardware validation and security audit. Every job must produce a pass or fail result with no skipped steps. ISO generation is not part of CI. ISO build happens only in the release workflow triggered by version tags or locally via scripts/build/iso-build.sh.
 
@@ -47,7 +58,7 @@ CI on PR Only. The CI workflow triggers exclusively on pull requests targeting m
 
 ### Module Structure
 
-Each module defines an options block with an enable flag and all configurable parameters. The config block is wrapped in mkIf cfg.enable. Assertions validate parameter combinations at evaluation time. Options must use mkOption with explicit type and default. Default values use mkDefault for overridability. Conditional values use mkIf. Host specific values are never hardcoded they come from meta.nix or specialArgs.
+Each module defines an options block with an enable flag and all configurable parameters. The config block is wrapped in mkIf cfg.enable. Assertions validate parameter combinations at evaluation time. Options must use mkOption with explicit type and default. Default values use mkDefault for overridability. Conditional values use mkIf. Host specific values are never hardcoded they come from meta.nix or specialArgs. Every option must have types from lib.types. No option may use a bare string or number without a type wrapper.
 
 ### Pure Functions
 
@@ -59,7 +70,7 @@ Every configurable value uses Nix options with mkOption. Types must be explicit 
 
 ### Testing
 
-Tests evaluate pure library functions with assertEq. Module integration tests use nixosSystem with minimal configuration. Every module with options must have assertions. Test files live in tests and use strict evaluation. Test cases must be real world scenarios not placeholders.
+Tests evaluate pure library functions with assertEq. Module integration tests use nixosSystem with minimal configuration. Every module with options must have assertions. Test files live in tests and use strict evaluation. Test cases must be real world scenarios not placeholders. Shell hooks in tests are forbidden. All test logic must be pure Nix.
 
 ## Host Specific Parameters
 
@@ -101,7 +112,7 @@ Instance Pool Orchestrator with the goal of creating the pool of isolated instan
 
 ### Sprint 9
 
-Testing and Documentation with the goal of implementing pure Nix tests and complete documentation. It includes src/tests/default.nix for pure library tests src/tests/shell.nix for linting environment with statix and deadnix docs as user manual in text format AGENTS.md with always updated agentic rules and ISO generation for immediate deploy.
+Testing and Documentation with the goal of implementing pure Nix tests and complete documentation. It includes src/tests/default.nix for pure library tests docs as user manual in text format AGENTS.md with always updated agentic rules and ISO generation for immediate deploy.
 
 The sprint flow proceeds from Sprint 1 to Sprint 2 to Sprint 3 to Sprint 4 from which it branches to Sprint 5 which continues to Sprint 6 which leads to Sprint 7 and Sprint 8 and finally Sprint 9. Each sprint produces a working NixOS generation without unsatisfied dependencies. All sprints from number 1 to number 9 are completed.
 
@@ -153,7 +164,7 @@ The template for a new host requires a meta.nix file with system hardware profil
 
 ### Shell Script Template
 
-The template for a shell script requires the file in scripts/category/name.sh with bash shebang set euo pipefail parameters with defaults and main function that executes the logic. The reference in Nix uses pkgs.writeShellScriptBin with builtins.readFile to read the script path.
+The template for a shell script requires the file in scripts/category/name.sh with bash shebang set euo pipefail parameters validated with ${VAR:?error} no fallback defaults and main function that executes the logic. Shell scripts must be minimal and only used when Nix is insufficient. The reference in Nix uses pkgs.writeShellScriptBin with builtins.readFile to read the script path.
 
 ## Idempotency and Atomicity
 
@@ -161,7 +172,7 @@ The idempotency rules require that nixos-rebuild switch is idempotent running it
 
 ## Agent Workflow
 
-When the user requests a modification the agent searches src/module for the relevant module. If it does not exist it creates a new category creates default.nix and creates the module file. Then it modifies options and config. If shell scripts are needed they go in scripts never inline. If config files are needed they go in config never inline. If hardcoding exists it is replaced with options mkDefault and mkIf. If comments exist in Nix files they are removed and placed in AGENTS.md. Then it runs statix deadnix and nixpkgs-fmt. It verifies idempotency. Every modification must be submitted as a pull request on the alpha branch targeting main. Direct commits to main are forbidden. Merges are performed only when explicitly requested by the user. Merge commits use squash strategy with empty body and no pull request number in the title.
+When the user requests a modification the agent searches src/module for the relevant module. If it does not exist it creates a new category creates default.nix and creates the module file. Then it modifies options and config. If shell scripts are needed they go in scripts never inline. If config files are needed they go in config never inline. If hardcoding exists it is replaced with options mkDefault and mkIf. If comments exist in Nix files they are removed. No fallback defaults are permitted. Simple shell scripts must be converted to Nix. All text must be English. Then it runs statix deadnix and nixpkgs-fmt. It verifies idempotency. Every modification must be submitted as a pull request on the alpha branch targeting main. Direct commits to main are forbidden. Merges are performed only when explicitly requested by the user. Merge commits use squash strategy with empty body and no pull request number in the title.
 
 ---
 

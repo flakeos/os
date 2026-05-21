@@ -6,8 +6,8 @@ BASE_PORT="${BASE_PORT:?BASE_PORT required}"
 MAX="${MAX_INSTANCES:?MAX_INSTANCES required}"
 MEM="${MEM_LIMIT:?MEM_LIMIT required}"
 CPU="${CPU_LIMIT:?CPU_LIMIT required}"
-APP="${APP_COMMAND:-}"
-HC="${HEALTHCHECK_CMD:-curl -sf http://localhost:${PORT}/health}"
+APP_COMMAND="${APP_COMMAND:?APP_COMMAND required}"
+HC="${HEALTHCHECK_CMD:?HEALTHCHECK_CMD required}"
 
 mkdir -p "${POOL_DIR}"/{running,logs}
 mkdir -p /sys/fs/cgroup/flakeos/pool

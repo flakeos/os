@@ -4,12 +4,23 @@ let cfg = config.flakeos.core.boot; in {
   options.flakeos.core.boot = {
     configurationLimit = mkOption { type = types.int; default = 20; };
     timeout = mkOption { type = types.int; default = 3; };
-    kernelParams = mkOption { type = types.listOf types.str; default = [
-      "quiet" "splash" "mitigations=auto"
-      "random.trust_cpu=off" "random.trust_bootloader=off"
-      "slab_nomerge" "init_on_alloc=1" "init_on_free=1"
-      "page_alloc.shuffle=1" "pti=on" "vsyscall=none" "debugfs=off"
-    ]; };
+    kernelParams = mkOption {
+      type = types.listOf types.str;
+      default = [
+        "quiet"
+        "splash"
+        "mitigations=auto"
+        "random.trust_cpu=off"
+        "random.trust_bootloader=off"
+        "slab_nomerge"
+        "init_on_alloc=1"
+        "init_on_free=1"
+        "page_alloc.shuffle=1"
+        "pti=on"
+        "vsyscall=none"
+        "debugfs=off"
+      ];
+    };
     consoleLogLevel = mkOption { type = types.int; default = 0; };
     supportedFilesystems = mkOption { type = types.listOf types.str; default = [ "zfs" "btrfs" "ntfs" "exfat" "vfat" "xfs" ]; };
     kernelPackage = mkOption { type = types.package; default = pkgs.linuxPackages_latest; };

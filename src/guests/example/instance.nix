@@ -1,4 +1,4 @@
-{ lib, modulesPath, config, ... }:
+{ lib, config, ... }:
 with lib;
 {
   options.flakeos.guest.example = {
@@ -10,25 +10,27 @@ with lib;
   };
 
   config = mkIf config.flakeos.guest.example.enable
-    (let uidStr = toString config.flakeos.guest.example.hostUid; in {
-      microvm = {
-        guest.enable = true;
-        interfaces = [{
-          type = "bridge";
-          host = "microvm";
-        }];
-        shares = [{
-          source = config.flakeos.guest.example.workspaceDir;
-          mountPoint = "/workspace";
-          type = "virtiofs";
-        }];
-        sockets = [
-          "/tmp/.X11-unix/X0"
-          "/run/user/${uidStr}/wayland-0"
-        ];
-        mem = config.flakeos.guest.example.mem;
-        vcpu = config.flakeos.guest.example.vcpu;
-      };
-      system.stateVersion = "25.11";
-    });
+    (
+      let uidStr = toString config.flakeos.guest.example.hostUid; in {
+        microvm = {
+          guest.enable = true;
+          interfaces = [{
+            type = "bridge";
+            host = "microvm";
+          }];
+          shares = [{
+            source = config.flakeos.guest.example.workspaceDir;
+            mountPoint = "/workspace";
+            type = "virtiofs";
+          }];
+          sockets = [
+            "/tmp/.X11-unix/X0"
+            "/run/user/${uidStr}/wayland-0"
+          ];
+          mem = config.flakeos.guest.example.mem;
+          vcpu = config.flakeos.guest.example.vcpu;
+        };
+        system.stateVersion = "25.11";
+      }
+    );
 }
