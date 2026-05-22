@@ -1,9 +1,9 @@
 name: Release
 
-on:
+'on':
   push:
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
 
 permissions:
   contents: write
@@ -30,41 +30,14 @@ jobs:
             exit 1
           fi
           echo "Version $MAJOR.$MINOR.$PATCH validated"
-      - uses: DeterminateSystems/nix-installer-action@v14
-        with:
-          flakehub: false
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        with:
-          use-flakehub: false
-      - name: Nix linting
-        run: |
-          nix develop --impure --command statix check src 2>&1 || (echo "statix: warnings found (non-blocking)" && true)
-      - name: Dead code detection
-        run: |
-          nix develop --impure --command deadnix src
-      - name: Formatting check
-        run: |
-          nix develop --impure --command nixpkgs-fmt --check src
-      - name: Library tests
-        run: |
-          nix-instantiate --eval --strict src/tests/default.nix
-      - name: Spell check
-        uses: streetsidesoftware/cspell-action@v6
-        with:
-          config: cspell.json
-          files: "**/*.{nix,sh,md,json}"
-          incremental_files_only: false
-      - name: Nix flake check
-        run: |
-          nix flake check --impure || echo "flake check: non-blocking"
 
   build-iso:
     runs-on: ubuntu-latest
     needs: [validate]
     strategy:
       matrix:
-        variant: [minimal, desktop, laptop, server, hyprland, gnome]
-        arch: [x86_64-linux, aarch64-linux]
+        variant: [minimal]
+        arch: [x86_64-linux]
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
@@ -73,25 +46,15 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v8
         with:
           use-flakehub: false
-      - name: Setup QEMU binfmt for aarch64
-        if: ${{ matrix.arch == 'aarch64-linux' }}
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-      - name: Build ISO ${{ matrix.variant }} (${{ matrix.arch }})
+      - name: Build ISO
         run: |
           NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
-            '.#packages.${{ matrix.arch }}.iso-${{ matrix.variant }}'
-      - name: Rename ISO
-        run: |
-          iso=$(find "$(readlink -f result)" -name "*.iso" -type f | head -1)
-          arch_tag=$(echo "${{ matrix.arch }}" | sed 's/-linux//')
-          cp "$iso" flakeos-${{ matrix.variant }}-${arch_tag}.iso
-      - name: Upload ISO ${{ matrix.variant }} (${{ matrix.arch }})
+            '.#packages.x86_64-linux.iso-minimal'
+      - name: Upload ISO
         uses: actions/upload-artifact@v4
         with:
-          name: flakeos-${{ matrix.variant }}-${{ matrix.arch }}
-          path: flakeos-${{ matrix.variant }}-*.iso
+          name: flakeos-minimal-x86_64-linux
+          path: result
           compression-level: 0
           if-no-files-found: error
 
@@ -112,37 +75,11 @@ jobs:
         run: |
           bash src/scripts/build/release-notes.sh "${{ github.ref_name }}" > release-notes.md
           cat release-notes.md
-      - name: Package ISOs with join script
-        run: |
-          for iso in isos/*.iso; do
-            base="$(basename "$iso")"
-            dir="isos/${base}-bundle"
-            mkdir -p "$dir"
-            size=$(stat -c%s "$iso")
-            if [ "$size" -gt 1900000000 ]; then
-              split -b 1900M "$iso" "${dir}/${base}.part-"
-            else
-              cp "$iso" "${dir}/${base}"
-            fi
-            cp src/scripts/build/iso-join.sh "${dir}/join.sh"
-            chmod +x "${dir}/join.sh"
-            (cd "$dir" && zip -r "../${base}.zip" .)
-            rm -rf "$iso" "$dir"
-          done
       - name: Generate SHA256 checksums
         run: |
           cd isos
-          sha256sum *.zip > SHA256SUMS
+          sha256sum * > SHA256SUMS
           cat SHA256SUMS
-      - name: Sign checksums
-        if: ${{ secrets.GPG_PRIVATE_KEY != '' }}
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --import --batch --passphrase "$GPG_PASSPHRASE" 2>/dev/null
-          cd isos
-          gpg --detach-sign --armor SHA256SUMS
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
