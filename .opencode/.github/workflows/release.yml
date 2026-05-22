@@ -15,21 +15,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Validate version tag
-        run: |
-          TAG="${{ github.ref_name }}"
-          if ! echo "$TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "ERROR: Invalid version tag '$TAG'. Must follow v{major}.{minor}.{patch}" >&2
-            exit 1
-          fi
-          MAJOR=$(echo "$TAG" | cut -d. -f1 | tr -d v)
-          MINOR=$(echo "$TAG" | cut -d. -f2)
-          PATCH=$(echo "$TAG" | cut -d. -f3)
-          if [ "$MINOR" -gt 19 ] || [ "$PATCH" -gt 19 ]; then
-            echo "ERROR: minor ($MINOR) and patch ($PATCH) must be between 0 and 19" >&2
-            exit 1
-          fi
-          echo "Version $MAJOR.$MINOR.$PATCH validated"
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           flakehub: false
@@ -59,7 +44,6 @@ jobs:
     strategy:
       matrix:
         variant: [minimal, desktop, laptop, server, hyprland, gnome]
-        arch: [x86_64-linux, aarch64-linux]
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
@@ -68,25 +52,19 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v8
         with:
           use-flakehub: false
-      - name: Setup QEMU binfmt for aarch64
-        if: ${{ matrix.arch == 'aarch64-linux' }}
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-      - name: Build ISO ${{ matrix.variant }} (${{ matrix.arch }})
+      - name: Build ISO ${{ matrix.variant }}
         run: |
           NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
-            '.#packages.${{ matrix.arch }}.iso-${{ matrix.variant }}'
+            '.#packages.x86_64-linux.iso-${{ matrix.variant }}'
       - name: Rename ISO
         run: |
           iso=$(find "$(readlink -f result)" -name "*.iso" -type f | head -1)
-          arch_tag=$(echo "${{ matrix.arch }}" | sed 's/-linux//')
-          cp "$iso" flakeos-${{ matrix.variant }}-${arch_tag}.iso
-      - name: Upload ISO ${{ matrix.variant }} (${{ matrix.arch }})
+          cp "$iso" flakeos-${{ matrix.variant }}.iso
+      - name: Upload ISO ${{ matrix.variant }}
         uses: actions/upload-artifact@v4
         with:
-          name: flakeos-${{ matrix.variant }}-${{ matrix.arch }}
-          path: flakeos-${{ matrix.variant }}-*.iso
+          name: flakeos-${{ matrix.variant }}
+          path: flakeos-${{ matrix.variant }}.iso
           compression-level: 0
           if-no-files-found: error
 
