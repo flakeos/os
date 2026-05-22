@@ -67,6 +67,10 @@ let cfg = config.flakeos.filesystem.zfs; in {
       forceImportAll = mkDefault false;
       allowHibernation = mkDefault false;
       requestEncryptionCredentials = mkDefault true;
+      hostId = mkDefault "00000000";
+      bootDevice = mkDefault "/dev/sda";
+      arcMax = mkDefault "0";
+      arcMin = mkDefault "0";
     };
     services.zfs.trim = {
       enable = cfg.trim.enable;
