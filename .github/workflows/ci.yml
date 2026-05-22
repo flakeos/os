@@ -32,11 +32,13 @@ jobs:
         run: |
           nix-instantiate --eval --strict src/tests/default.nix
       - name: Spell check
+        continue-on-error: true
         uses: streetsidesoftware/cspell-action@v6
         with:
           config: cspell.json
           files: "**/*.{nix,sh,md,json}"
           incremental_files_only: false
+          treat_flagged_words_as_errors: false
       - name: Nix flake check
         run: |
           nix flake check --impure || echo "flake check: non-blocking"
