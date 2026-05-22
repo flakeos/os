@@ -58,14 +58,6 @@ in
       serviceLimitNoFile = mkDefault 1048576;
       serviceLimitNProc = mkDefault 1048576;
     };
-    boot.zfs.datasets."${cfg.zfsPool}/instance-pool" = {
-      mountpoint = cfg.poolDir;
-      options = {
-        atime = "off";
-        compression = "zstd-3";
-        quota = "${toString (cfg.maxInstances * 2)}G";
-      };
-    };
     systemd.services.flakeos-pool = {
       description = "MicroVM Instance Pool";
       after = [ "network.target" "microvm-host.service" "zfs.target" ];

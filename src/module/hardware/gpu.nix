@@ -92,16 +92,16 @@ in
         };
       };
     };
-    boot.kernelParams = gpuCfg.kernelParams;
+    boot.kernelParams = gpuCfg.kernelParams
+      ++ optionals config.flakeos.hardware.enableNvmeOptimizations [
+      "nvme_core.default_ps_max_latency_us=0"
+    ];
     environment.sessionVariables = gpuCfg.env;
     hardware.graphics = {
       enable = config.flakeos.hardware.graphics.enable;
       enable32Bit = config.flakeos.hardware.graphics.enable32Bit;
       extraPackages = config.flakeos.hardware.graphics.extraPackages;
     };
-    boot.kernelParams = mkIf config.flakeos.hardware.enableNvmeOptimizations [
-      "nvme_core.default_ps_max_latency_us=0"
-    ];
     services.hardware.bolt = mkIf config.flakeos.hardware.enableThunderbolt {
       enable = true;
     };
