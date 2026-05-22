@@ -45,6 +45,7 @@ jobs:
     strategy:
       matrix:
         variant: [minimal, desktop, laptop, server, hyprland, gnome]
+        arch: [x86_64-linux, aarch64-linux]
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
@@ -53,19 +54,25 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v8
         with:
           use-flakehub: false
-      - name: Build ISO ${{ matrix.variant }}
+      - name: Setup QEMU binfmt for aarch64
+        if: ${{ matrix.arch == 'aarch64-linux' }}
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - name: Build ISO ${{ matrix.variant }} (${{ matrix.arch }})
         run: |
           NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
-            '.#packages.x86_64-linux.iso-${{ matrix.variant }}'
+            '.#packages.${{ matrix.arch }}.iso-${{ matrix.variant }}'
       - name: Rename ISO
         run: |
           iso=$(find "$(readlink -f result)" -name "*.iso" -type f | head -1)
-          cp "$iso" flakeos-${{ matrix.variant }}.iso
-      - name: Upload ISO ${{ matrix.variant }}
+          arch_tag=$(echo "${{ matrix.arch }}" | sed 's/-linux//')
+          cp "$iso" flakeos-${{ matrix.variant }}-${arch_tag}.iso
+      - name: Upload ISO ${{ matrix.variant }} (${{ matrix.arch }})
         uses: actions/upload-artifact@v4
         with:
-          name: flakeos-${{ matrix.variant }}
-          path: flakeos-${{ matrix.variant }}.iso
+          name: flakeos-${{ matrix.variant }}-${{ matrix.arch }}
+          path: flakeos-${{ matrix.variant }}-*.iso
           compression-level: 0
           if-no-files-found: error
 
