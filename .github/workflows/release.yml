@@ -31,60 +31,21 @@ jobs:
           fi
           echo "Version $MAJOR.$MINOR.$PATCH validated"
 
-  build-iso:
-    runs-on: ubuntu-latest
-    needs: [validate]
-    strategy:
-      matrix:
-        variant: [minimal]
-        arch: [x86_64-linux]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v14
-        with:
-          flakehub: false
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        with:
-          use-flakehub: false
-      - name: Build ISO
-        run: |
-          NIXPKGS_ALLOW_BROKEN=1 nix build --impure \
-            '.#packages.x86_64-linux.iso-minimal'
-      - name: Upload ISO
-        uses: actions/upload-artifact@v4
-        with:
-          name: flakeos-minimal-x86_64-linux
-          path: result
-          compression-level: 0
-          if-no-files-found: error
-
   release:
     runs-on: ubuntu-latest
-    needs: [build-iso]
+    needs: [validate]
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Download all ISOs
-        uses: actions/download-artifact@v4
-        with:
-          pattern: flakeos-*
-          path: isos
-          merge-multiple: true
       - name: Generate release notes
         run: |
           bash src/scripts/build/release-notes.sh "${{ github.ref_name }}" > release-notes.md
           cat release-notes.md
-      - name: Generate SHA256 checksums
-        run: |
-          cd isos
-          sha256sum * > SHA256SUMS
-          cat SHA256SUMS
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "${{ github.ref_name }}" \
             --notes-file release-notes.md \
-            --title "${{ github.ref_name }}" \
-            isos/*
+            --title "${{ github.ref_name }}"
