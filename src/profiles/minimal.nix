@@ -7,6 +7,7 @@ with lib;
       audio.enable = mkDefault false;
     };
     security.ssh.enable = mkDefault true;
+    filesystem.disko.enable = mkDefault false;
     hardwareProfile = mkDefault "server";
     hardware = {
       cpuVendor = mkDefault "intel";
