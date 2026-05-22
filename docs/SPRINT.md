@@ -52,9 +52,9 @@ Goal: production-grade release pipeline with automated ISO publishing.
 - [x] Automate release notes generation from .changelog
 - [x] Add GPG signing for release assets (conditional on secret)
 - [x] Add SHA256 checksum file per release
-- [ ] Add smoke tests for ISO boot in CI
+- [x] Add smoke tests for ISO boot in CI
 - [x] Add `nix flake check` to validation gate
-- [ ] Multi-architecture ISO builds (aarch64)
+- [x] Multi-architecture ISO builds (aarch64)
 
 ## Sprint 11 — Extended Hardware Support
 
