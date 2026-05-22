@@ -67,6 +67,10 @@ When creating a new option the process MUST be:
 
 Profiles and host files set mkDefault values as profile-appropriate overrides. The option definition itself never contains a literal fallback. Every option must die if unset rather than silently defaulting to a hardcoded value.
 
+### Rule 12 — Semantic Versioning
+
+Every release tag MUST follow the format v{major}.{minor}.{patch} where major is any non-negative integer, minor is an integer from 0 to 19 inclusive, and patch is an integer from 0 to 19 inclusive. Tags without the v prefix are forbidden. Zero-padded segments are forbidden (use v1.2.3 not v1.02.03). Version validation is enforced in the release workflow at build time. A tag that violates the versioning scheme causes the release to fail.
+
 ## Nix Best Practices
 
 ### Module Structure
