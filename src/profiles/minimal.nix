@@ -17,8 +17,8 @@ with lib;
     containers = {
       instancePool.enable = mkDefault false;
       microvm.enable = mkDefault false;
-      orchestrator.enable = mkDefault false;
     };
+    orchestrator.enable = mkDefault false;
     core = {
       power.enable = mkDefault false;
       sysctl.enable = mkDefault false;
