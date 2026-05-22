@@ -5,7 +5,6 @@ with lib;
     desktop = {
       kde.enable = mkDefault false;
       audio.enable = mkDefault false;
-      pipewire.enable = mkDefault false;
       hyprland.enable = mkDefault false;
       gnome.enable = mkDefault false;
     };
