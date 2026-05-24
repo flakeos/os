@@ -1,0 +1,3 @@
+[submodule "src/module/editors"]
+	path = src/module/editors
+	url = https://github.com/flakeos/editors.git
