@@ -2,6 +2,7 @@
 with lib;
 let cfg = config.flakeos.filesystem.zfs; in {
   options.flakeos.filesystem.zfs = {
+    enable = mkOption { type = types.bool; };
     zfsPool = mkOption { type = types.str; };
     bootDevice = mkOption { type = types.str; };
     hostId = mkOption { type = types.str; };
@@ -40,8 +41,10 @@ let cfg = config.flakeos.filesystem.zfs; in {
     allowHibernation = mkOption { type = types.bool; };
     requestEncryptionCredentials = mkOption { type = types.bool; };
   };
-  config = {
+  config = mkIf cfg.enable {
     flakeos.filesystem.zfs = {
+      enable = mkDefault true;
+      hostId = mkDefault "00000000";
       zfsPool = mkDefault "zroot";
       trim = {
         enable = mkDefault true;
