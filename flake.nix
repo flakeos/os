@@ -95,6 +95,7 @@
             ./configuration.nix
             ({ pkgs, lib, ... }: {
               flakeos.filesystem.zfs.enable = false;
+              flakeos.filesystem.impermanence.enable = false;
               image.baseName = lib.mkDefault baseName;
               boot.supportedFilesystems = [ "zfs" "vfat" "xfs" ];
               boot.kernelPackages = kernelPackages;

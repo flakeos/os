@@ -2,6 +2,7 @@
 with lib;
 let cfg = config.flakeos.filesystem.impermanence; in {
   options.flakeos.filesystem.impermanence = {
+    enable = mkOption { type = types.bool; };
     persistPath = mkOption { type = types.str; };
     zfsPool = mkOption { type = types.str; };
     hideMounts = mkOption { type = types.bool; };
@@ -14,8 +15,9 @@ let cfg = config.flakeos.filesystem.impermanence; in {
     userDirectories = mkOption { type = types.listOf types.str; };
     userFiles = mkOption { type = types.listOf types.str; };
   };
-  config = mkIf (username != "") {
+  config = mkIf (cfg.enable && username != "") {
     flakeos.filesystem.impermanence = {
+      enable = mkDefault true;
       persistPath = mkDefault "/persist";
       zfsPool = mkDefault "zroot";
       hideMounts = mkDefault true;
