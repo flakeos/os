@@ -52,7 +52,7 @@ Pull Request Only. Direct commits and pushes to the main branch are forbidden. E
 
 ### Rule 10
 
-CI on PR Only. The CI workflow triggers exclusively on pull requests targeting main. Push triggers are forbidden except for release tags. The CI must run linting evaluation tests hardware validation and security audit. Every job must produce a pass or fail result with no skipped steps. ISO generation is not part of CI. ISO build happens only in the release workflow triggered by version tags or locally via scripts/build/iso-build.sh.
+CI on PR Only. The CI workflow triggers exclusively on pull requests targeting main. Push triggers are forbidden except for release tags. The CI must run golden rule checks linting formatting dead code detection tests flake check and spell check. Every job must produce a pass or fail result with no skipped steps. ISO generation is not part of CI. ISO build happens only in the release workflow triggered by version tags — all variants are built via matrix strategy and attached to the GitHub release.
 
 ### Rule 11 — Zero Defaults [GOLDEN RULE 1 — SOURCE OF TRUTH]
 
