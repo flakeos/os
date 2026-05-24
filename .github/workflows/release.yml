@@ -43,25 +43,29 @@ jobs:
         with:
           use-flakehub: false
       - name: Build lightweight ISO (smoke test)
+        shell: bash
         run: |
-          nix build --impure --print-out-paths .#iso-minimal 2>&1 | tee /tmp/iso-store-path
+          set -o pipefail
+          nix build --impure --no-link --json .#iso-minimal 2>&1 | tee /tmp/iso-build.json
           if [ ! -e result ]; then
-            echo "ERROR: 'result' symlink not created after nix build" >&2
+            echo "ERROR: 'result' symlink not created" >&2
             ls -la
             exit 1
           fi
+          echo "Build succeeded: $(readlink result)"
       - name: Prepare ISO artifact
         run: |
-          ISO_PATH=$(readlink -f result || echo "")
-          if [ -z "$ISO_PATH" ] || [ ! -f "$ISO_PATH" ]; then
-            ISO_PATH=$(find result/ -name '*.iso' -type f 2>/dev/null | head -1)
+          ISO_PATH=$(readlink -f result)
+          if [ ! -f "$ISO_PATH" ]; then
+            ISO_PATH=$(find result/ -name '*.iso' -type f | head -1)
           fi
-          if [ -z "$ISO_PATH" ] || [ ! -f "$ISO_PATH" ]; then
-            echo "ERROR: ISO file not found in build output" >&2
-            ls -la result/
+          if [ ! -f "$ISO_PATH" ]; then
+            echo "ERROR: ISO not found in result"
+            ls -laR result/
             exit 1
           fi
           cp "$ISO_PATH" /tmp/flakeos-minimal-${{ github.ref_name }}.iso
+          echo "ISO size: $(du -h /tmp/flakeos-minimal-${{ github.ref_name }}.iso | cut -f1)"
       - uses: actions/upload-artifact@v4
         with:
           name: flakeos-minimal-${{ github.ref_name }}
@@ -87,24 +91,28 @@ jobs:
         with:
           use-flakehub: false
       - name: Build ISO ${{ matrix.variant }}
+        shell: bash
         run: |
-          nix build --impure --print-out-paths .#iso-${{ matrix.variant }} 2>&1 | tee /tmp/iso-store-path
+          set -o pipefail
+          nix build --impure --no-link --json .#iso-${{ matrix.variant }} 2>&1 | tee /tmp/iso-build.json
           if [ ! -e result ]; then
-            echo "ERROR: 'result' symlink not created after nix build" >&2
+            echo "ERROR: 'result' symlink not created" >&2
             exit 1
           fi
+          echo "Build succeeded: $(readlink result)"
       - name: Prepare ISO artifact
         run: |
-          ISO_PATH=$(readlink -f result || echo "")
-          if [ -z "$ISO_PATH" ] || [ ! -f "$ISO_PATH" ]; then
-            ISO_PATH=$(find result/ -name '*.iso' -type f 2>/dev/null | head -1)
+          ISO_PATH=$(readlink -f result)
+          if [ ! -f "$ISO_PATH" ]; then
+            ISO_PATH=$(find result/ -name '*.iso' -type f | head -1)
           fi
-          if [ -z "$ISO_PATH" ] || [ ! -f "$ISO_PATH" ]; then
-            echo "ERROR: ISO file not found in build output" >&2
-            ls -la result/
+          if [ ! -f "$ISO_PATH" ]; then
+            echo "ERROR: ISO not found in result"
+            ls -laR result/
             exit 1
           fi
           cp "$ISO_PATH" /tmp/flakeos-${{ matrix.variant }}-${{ github.ref_name }}.iso
+          echo "ISO size: $(du -h /tmp/flakeos-${{ matrix.variant }}-${{ github.ref_name }}.iso | cut -f1)"
       - uses: actions/upload-artifact@v4
         with:
           name: flakeos-${{ matrix.variant }}-${{ github.ref_name }}
