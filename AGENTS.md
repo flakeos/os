@@ -1,4 +1,4 @@
-# FLAKEOS NixOS AgentiC Rules
+# FlakeOS AgentiC Rules
 
 Version 2.3.0
 
