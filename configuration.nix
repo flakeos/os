@@ -7,13 +7,6 @@ let
   moduleCats = attrNames (readDir modulesDir);
   profilesDir = ./src/profiles;
 
-  scanDefaultNix = dir:
-    let
-      entries = attrNames (readDir dir);
-      hasDefault = builtins.elem "default.nix" entries;
-    in
-    [ (dir + "/default.nix") ];
-
   autoImportedModules = builtins.foldl'
     (acc: cat:
       let catDir = modulesDir + "/${cat}";
