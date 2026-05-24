@@ -31,13 +31,34 @@ jobs:
           fi
           echo "Version $MAJOR.$MINOR.$PATCH validated"
 
-  iso:
+  iso-smoke:
     runs-on: ubuntu-latest
     needs: [validate]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
+      - name: Build lightweight ISO (smoke test)
+        run: |
+          nix build --impure .#iso-minimal 2>&1 | tee /tmp/iso-build.log
+      - name: Prepare ISO artifact
+        run: |
+          cp result /tmp/flakeos-minimal-${{ github.ref_name }}.iso
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flakeos-minimal-${{ github.ref_name }}
+          path: /tmp/flakeos-minimal-${{ github.ref_name }}.iso
+
+  iso-matrix:
+    runs-on: ubuntu-latest
+    needs: [iso-smoke]
     strategy:
       matrix:
         variant:
-          - minimal
           - desktop
           - laptop
           - server
@@ -53,12 +74,10 @@ jobs:
           use-flakehub: false
       - name: Build ISO ${{ matrix.variant }}
         run: |
-          nix build --impure .#iso-${{ matrix.variant }} \
-            2>&1 | tee /tmp/iso-build.log
+          nix build --impure .#iso-${{ matrix.variant }} 2>&1 | tee /tmp/iso-build.log
       - name: Prepare ISO artifact
         run: |
           cp result /tmp/flakeos-${{ matrix.variant }}-${{ github.ref_name }}.iso
-          echo "iso_path=/tmp/flakeos-${{ matrix.variant }}-${{ github.ref_name }}.iso" >> $GITHUB_ENV
       - uses: actions/upload-artifact@v4
         with:
           name: flakeos-${{ matrix.variant }}-${{ github.ref_name }}
@@ -66,7 +85,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [validate, iso]
+    needs: [validate, iso-smoke, iso-matrix]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -75,6 +94,9 @@ jobs:
         with:
           pattern: flakeos-*-${{ github.ref_name }}
           merge-multiple: true
+      - name: List artifacts
+        run: |
+          ls -lh flakeos-*.iso
       - name: Generate release notes
         run: |
           bash src/scripts/build/release-notes.sh "${{ github.ref_name }}" > release-notes.md
