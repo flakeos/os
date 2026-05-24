@@ -2,6 +2,7 @@
 with lib;
 let cfg = config.flakeos.core.locale; in {
   options.flakeos.core.locale = {
+    enable = mkOption { type = types.bool; };
     timeZone = mkOption { type = types.str; };
     defaultLocale = mkOption { type = types.str; };
     extraLocales = mkOption { type = types.listOf types.str; };
@@ -13,8 +14,9 @@ let cfg = config.flakeos.core.locale; in {
     enableUpower = mkOption { type = types.bool; };
     enableFwupd = mkOption { type = types.bool; };
   };
-  config = {
+  config = mkIf cfg.enable {
     flakeos.core.locale = {
+      enable = mkDefault true;
       timeZone = mkDefault "Europe/Rome";
       defaultLocale = mkDefault "it_IT.UTF-8";
       extraLocales = mkDefault [ "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ];

@@ -19,9 +19,13 @@ with lib;
     };
     orchestrator.enable = mkDefault false;
     core = {
+      boot.enable = mkDefault true;
+      nix.enable = mkDefault true;
+      locale.enable = mkDefault true;
       power.enable = mkDefault false;
       sysctl.enable = mkDefault false;
     };
+    hardware.enable = mkDefault true;
     network = {
       base.enable = mkDefault false;
       dns.enable = mkDefault false;

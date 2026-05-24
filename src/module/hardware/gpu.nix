@@ -7,6 +7,7 @@ let
 in
 {
   options.flakeos.hardware = {
+    enable = mkOption { type = types.bool; };
     gpuVendor = mkOption {
       type = types.enum [ "nvidia" "amd" "intel" ];
       description = "GPU vendor for optimal drivers";
@@ -43,8 +44,9 @@ in
       description = "Enable fingerprint reader support (fprintd)";
     };
   };
-  config = {
+  config = mkIf config.flakeos.hardware.enable {
     flakeos.hardware = {
+      enable = mkDefault true;
       enableNvidiaPrime = mkDefault false;
       nvidia = {
         modesetting = mkDefault true;

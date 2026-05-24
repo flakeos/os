@@ -6,6 +6,7 @@ let
 in
 {
   options.flakeos.hardware = {
+    enable = mkOption { type = types.bool; };
     cpuVendor = mkOption {
       type = types.enum [ "intel" "amd" "arm" ];
       description = "CPU vendor for optimal settings";
@@ -17,8 +18,9 @@ in
     enableIntelMicrocode = mkOption { type = types.bool; };
     enableAmdMicrocode = mkOption { type = types.bool; };
   };
-  config = {
+  config = mkIf config.flakeos.hardware.enable {
     flakeos.hardware = {
+      enable = mkDefault true;
       enableMitigations = mkDefault true;
       enableIntelMicrocode = mkDefault (cpuVendor == "intel");
       enableAmdMicrocode = mkDefault (cpuVendor == "amd");

@@ -2,6 +2,7 @@
 with lib;
 let cfg = config.flakeos.core.nix; in {
   options.flakeos.core.nix = {
+    enable = mkOption { type = types.bool; };
     maxJobs = mkOption { type = types.int; };
     maxSubstitutionJobs = mkOption { type = types.int; };
     minFree = mkOption { type = types.int; };
@@ -23,8 +24,9 @@ let cfg = config.flakeos.core.nix; in {
     };
     nixPathEntries = mkOption { type = types.listOf types.str; };
   };
-  config = {
+  config = mkIf cfg.enable {
     flakeos.core.nix = {
+      enable = mkDefault true;
       maxJobs = mkDefault 8;
       maxSubstitutionJobs = mkDefault 64;
       minFree = mkDefault 1073741824;

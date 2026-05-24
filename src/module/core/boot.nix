@@ -2,6 +2,7 @@
 with lib;
 let cfg = config.flakeos.core.boot; in {
   options.flakeos.core.boot = {
+    enable = mkOption { type = types.bool; };
     enableSystemdBoot = mkOption { type = types.bool; };
     canTouchEfiVariables = mkOption { type = types.bool; };
     configurationLimit = mkOption { type = types.int; };
@@ -17,8 +18,9 @@ let cfg = config.flakeos.core.boot; in {
     enableIntelMicrocode = mkOption { type = types.bool; };
     enableAmdMicrocode = mkOption { type = types.bool; };
   };
-  config = {
+  config = mkIf cfg.enable {
     flakeos.core.boot = {
+      enable = mkDefault true;
       enableSystemdBoot = mkDefault true;
       canTouchEfiVariables = mkDefault true;
       configurationLimit = mkDefault 20;
