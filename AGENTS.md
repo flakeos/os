@@ -164,6 +164,42 @@ Before every commit verify:
 7. Every shell script has zero ${VAR:-default} patterns (use ${VAR:?error} instead)
 8. If a shell script wraps one command or sets env+exec it must be converted to Nix
 
+## Hard Principles
+
+These principles transcend rules. They are the immutable foundation upon which FlakeOS is built. Every line of code must align with these principles or it is rejected.
+
+### Principle I — Total Determinism
+
+Every build of the same commit on the same hardware must produce byte-identical output. Non-determinism is a bug. Timestamps, random seeds, and network-dependent fetches must be pinned or stripped. If a build is not reproducible it is not FlakeOS.
+
+### Principle II — Perfect Reproducibility
+
+Every configuration must be recreatable from nothing but the flake lock file. No hidden state. No imperative mutations. No runtime modifications outside the Nix store. The system must be recreatable from a blank disk using only `nixos-rebuild switch` and the flake URL.
+
+### Principle III — Zero Trust by Default
+
+Every service starts locked. Every port is closed by default. Every capability is denied until explicitly granted. The principle of least privilege applies to systemd services, users, network services, and MicroVM guests. Trust is earned not granted. The default policy is deny.
+
+### Principle IV — Atomic Everything
+
+Every system mutation is atomic. Upgrades are all-or-nothing. Rollbacks are instant. There is no partial state. The bootloader always presents the previous generation. ZFS snapshots occur before every rebuild. The system never enters an unrecoverable state.
+
+### Principle V — Self-Healing Systems
+
+When a service fails it restarts automatically. When a MicroVM crashes it respawns. When a circuit breaker trips it recovers. When a filesystem degrades it alerts. The system monitors itself and heals without human intervention. Health checks are mandatory for every long-running process.
+
+### Principle VI — Provable Correctness
+
+Every module must evaluate without errors. Every option must have an explicit type. Every assertion must validate parameter combinations at evaluation time. Tests must cover all pure library functions. Evaluation failures are contract violations. If it evaluates it is correct by construction.
+
+### Principle VII — Maximum Security
+
+Security is not a feature it is a structural property. Kernel hardening is applied at the sysctl level. The firewall drops by default. SSH permits key-only authentication. AppArmor enforces mandatory access control. Secrets are encrypted with SOPS and age. No plaintext secrets exist anywhere in the repository.
+
+### Principle VIII — Runtime Verification
+
+Every deployment verifies itself after activation. Systemd services report health status. Circuit breakers monitor failure rates. Cgroup limits are enforced at the kernel level. The system must prove it is working correctly before reporting success. Silent failures are unacceptable.
+
 ---
 
 Copyright 2026 Distributed under MIT license

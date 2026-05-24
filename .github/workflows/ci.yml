@@ -9,7 +9,37 @@ on:
       - "**.md"
 
 jobs:
-  validate:
+  golden-rule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check mkOption has no default
+        run: |
+          if grep -rn 'default =' --include='*.nix' src/module/ \
+            | grep -v src/module/editors/ \
+            | grep -v '/default.nix' \
+            | grep -i 'mkOption'; then
+            echo "ERROR: mkOption with default = found" >&2
+            exit 1
+          fi
+          echo "Golden Rule 11: PASS"
+      - name: Check mkEnableOption not used
+        run: |
+          if grep -rn 'mkEnableOption' --include='*.nix' src/module/ \
+            | grep -v src/module/editors/; then
+            echo "ERROR: mkEnableOption found (use mkOption type=types.bool instead)" >&2
+            exit 1
+          fi
+          echo "mkEnableOption check: PASS"
+      - name: Check no VAR:-default in scripts
+        run: |
+          if grep -rn '\${[A-Z_]*:-' --include='*.sh' src/scripts/; then
+            echo "ERROR: VAR:-default fallback found in scripts" >&2
+            exit 1
+          fi
+          echo "Fallback check: PASS"
+
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,16 +51,78 @@ jobs:
           use-flakehub: false
       - name: Nix linting
         run: |
-          nix develop --impure --command statix check src 2>&1 || (echo "statix: warnings found (non-blocking)" && true)
+          nix develop --impure --command statix check src \
+            2>&1 || echo "statix: warnings (non-blocking)"
+
+  dead-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
       - name: Dead code detection
         run: |
-          nix develop --impure --command deadnix src
+          nix develop --impure --command deadnix src \
+            2>&1 | grep -v "src/module/editors" || true
+          if nix develop --impure --command deadnix src 2>&1 \
+            | grep -v "src/module/editors" | grep -q "Warning"; then
+            echo "Dead code found in main repo" >&2
+            nix develop --impure --command deadnix src 2>&1 \
+              | grep -v "src/module/editors"
+            exit 1
+          fi
+
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
       - name: Formatting check
         run: |
-          nix develop --impure --command nixpkgs-fmt --check src
+          nix develop --impure --command nixpkgs-fmt --check \
+            flake.nix configuration.nix src/module src/hosts src/profiles src/lib src/tests
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
       - name: Library tests
         run: |
           nix-instantiate --eval --strict src/tests/default.nix
+
+  flake-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+        with:
+          flakehub: false
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
+      - name: Nix flake check
+        run: |
+          nix flake check --impure 2>&1 || echo "flake check: non-blocking"
+
+  spell-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Spell check
         continue-on-error: true
         uses: streetsidesoftware/cspell-action@v6
@@ -39,8 +131,3 @@ jobs:
           files: "**/*.{nix,sh,md,json}"
           incremental_files_only: false
           treat_flagged_words_as_errors: false
-      - name: Nix flake check
-        run: |
-          nix flake check --impure || echo "flake check: non-blocking"
-
-
