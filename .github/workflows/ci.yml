@@ -46,9 +46,8 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           flakehub: false
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        with:
-          use-flakehub: false
+          extra-conf: |
+            accept-flake-config = true
       - name: Nix linting
         run: |
           nix develop --impure --command statix check src \
@@ -61,9 +60,8 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           flakehub: false
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        with:
-          use-flakehub: false
+          extra-conf: |
+            accept-flake-config = true
       - name: Dead code detection
         run: |
           nix develop --impure --command deadnix src \
@@ -83,9 +81,8 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           flakehub: false
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        with:
-          use-flakehub: false
+          extra-conf: |
+            accept-flake-config = true
       - name: Formatting check
         run: |
           nix develop --impure --command nixpkgs-fmt --check \
@@ -98,9 +95,8 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           flakehub: false
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        with:
-          use-flakehub: false
+          extra-conf: |
+            accept-flake-config = true
       - name: Library tests
         run: |
           nix-instantiate --eval --strict src/tests/default.nix
@@ -112,9 +108,8 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           flakehub: false
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        with:
-          use-flakehub: false
+          extra-conf: |
+            accept-flake-config = true
       - name: Nix flake check
         run: |
           nix flake check --impure 2>&1 || echo "flake check: non-blocking"

@@ -39,31 +39,15 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           flakehub: false
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        with:
-          use-flakehub: false
+          extra-conf: |
+            accept-flake-config = true
       - name: Build lightweight ISO (smoke test)
-        shell: bash
         run: |
-          set -o pipefail
-          nix build --impure --no-link --json .#iso-minimal 2>&1 | tee /tmp/iso-build.json
-          if [ ! -e result ]; then
-            echo "ERROR: 'result' symlink not created" >&2
-            ls -la
-            exit 1
-          fi
-          echo "Build succeeded: $(readlink result)"
+          nix build --impure .#iso-minimal
       - name: Prepare ISO artifact
         run: |
+          ls -la result*
           ISO_PATH=$(readlink -f result)
-          if [ ! -f "$ISO_PATH" ]; then
-            ISO_PATH=$(find result/ -name '*.iso' -type f | head -1)
-          fi
-          if [ ! -f "$ISO_PATH" ]; then
-            echo "ERROR: ISO not found in result"
-            ls -laR result/
-            exit 1
-          fi
           cp "$ISO_PATH" /tmp/flakeos-minimal-${{ github.ref_name }}.iso
           echo "ISO size: $(du -h /tmp/flakeos-minimal-${{ github.ref_name }}.iso | cut -f1)"
       - uses: actions/upload-artifact@v4
@@ -87,30 +71,15 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           flakehub: false
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
-        with:
-          use-flakehub: false
+          extra-conf: |
+            accept-flake-config = true
       - name: Build ISO ${{ matrix.variant }}
-        shell: bash
         run: |
-          set -o pipefail
-          nix build --impure --no-link --json .#iso-${{ matrix.variant }} 2>&1 | tee /tmp/iso-build.json
-          if [ ! -e result ]; then
-            echo "ERROR: 'result' symlink not created" >&2
-            exit 1
-          fi
-          echo "Build succeeded: $(readlink result)"
+          nix build --impure .#iso-${{ matrix.variant }}
       - name: Prepare ISO artifact
         run: |
+          ls -la result*
           ISO_PATH=$(readlink -f result)
-          if [ ! -f "$ISO_PATH" ]; then
-            ISO_PATH=$(find result/ -name '*.iso' -type f | head -1)
-          fi
-          if [ ! -f "$ISO_PATH" ]; then
-            echo "ERROR: ISO not found in result"
-            ls -laR result/
-            exit 1
-          fi
           cp "$ISO_PATH" /tmp/flakeos-${{ matrix.variant }}-${{ github.ref_name }}.iso
           echo "ISO size: $(du -h /tmp/flakeos-${{ matrix.variant }}-${{ github.ref_name }}.iso | cut -f1)"
       - uses: actions/upload-artifact@v4
@@ -129,9 +98,10 @@ jobs:
         with:
           pattern: flakeos-*-${{ github.ref_name }}
           merge-multiple: true
-      - name: List artifacts
+      - name: Verify all ISOs
         run: |
           ls -lh flakeos-*.iso
+          echo "$(ls flakeos-*.iso | wc -l) ISOs ready for release"
       - name: Generate release notes
         run: |
           bash src/scripts/build/release-notes.sh "${{ github.ref_name }}" > release-notes.md
