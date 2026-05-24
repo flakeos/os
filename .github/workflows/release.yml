@@ -44,10 +44,24 @@ jobs:
           use-flakehub: false
       - name: Build lightweight ISO (smoke test)
         run: |
-          nix build --impure .#iso-minimal 2>&1 | tee /tmp/iso-build.log
+          nix build --impure --print-out-paths .#iso-minimal 2>&1 | tee /tmp/iso-store-path
+          if [ ! -e result ]; then
+            echo "ERROR: 'result' symlink not created after nix build" >&2
+            ls -la
+            exit 1
+          fi
       - name: Prepare ISO artifact
         run: |
-          cp result /tmp/flakeos-minimal-${{ github.ref_name }}.iso
+          ISO_PATH=$(readlink -f result || echo "")
+          if [ -z "$ISO_PATH" ] || [ ! -f "$ISO_PATH" ]; then
+            ISO_PATH=$(find result/ -name '*.iso' -type f 2>/dev/null | head -1)
+          fi
+          if [ -z "$ISO_PATH" ] || [ ! -f "$ISO_PATH" ]; then
+            echo "ERROR: ISO file not found in build output" >&2
+            ls -la result/
+            exit 1
+          fi
+          cp "$ISO_PATH" /tmp/flakeos-minimal-${{ github.ref_name }}.iso
       - uses: actions/upload-artifact@v4
         with:
           name: flakeos-minimal-${{ github.ref_name }}
@@ -74,10 +88,23 @@ jobs:
           use-flakehub: false
       - name: Build ISO ${{ matrix.variant }}
         run: |
-          nix build --impure .#iso-${{ matrix.variant }} 2>&1 | tee /tmp/iso-build.log
+          nix build --impure --print-out-paths .#iso-${{ matrix.variant }} 2>&1 | tee /tmp/iso-store-path
+          if [ ! -e result ]; then
+            echo "ERROR: 'result' symlink not created after nix build" >&2
+            exit 1
+          fi
       - name: Prepare ISO artifact
         run: |
-          cp result /tmp/flakeos-${{ matrix.variant }}-${{ github.ref_name }}.iso
+          ISO_PATH=$(readlink -f result || echo "")
+          if [ -z "$ISO_PATH" ] || [ ! -f "$ISO_PATH" ]; then
+            ISO_PATH=$(find result/ -name '*.iso' -type f 2>/dev/null | head -1)
+          fi
+          if [ -z "$ISO_PATH" ] || [ ! -f "$ISO_PATH" ]; then
+            echo "ERROR: ISO file not found in build output" >&2
+            ls -la result/
+            exit 1
+          fi
+          cp "$ISO_PATH" /tmp/flakeos-${{ matrix.variant }}-${{ github.ref_name }}.iso
       - uses: actions/upload-artifact@v4
         with:
           name: flakeos-${{ matrix.variant }}-${{ github.ref_name }}
